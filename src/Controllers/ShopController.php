@@ -1,14 +1,37 @@
 <?php
 namespace App\Controllers;
+
+use App\Models\CategoryModel;
+use App\Models\ProductModel;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Views\Twig;
-class ShopController {
-    public function __construct(private Twig $twig) {}
-    public function index(Request $req, Response $res, array $args): Response {
-        $res->getBody()->write('Shop — coming soon'); return $res;
+
+class ShopController extends BaseController
+{
+    public function index(Request $request, Response $response, array $args): Response
+    {
+        $lang       = $request->getAttribute('lang');
+        $params     = $request->getQueryParams();
+        $categoryId = isset($params['category']) ? (int) $params['category'] : null;
+
+        return $this->render($request, $response, 'public/shop/index.twig', [
+            'categories' => CategoryModel::allWithTranslation($lang),
+            'products'   => ProductModel::allActive($lang, $categoryId),
+            'active_cat' => $categoryId,
+        ]);
     }
-    public function product(Request $req, Response $res, array $args): Response {
-        $res->getBody()->write('Product — coming soon'); return $res;
+
+    public function product(Request $request, Response $response, array $args): Response
+    {
+        $lang    = $request->getAttribute('lang');
+        $product = ProductModel::findBySku($args['slug'], $lang);
+
+        if (!$product) {
+            return $response->withStatus(404);
+        }
+
+        return $this->render($request, $response, 'public/shop/product.twig', [
+            'product' => $product,
+        ]);
     }
 }

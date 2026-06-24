@@ -1,0 +1,40 @@
+{% extends "layout/base.twig" %}
+
+{% block title %}{{ product.name }} — {{ t('site.name') }}{% endblock %}
+{% block meta_desc %}{{ product.meta_desc ?? product.description|striptags|slice(0, 160) }}{% endblock %}
+
+{% block content %}
+<div class="container product-detail">
+    <div class="product-gallery">
+        {% if product.images %}
+            <img class="product-main-img" src="/assets/uploads/{{ product.images[0] }}" alt="{{ product.name }}">
+            {% if product.images|length > 1 %}
+            <div class="product-thumbs">
+                {% for img in product.images %}
+                <img src="/assets/uploads/{{ img }}" alt="{{ product.name }}" class="product-thumb">
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% else %}
+        <div class="product-img-placeholder large"></div>
+        {% endif %}
+    </div>
+
+    <div class="product-detail-info">
+        <h1>{{ product.name }}</h1>
+        <p class="product-price-lg">{{ product.price|number_format(2, '.', ' ') }} Kč</p>
+        {% if product.description %}
+        <div class="product-description">{{ product.description|nl2br }}</div>
+        {% endif %}
+
+        <form action="/{{ lang }}/cart/add" method="POST" class="add-to-cart-form">
+            <div class="qty-row">
+                <label for="qty">{{ t('shop.qty') }}</label>
+                <input type="number" id="qty" name="qty" value="1" min="1" class="qty-input">
+            </div>
+            <input type="hidden" name="sku" value="{{ product.sku }}">
+            <button type="submit" class="btn btn-primary btn-lg">{{ t('shop.add_to_cart') }}</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

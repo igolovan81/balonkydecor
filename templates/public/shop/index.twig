@@ -1,0 +1,51 @@
+{% extends "layout/base.twig" %}
+
+{% block title %}{{ t('nav.shop') }} — {{ t('site.name') }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container">
+        <h1>{{ t('nav.shop') }}</h1>
+    </div>
+</section>
+
+<div class="container shop-layout">
+    {% if categories %}
+    <aside class="shop-sidebar">
+        <a href="/{{ lang }}/shop" class="cat-filter {{ active_cat is null ? 'active' : '' }}">
+            {{ t('shop.all') }}
+        </a>
+        {% for cat in categories %}
+        <a href="/{{ lang }}/shop?category={{ cat.id }}"
+           class="cat-filter {{ active_cat == cat.id ? 'active' : '' }}">
+            {{ cat.name }}
+        </a>
+        {% endfor %}
+    </aside>
+    {% endif %}
+
+    <main class="shop-main">
+        {% if products %}
+        <div class="product-grid">
+            {% for product in products %}
+            <a href="/{{ lang }}/shop/{{ product.sku }}" class="product-card">
+                <div class="product-img">
+                    {% if product.primary_image %}
+                        <img src="/assets/uploads/{{ product.primary_image }}" alt="{{ product.name }}">
+                    {% else %}
+                        <div class="product-img-placeholder"></div>
+                    {% endif %}
+                </div>
+                <div class="product-info">
+                    <h3>{{ product.name }}</h3>
+                    <p class="product-price">{{ product.price|number_format(2, '.', ' ') }} Kč</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="empty-state">{{ t('shop.no_products') }}</p>
+        {% endif %}
+    </main>
+</div>
+{% endblock %}

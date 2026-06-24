@@ -37,3 +37,90 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 
 /* Footer */
 .site-footer { border-top: 1px solid var(--border); padding: 2rem 0; text-align: center; color: var(--muted); font-family: var(--ui-font); font-size: .85rem; margin-top: 4rem; }
+
+/* Page hero */
+.page-hero { padding: 3rem 0 2rem; background: #fff; border-bottom: 1px solid var(--border); }
+.page-hero h1 { font-size: 2rem; font-weight: normal; }
+
+/* Shop layout */
+.shop-layout { display: grid; grid-template-columns: 200px 1fr; gap: 2.5rem; padding: 2.5rem 1.5rem; }
+.shop-sidebar { display: flex; flex-direction: column; gap: .5rem; }
+.cat-filter { display: block; padding: .5rem .75rem; color: var(--text); text-decoration: none; font-family: var(--ui-font); font-size: .9rem; border-radius: 2px; }
+.cat-filter:hover, .cat-filter.active { background: var(--border); color: var(--accent); }
+
+/* Product grid */
+.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem; }
+.product-card { text-decoration: none; color: var(--text); border: 1px solid var(--border); border-radius: 2px; overflow: hidden; transition: box-shadow .2s; }
+.product-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+.product-img { aspect-ratio: 1; overflow: hidden; background: var(--border); }
+.product-img img { width: 100%; height: 100%; object-fit: cover; }
+.product-img-placeholder { width: 100%; height: 100%; background: var(--border); }
+.product-img-placeholder.large { aspect-ratio: 1; }
+.product-info { padding: 1rem; }
+.product-info h3 { font-size: 1rem; font-weight: normal; margin-bottom: .25rem; }
+.product-price { font-family: var(--ui-font); color: var(--accent); font-size: .95rem; }
+
+/* Product detail */
+.product-detail { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; padding: 3rem 1.5rem; }
+.product-gallery img { width: 100%; border-radius: 2px; }
+.product-main-img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+.product-thumbs { display: flex; gap: .5rem; margin-top: .5rem; }
+.product-thumb { width: 70px; height: 70px; object-fit: cover; cursor: pointer; border: 1px solid var(--border); }
+.product-detail-info h1 { font-size: 1.8rem; font-weight: normal; margin-bottom: .75rem; }
+.product-price-lg { font-size: 1.6rem; color: var(--accent); font-family: var(--ui-font); margin-bottom: 1.5rem; }
+.product-description { color: var(--muted); line-height: 1.8; margin-bottom: 2rem; }
+.add-to-cart-form .qty-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+.qty-input { width: 70px; padding: .5rem; border: 1px solid var(--border); font-size: 1rem; }
+.btn-lg { padding: 1rem 2.5rem; font-size: 1rem; }
+.empty-state { color: var(--muted); font-family: var(--ui-font); padding: 2rem 0; }
+
+/* Services / rich content */
+.content-page { padding: 2.5rem 1.5rem; max-width: 800px; }
+.rich-content { line-height: 1.9; }
+.rich-content h2 { font-size: 1.4rem; font-weight: normal; margin: 2rem 0 .75rem; }
+.rich-content p { margin-bottom: 1rem; color: var(--text); }
+.back-link { font-family: var(--ui-font); font-size: .85rem; color: var(--muted); text-decoration: none; display: block; margin-bottom: .5rem; }
+.back-link:hover { color: var(--accent); }
+
+/* Gallery */
+.gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.5rem; }
+.gallery-album-card { text-decoration: none; color: var(--text); }
+.gallery-cover { aspect-ratio: 4/3; overflow: hidden; border-radius: 2px; background: var(--border); }
+.gallery-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s; }
+.gallery-album-card:hover .gallery-cover img { transform: scale(1.04); }
+.gallery-cover-placeholder { width: 100%; height: 100%; background: var(--border); }
+.gallery-album-name { margin-top: .6rem; font-family: var(--ui-font); font-size: .9rem; }
+.photo-grid { columns: 3; gap: 1rem; }
+.photo-item { display: block; margin-bottom: 1rem; break-inside: avoid; }
+.photo-item img { width: 100%; display: block; border-radius: 2px; }
+
+/* Blog */
+.blog-list { padding: 2.5rem 1.5rem; max-width: 800px; }
+.blog-card { border-bottom: 1px solid var(--border); padding: 2rem 0; }
+.blog-card:last-of-type { border-bottom: none; }
+.blog-date { font-family: var(--ui-font); font-size: .8rem; color: var(--muted); display: block; margin-bottom: .5rem; }
+.blog-card h2 { font-size: 1.3rem; font-weight: normal; margin-bottom: .5rem; }
+.blog-card h2 a { color: var(--text); text-decoration: none; }
+.blog-card h2 a:hover { color: var(--accent); }
+.blog-excerpt { color: var(--muted); margin-bottom: .75rem; }
+.blog-read-more { font-family: var(--ui-font); font-size: .85rem; color: var(--accent); text-decoration: none; }
+.blog-post-full { padding: 2.5rem 1.5rem; max-width: 800px; }
+.blog-post-full h1 { font-size: 2rem; font-weight: normal; margin: .5rem 0 2rem; }
+.pagination { display: flex; gap: .5rem; margin-top: 2rem; font-family: var(--ui-font); }
+.pagination a { padding: .4rem .8rem; border: 1px solid var(--border); text-decoration: none; color: var(--text); font-size: .85rem; }
+.pagination a.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* Contact */
+.contact-layout { padding: 2.5rem 1.5rem; max-width: 600px; }
+.contact-form .form-group { margin-bottom: 1.25rem; }
+.contact-form label { display: block; font-family: var(--ui-font); font-size: .85rem; margin-bottom: .4rem; color: var(--muted); }
+.contact-form input, .contact-form textarea {
+    width: 100%; padding: .65rem .75rem;
+    border: 1px solid var(--border); background: #fff;
+    font-family: var(--font); font-size: 1rem; color: var(--text);
+    border-radius: 2px; outline: none;
+}
+.contact-form input:focus, .contact-form textarea:focus { border-color: var(--accent); }
+.contact-form textarea { resize: vertical; }
+.form-success { background: #eaf5ea; border: 1px solid #b5d9b5; padding: 1rem; border-radius: 2px; font-family: var(--ui-font); margin-bottom: 1.5rem; }
+.form-error { background: #fdf0f0; border: 1px solid #e8b4b4; padding: 1rem; border-radius: 2px; font-family: var(--ui-font); margin-bottom: 1.5rem; }
