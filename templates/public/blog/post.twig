@@ -1,0 +1,13 @@
+{% extends "layout/base.twig" %}
+
+{% block title %}{{ post.title }} — {{ t('site.name') }}{% endblock %}
+{% block meta_desc %}{{ post.meta_desc ?? '' }}{% endblock %}
+
+{% block content %}
+<article class="container blog-post-full">
+    <a href="/{{ lang }}/blog" class="back-link">{{ t('blog.back') }}</a>
+    <time class="blog-date">{{ post.published_at|date('d. m. Y') }}</time>
+    <h1>{{ post.title }}</h1>
+    <div class="rich-content">{{ post.body|raw }}</div>
+</article>
+{% endblock %}
