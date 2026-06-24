@@ -9,85 +9,141 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-# Run all tests
-php vendor/bin/phpunit
+# Run all tests (requires Docker MySQL running)
+php vendor/bin/phpunit --testdox
 
 # Run a single test class
 php vendor/bin/phpunit tests/Unit/Models/OrderModelTest.php
 
-# Run tests with output
-php vendor/bin/phpunit --testdox
+# Start local MySQL
+docker compose up -d          # MySQL on 127.0.0.1:3306, db=balonkydecor, user=balonky, pass=balonky
 
-# Start local dev (requires Docker for MySQL)
-docker compose up -d          # starts MySQL on 127.0.0.1:3306
-# Serve with php -S or point nginx/apache at www/
+# Serve locally (point web root at www/)
+php -S localhost:8080 -t www
 ```
 
-**MySQL dev credentials:** host `127.0.0.1`, db `balonkydecor`, user `balonky`, pass `balonky`.  
-Schema lives at `database/schema.sql`.
+Schema: `database/schema.sql`. Config: `config/settings.php`.
 
-## Architecture
+## Directory Structure
 
-### Request flow
 ```
-www/index.php → src/app.php → Slim4 routing (src/routes.php)
-    → LangMiddleware (extract /{lang}/ prefix, load lang JSON, attach I18n to request)
-    → [AuthMiddleware for /admin/* routes]
-    → Controller → Model → Twig template
+src/
+  app.php                    # Bootstrap: DI container, middleware stack, loads routes.php
+  routes.php                 # All route definitions (see routing rules below)
+  Controllers/               # Public controllers, extend BaseController
+    Admin/                   # Admin controllers, extend AdminBaseController
+  Middleware/
+    LangMiddleware.php        # Extracts /{lang}/ prefix, loads I18n, attaches to request
+    AuthMiddleware.php        # Redirects /admin/* to /admin/login unless session active
+  Models/                    # Static model classes (PDO singleton)
+  Services/
+    Cart.php                 # Session-backed cart
+    GoPay.php                # GoPay REST API client
+    Mailer.php               # SMTP mailer, dev fallback logs to tmp/mail.log
+    ImageUploader.php        # GD resize (1600px max / 400px thumb), UUID filenames
+  Twig/
+    I18nExtension.php        # Registers t() function in Twig
+templates/
+  layout/
+    base.twig                # Public layout (nav, lang switcher, flash)
+    admin-base.twig          # Admin layout (sidebar, flash messages)
+  public/                    # Public page templates
+  admin/                     # Admin panel templates
+lang/
+  cs.json en.json ru.json uk.json sk.json   # Translation key/value files
+www/                         # Apache web root
+  assets/css/style.css       # Public CSS
+  assets/css/admin.css       # Admin CSS
+  assets/uploads/products/   # Product images (created on first upload)
+  assets/uploads/gallery/    # Gallery images (created on first upload)
+database/schema.sql          # Full MySQL schema (17 tables)
+config/settings.php          # DB creds, language list, upload settings
+session/                     # PHP session storage (outside web root)
+tmp/                         # Twig cache, mail.log (outside web root)
 ```
 
-### Key directories
+## Routing
+
+**Critical rule:** Admin static routes (`/admin/*`) must be registered **before** any `/{lang}/*` variable routes in `routes.php`. FastRoute throws `BadRouteException` otherwise.
+
+Current order in `routes.php`:
+1. `/admin/login`, `/admin/logout`, `/admin/setup` (public auth routes)
+2. `$app->group('/admin', ...)` protected admin routes with `AuthMiddleware`
+3. `$app->get('/', ...)` root redirect
+4. `/{lang}/*` all public routes
+
+**Multilingual URLs:** `/{lang}/{path}` where lang ∈ `{cs, ru, en, uk, sk}`. `LangMiddleware` runs on every request, extracts lang from the first path segment, loads `lang/{lang}.json`, and attaches `I18n` + `lang` attributes to the PSR-7 request. Unknown/missing segments default to `cs`.
+
+**Admin URLs:** `/admin/*` — no lang prefix. `AuthMiddleware` protects the group; checks `$_SESSION['admin_user']`. First-time setup at `/admin/setup` (only works when `users` table is empty).
+
+## Controllers
+
+### Public — `BaseController`
+`$this->render($request, $response, 'template.twig', $data)` — registers `I18nExtension` if not already present, injects `lang` and `current_path` into every template. The `t('key')` Twig function is available on all public pages.
+
+### Admin — `AdminBaseController`
+`$this->renderAdmin($request, $response, 'admin/x.twig', $data)` — no I18n, reads `$_SESSION['flash']` and clears it, passes `flash` to template. `$this->flash('success'|'error', 'message')` sets the next flash. `$this->redirect($response, '/url')` returns a 302 response.
+
+## Models
+
+All static methods. `Database::getConnection()` returns a PDO singleton (`FETCH_ASSOC` mode).
+
+**Translation tables** always use column `lang_code` (not `lang`). ON DUPLICATE KEY UPDATE pattern for upserts.
+
+| Model | Public methods | Admin extras |
+|-------|---------------|-------------|
+| `ProductModel` | `allActive(lang, ?catId)`, `findBySku(sku, lang)` | `all()`, `findById()`, `create()`, `update()`, `delete()`, `getTranslations()`, `setTranslations()`, `addImage()`, `deleteImage()` |
+| `CategoryModel` | `allWithTranslation(lang)` | `all()`, `findById()`, `create()`, `update()`, `delete()`, `getTranslations()`, `setTranslations()` |
+| `OrderModel` | `create(customer, cartItems, total)`, `findByNumber()`, `updateStatus()`, `findByGopayId()` | `adminList(page, perPage, status)` |
+| `BlogModel` | `published(lang, page, perPage)`, `findBySlug(slug, lang)` | `adminList()`, `findById()`, `create()`, `update()`, `delete()`, `getTranslations()`, `setTranslations()` |
+| `GalleryModel` | `albums(lang)`, `album(slug, lang)` | `allAlbums()`, `findAlbumById()`, `createAlbum()`, `updateAlbum()`, `deleteAlbum()`, `getAlbumTranslations()`, `setAlbumTranslations()`, `addImage()`, `deleteImage()` |
+| `PageModel` | `find(slug, lang)` | `allSlugs()`, `allTranslations(slug)`, `upsert(slug, lang, title, body)` |
+| `AdminUserModel` | — | wraps `users` table: `findByEmail()`, `findById()`, `count()`, `create()`, `all()`, `updatePassword()`, `delete()` |
+
+**`users` table columns:** `id`, `email`, `password_hash`, `role` enum(`admin`,`editor`), `created_at`. No `name` column.
+
+**`blog_posts.status`** is `enum('draft','published')` — not a boolean. Use `status = 'published'` in queries.
+
+**`products.category_id`** is NOT NULL — always supply a valid category ID (default to 1 if none selected).
+
+## Key Flows
+
+### Order flow
 ```
-src/Controllers/        # Public controllers (extend BaseController)
-src/Controllers/Admin/  # Admin controllers (extend AdminBaseController)
-src/Middleware/         # LangMiddleware, AuthMiddleware
-src/Models/             # Static model classes using PDO singleton
-src/Services/           # Cart, GoPay, Mailer, ImageUploader
-src/Twig/               # I18nExtension (registers t() function)
-templates/layout/       # base.twig (public), admin-base.twig (admin)
-templates/public/       # Public page templates
-templates/admin/        # Admin panel templates
-lang/                   # cs.json, en.json, ru.json, uk.json, sk.json
-www/assets/             # CSS, JS, uploads/
-database/schema.sql     # Full MySQL schema
-config/settings.php     # DB creds, language list, upload settings
+POST /{lang}/checkout → validate → OrderModel::create() → $_SESSION['pending_order'] → Cart::clear()
+  → redirect /{lang}/checkout/confirm
+  → POST /{lang}/payment/gopay → GoPay::fromSettings()
+      → null (dev bypass): updateStatus('paid') → redirect /{lang}/order/{number}
+      → object: createPayment() → redirect to gw_url
+  → GET /{lang}/payment/return?id=X → getStatus() → if PAID: updateStatus('paid')
+  → POST /payment/notify (IPN webhook, lang-less)
 ```
-
-### Multilingual routing
-URL prefix `/{lang}/` — supported langs: `cs`, `ru`, `en`, `uk`, `sk`. `LangMiddleware` extracts the lang, loads `lang/{lang}.json`, attaches an `I18n` instance to the request. Admin routes (`/admin/*`) have no lang prefix and default to `cs`.
-
-### Public controllers
-Extend `BaseController`. Call `$this->render($request, $response, 'template.twig', $data)` — this registers `I18nExtension` (making `t('key')` available in Twig), injects `lang` and `current_path` into every template.
-
-### Admin controllers
-Extend `AdminBaseController` in `src/Controllers/Admin/`. Call `$this->renderAdmin(...)` — bypasses I18n entirely, reads/clears flash messages from `$_SESSION['flash']`. Admin session key: `$_SESSION['admin_user']`.
-
-### Models
-All static classes. Database singleton: `Database::getConnection()` returns a PDO connection (FETCH_ASSOC mode). Translation tables use `lang_code` column (not `lang`).
-
-Key models:
-- `OrderModel` — `create()`, `findByNumber()`, `updateStatus()`, `findByGopayId()`, `adminList()`
-- `ProductModel` — `allActive()`, `findBySku()`, plus admin CRUD + `getTranslations()`/`setTranslations()`
-- `CategoryModel`, `GalleryModel`, `BlogModel`, `PageModel` — same pattern
-- `AdminUserModel` — wraps `users` table (bcrypt passwords, `role` enum `admin|editor`)
 
 ### Cart
-`Cart` service backed by `$_SESSION['cart']`. Call `Cart::boot()` before use. `Cart::add($sku, $qty, $name, $price)` accumulates qty if SKU already present.
+`Cart::boot()` starts the session. `Cart::add($sku, $qty, $name, $price)` accumulates qty if SKU already present. `Cart::items()` appends `subtotal` to each row. Backed by `$_SESSION['cart']`.
 
-### GoPay
-`GoPay::fromSettings()` reads credentials from the `settings` DB table; returns `null` if `gopay_go_id` is empty → `PaymentController` then marks order paid immediately (dev bypass). Amount sent to GoPay in halíře (× 100).
-
-### Mailer
-`Mailer::send()` reads `smtp_from` from settings; if empty → logs to `tmp/mail.log` (dev mode).
+### GoPay dev bypass
+`GoPay::fromSettings()` returns `null` when `gopay_go_id` setting is empty. `PaymentController::initiate()` checks for null and immediately marks the order `paid`, redirecting to the order status page. No GoPay credentials needed for local dev.
 
 ### Image uploads
-`ImageUploader::upload($file, $dir)` — GD resize to 1600px max width, generates `thumb_` prefixed copy at 400px, UUID filenames. Products: `www/assets/uploads/products/`, Gallery: `www/assets/uploads/gallery/`.
+`ImageUploader::upload(['tmp_name' => ..., 'error' => ...], $destDir)` — resizes to 1600px, saves `{uuid}.ext`; also saves `thumb_{uuid}.ext` at 400px. Returns the base filename (without `thumb_` prefix). Directories are created automatically.
 
-## Translation keys
-Keys in `lang/*.json` follow the pattern `section.subsection`. All 5 language files must have identical keys. Important groups: `nav.*`, `site.*`, `cart.*`, `checkout.*`, `order.*`, `shop.*`, `order.status.*`.
+## Database Schema (17 tables)
+
+`languages`, `categories` + `category_t`, `products` + `product_t` + `product_images`, `orders` + `order_items`, `gallery_albums` + `gallery_album_t` + `gallery_images`, `blog_posts` + `blog_post_t`, `pages` + `page_t`, `users`, `settings`
+
+`settings` table: key/value pairs read by `GoPay::fromSettings()`, `Mailer`, and `SettingsController`. Keys: `site_name`, `contact_email`, `contact_phone`, `smtp_host`, `smtp_port`, `smtp_user`, `smtp_pass`, `smtp_from`, `gopay_go_id`, `gopay_client_id`, `gopay_client_secret`, `gopay_test_mode`.
+
+## Translations
+
+Files: `lang/cs.json`, `lang/en.json`, `lang/ru.json`, `lang/uk.json`, `lang/sk.json` — all must have identical keys (65 keys total). Use `t('key')` in public Twig templates. Key groups: `nav.*`, `site.*`, `home.*`, `cart.*`, `checkout.*`, `order.*`, `order.status.*`, `shop.*`, `services.*`, `gallery.*`, `blog.*`, `contact.*`.
+
+Admin templates are hard-coded Czech — they do not use the `t()` function.
 
 ## Testing
-PHPUnit 11. All model tests hit a real MySQL DB (Docker). Tests in `tests/Unit/`. The `OrderModelTest` uses `uniqid()` for gopay IDs to avoid collisions across runs.
+
+PHPUnit 11, tests in `tests/Unit/`. All model tests use a real MySQL DB (Docker). `OrderModelTest` uses `uniqid()` for gopay IDs to avoid collisions across runs. Currently 37 tests, 59 assertions.
 
 ## Deployment
-No CI/CD. FTP/SFTP to WEDOS. The local repo mirrors the server's hosting account root. `www/` is the web root. `session/` and `tmp/` are outside the web root.
+
+No CI/CD. FTP/SFTP files to WEDOS. `www/` is the Apache web root. `session/` and `tmp/` are outside the web root. Before deploying: set `displayErrorDetails => false` in `config/settings.php`.
