@@ -1,0 +1,39 @@
+{% extends "layout/admin-base.twig" %}
+{% block title %}Objednávky{% endblock %}
+{% block content %}
+<div class="admin-topbar"><h1>Objednávky</h1></div>
+<form method="GET" action="/admin/orders" style="margin-bottom:1rem;display:flex;gap:0.5rem;align-items:center;">
+    <label>Filtrovat:</label>
+    <select name="status" onchange="this.form.submit()">
+        <option value="">— všechny —</option>
+        {% for s in statuses %}
+        <option value="{{ s }}" {% if s == status %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+    </select>
+</form>
+<table class="admin-table">
+    <thead><tr><th>Číslo</th><th>Zákazník</th><th>E-mail</th><th>Celkem</th><th>Status</th><th>Vytvořena</th><th></th></tr></thead>
+    <tbody>
+    {% for o in orders %}
+    <tr>
+        <td><a href="/admin/orders/{{ o.order_number }}">{{ o.order_number }}</a></td>
+        <td>{{ o.customer_name }}</td>
+        <td>{{ o.customer_email }}</td>
+        <td>{{ o.total_amount|number_format(2, '.', ' ') }} Kč</td>
+        <td><span class="badge badge-{{ o.status }}">{{ o.status }}</span></td>
+        <td>{{ o.created_at }}</td>
+        <td><a href="/admin/orders/{{ o.order_number }}">Detail →</a></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7">Žádné objednávky.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% if pages > 1 %}
+<div class="pagination" style="margin-top:1rem;">
+    {% for p in 1..pages %}
+    <a href="?page={{ p }}{% if status %}&status={{ status }}{% endif %}" class="{% if p == page %}active{% endif %}">{{ p }}</a>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

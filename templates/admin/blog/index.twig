@@ -1,0 +1,36 @@
+{% extends "layout/admin-base.twig" %}
+{% block title %}Blog{% endblock %}
+{% block content %}
+<div class="admin-topbar">
+    <h1>Blog</h1>
+    <a href="/admin/blog/new" class="btn btn-primary">+ Nový příspěvek</a>
+</div>
+<table class="admin-table">
+    <thead><tr><th>ID</th><th>Slug</th><th>Status</th><th>Datum</th><th>Akce</th></tr></thead>
+    <tbody>
+    {% for p in posts %}
+    <tr>
+        <td>{{ p.id }}</td>
+        <td>{{ p.slug }}</td>
+        <td><span class="badge badge-{{ p.status == 'published' ? 'paid' : 'pending' }}">{{ p.status }}</span></td>
+        <td>{{ p.published_at ?? '—' }}</td>
+        <td>
+            <a href="/admin/blog/{{ p.id }}/edit">Upravit</a> |
+            <form method="POST" action="/admin/blog/{{ p.id }}/delete" style="display:inline" onsubmit="return confirm('Smazat příspěvek?')">
+                <button class="btn-link">Smazat</button>
+            </form>
+        </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5">Žádné příspěvky.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% if pages > 1 %}
+<div class="pagination" style="margin-top:1rem;">
+    {% for p in 1..pages %}
+    <a href="?page={{ p }}" class="{% if p == page %}active{% endif %}">{{ p }}</a>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

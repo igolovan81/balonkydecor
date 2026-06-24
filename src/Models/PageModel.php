@@ -16,4 +16,47 @@ class PageModel
         $row = $stmt->fetch();
         return $row ?: null;
     }
+
+    public static function allSlugs(): array
+    {
+        $pdo = Database::getConnection();
+        return $pdo->query('SELECT slug FROM pages ORDER BY slug')->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    public static function allTranslations(string $slug): array
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare(
+            'SELECT pt.lang_code, pt.title, pt.body
+             FROM pages p
+             LEFT JOIN page_t pt ON pt.page_id = p.id
+             WHERE p.slug = ?'
+        );
+        $stmt->execute([$slug]);
+        $result = [];
+        foreach ($stmt->fetchAll() as $row) {
+            if ($row['lang_code']) {
+                $result[$row['lang_code']] = $row;
+            }
+        }
+        return $result;
+    }
+
+    public static function upsert(string $slug, string $lang, string $title, string $body): void
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare('SELECT id FROM pages WHERE slug = ? LIMIT 1');
+        $stmt->execute([$slug]);
+        $page = $stmt->fetch();
+        if (!$page) {
+            $pdo->prepare('INSERT INTO pages (slug) VALUES (?)')->execute([$slug]);
+            $pageId = (int) $pdo->lastInsertId();
+        } else {
+            $pageId = (int) $page['id'];
+        }
+        $pdo->prepare(
+            'INSERT INTO page_t (page_id, lang_code, title, body) VALUES (?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE title = VALUES(title), body = VALUES(body)'
+        )->execute([$pageId, $lang, $title, $body]);
+    }
 }

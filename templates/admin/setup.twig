@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nastavení admina — BalonkyDecor</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/admin.css">
+</head>
+<body class="admin-login-page">
+<div class="login-box">
+    <h1>Vytvořit administrátora</h1>
+    {% if error %}<p class="form-error">{{ error }}</p>{% endif %}
+    <form method="POST" action="/admin/setup">
+        <div class="form-group">
+            <label>E-mail</label>
+            <input type="email" name="email" required autofocus>
+        </div>
+        <div class="form-group">
+            <label>Heslo (min. 8 znaků)</label>
+            <input type="password" name="password" required minlength="8">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%">Vytvořit účet</button>
+    </form>
+</div>
+</body>
+</html>

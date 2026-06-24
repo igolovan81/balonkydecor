@@ -19,12 +19,17 @@
             <a href="/admin/gallery">Galerie</a>
             <a href="/admin/blog">Blog</a>
             <a href="/admin/pages">Stránky</a>
-            <a href="/admin/translations">Překlady</a>
             <a href="/admin/settings">Nastavení</a>
             <a href="/admin/users">Uživatelé</a>
         </nav>
+        <div style="margin-top:auto;padding:1rem;">
+            <a href="/admin/logout" style="color:#c0c0d0;font-size:0.85rem;">Odhlásit se</a>
+        </div>
     </aside>
     <main class="admin-main">
+        {% if flash %}
+            <div class="flash-{{ flash.type }}">{{ flash.message }}</div>
+        {% endif %}
         {% block content %}{% endblock %}
     </main>
     {% block scripts %}{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "layout/admin-base.twig" %}
+{% block title %}Produkty{% endblock %}
+{% block content %}
+<div class="admin-topbar">
+    <h1>Produkty</h1>
+    <a href="/admin/products/new" class="btn btn-primary">+ Přidat produkt</a>
+</div>
+<table class="admin-table">
+    <thead><tr><th>Obrázek</th><th>SKU</th><th>Cena</th><th>Aktivní</th><th>Akce</th></tr></thead>
+    <tbody>
+    {% for p in products %}
+    <tr>
+        <td>
+            {% if p.primary_image %}
+            <img src="/assets/uploads/products/thumb_{{ p.primary_image }}" class="img-thumb">
+            {% endif %}
+        </td>
+        <td>{{ p.sku }}</td>
+        <td>{{ p.price|number_format(2, '.', ' ') }} Kč</td>
+        <td>{{ p.is_active ? '✓' : '—' }}</td>
+        <td>
+            <a href="/admin/products/{{ p.id }}/edit">Upravit</a> |
+            <form method="POST" action="/admin/products/{{ p.id }}/delete" style="display:inline" onsubmit="return confirm('Smazat produkt?')">
+                <button class="btn-link">Smazat</button>
+            </form>
+        </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5">Žádné produkty.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

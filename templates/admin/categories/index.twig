@@ -1,0 +1,28 @@
+{% extends "layout/admin-base.twig" %}
+{% block title %}Kategorie{% endblock %}
+{% block content %}
+<div class="admin-topbar">
+    <h1>Kategorie</h1>
+    <a href="/admin/categories/new" class="btn btn-primary">+ Přidat kategorii</a>
+</div>
+<table class="admin-table">
+    <thead><tr><th>ID</th><th>Slug</th><th>Pořadí</th><th>Akce</th></tr></thead>
+    <tbody>
+    {% for cat in categories %}
+    <tr>
+        <td>{{ cat.id }}</td>
+        <td>{{ cat.slug }}</td>
+        <td>{{ cat.sort_order }}</td>
+        <td>
+            <a href="/admin/categories/{{ cat.id }}/edit">Upravit</a> |
+            <form method="POST" action="/admin/categories/{{ cat.id }}/delete" style="display:inline" onsubmit="return confirm('Smazat?')">
+                <button class="btn-link">Smazat</button>
+            </form>
+        </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4">Žádné kategorie.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

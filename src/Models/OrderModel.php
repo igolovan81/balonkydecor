@@ -74,4 +74,20 @@ class OrderModel
         $order = $stmt->fetch();
         return $order ?: null;
     }
+
+    public static function adminList(int $page = 1, int $perPage = 20, string $status = ''): array
+    {
+        $pdo    = Database::getConnection();
+        $where  = $status ? 'WHERE status = ' . $pdo->quote($status) : '';
+        $total  = (int) $pdo->query("SELECT COUNT(*) FROM orders {$where}")->fetchColumn();
+        $offset = ($page - 1) * $perPage;
+        $stmt   = $pdo->prepare(
+            "SELECT order_number, customer_name, customer_email, total_amount, status, created_at
+             FROM orders {$where} ORDER BY created_at DESC LIMIT :limit OFFSET :offset"
+        );
+        $stmt->bindValue(':limit',  $perPage, \PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset,  \PDO::PARAM_INT);
+        $stmt->execute();
+        return ['orders' => $stmt->fetchAll(), 'total' => $total, 'pages' => max(1, (int) ceil($total / $perPage))];
+    }
 }

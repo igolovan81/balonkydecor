@@ -1,0 +1,28 @@
+{% extends "layout/admin-base.twig" %}
+{% block title %}Galerie{% endblock %}
+{% block content %}
+<div class="admin-topbar">
+    <h1>Galerie</h1>
+    <a href="/admin/gallery/new" class="btn btn-primary">+ Přidat album</a>
+</div>
+<table class="admin-table">
+    <thead><tr><th>ID</th><th>Slug</th><th>Pořadí</th><th>Akce</th></tr></thead>
+    <tbody>
+    {% for a in albums %}
+    <tr>
+        <td>{{ a.id }}</td>
+        <td>{{ a.slug }}</td>
+        <td>{{ a.sort_order }}</td>
+        <td>
+            <a href="/admin/gallery/{{ a.id }}/edit">Upravit</a> |
+            <form method="POST" action="/admin/gallery/{{ a.id }}/delete" style="display:inline" onsubmit="return confirm('Smazat album i se všemi fotkami?')">
+                <button class="btn-link">Smazat</button>
+            </form>
+        </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4">Žádná alba.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

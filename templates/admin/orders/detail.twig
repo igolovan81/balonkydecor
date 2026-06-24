@@ -1,0 +1,49 @@
+{% extends "layout/admin-base.twig" %}
+{% block title %}Objednávka {{ order.order_number }}{% endblock %}
+{% block content %}
+<div class="admin-topbar">
+    <h1>Objednávka {{ order.order_number }}</h1>
+    <a href="/admin/orders" class="btn btn-secondary">← Zpět</a>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
+<div class="admin-form">
+    <h3>Zákazník</h3>
+    <p><strong>Jméno:</strong> {{ order.customer_name }}</p>
+    <p><strong>E-mail:</strong> {{ order.customer_email }}</p>
+    <p><strong>Telefon:</strong> {{ order.customer_phone }}</p>
+    <p><strong>Datum vyzvednutí:</strong> {{ order.pickup_date ?? '—' }}</p>
+    <p><strong>Poznámka:</strong> {{ order.notes ?? '—' }}</p>
+    <p><strong>GoPay ID:</strong> {{ order.gopay_payment_id ?? '—' }}</p>
+    <p><strong>Vytvořena:</strong> {{ order.created_at }}</p>
+    <hr style="margin:1rem 0;">
+    <h3>Změnit status</h3>
+    <form method="POST" action="/admin/orders/{{ order.order_number }}/status" style="display:flex;gap:0.5rem;align-items:center;">
+        <select name="status">
+            {% for s in statuses %}
+            <option value="{{ s }}" {% if s == order.status %}selected{% endif %}>{{ s }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">Uložit</button>
+    </form>
+</div>
+<div>
+    <table class="admin-table">
+        <thead><tr><th>Produkt</th><th>Ks</th><th>Cena/ks</th><th>Celkem</th></tr></thead>
+        <tbody>
+        {% for item in order.items %}
+        <tr>
+            <td>{{ item.product_name_snapshot }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.unit_price|number_format(2, '.', ' ') }} Kč</td>
+            <td>{{ (item.unit_price * item.quantity)|number_format(2, '.', ' ') }} Kč</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="summary-total" style="margin-top:0.5rem;">
+        <span>Celkem</span>
+        <strong>{{ order.total_amount|number_format(2, '.', ' ') }} Kč</strong>
+    </div>
+</div>
+</div>
+{% endblock %}

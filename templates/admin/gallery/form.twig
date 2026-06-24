@@ -1,0 +1,71 @@
+{% extends "layout/admin-base.twig" %}
+{% block title %}{{ album ? 'Upravit album' : 'Nové album' }}{% endblock %}
+{% block content %}
+<div class="admin-topbar">
+    <h1>{{ album ? 'Upravit album' : 'Nové album' }}</h1>
+    <a href="/admin/gallery" class="btn btn-secondary">← Zpět</a>
+</div>
+<form method="POST" action="{{ album ? '/admin/gallery/' ~ album.id ~ '/edit' : '/admin/gallery/new' }}" enctype="multipart/form-data" class="admin-form">
+    <div class="form-group">
+        <label>Slug</label>
+        <input type="text" name="slug" value="{{ album.slug ?? '' }}" required>
+    </div>
+    <div class="form-group">
+        <label>Pořadí</label>
+        <input type="number" name="sort_order" value="{{ album.sort_order ?? 0 }}">
+    </div>
+    {% if album and album.images %}
+    <div class="form-group">
+        <label>Fotky v albu</label>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
+        {% for img in album.images %}
+        <div style="text-align:center;">
+            <img src="/assets/uploads/gallery/thumb_{{ img.filename }}" class="img-thumb"><br>
+            <form method="POST" action="/admin/gallery/{{ album.id }}/image/{{ img.id }}/delete">
+                <button class="btn-link" style="font-size:0.8rem">Smazat</button>
+            </form>
+        </div>
+        {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    <div class="form-group">
+        <label>Přidat fotky</label>
+        <input type="file" name="images[]" accept="image/*" multiple>
+    </div>
+    <h3>Překlady</h3>
+    <div class="lang-tabs">
+        {% for lang in langs %}
+        <button type="button" class="lang-tab {% if loop.first %}active{% endif %}" data-lang="{{ lang }}">{{ lang|upper }}</button>
+        {% endfor %}
+    </div>
+    {% for lang in langs %}
+    <div class="lang-panel {% if loop.first %}active{% endif %}" id="panel-{{ lang }}">
+        <div class="form-group">
+            <label>Název alba ({{ lang }})</label>
+            <input type="text" name="t[{{ lang }}][name]" value="{{ translations[lang].name ?? '' }}">
+        </div>
+        <div class="form-group">
+            <label>Popis ({{ lang }})</label>
+            <textarea name="t[{{ lang }}][description]">{{ translations[lang].description ?? '' }}</textarea>
+        </div>
+    </div>
+    {% endfor %}
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Uložit</button>
+        <a href="/admin/gallery" class="btn btn-secondary">Zrušit</a>
+    </div>
+</form>
+{% block scripts %}
+<script>
+document.querySelectorAll('.lang-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.lang-panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('panel-' + tab.dataset.lang).classList.add('active');
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

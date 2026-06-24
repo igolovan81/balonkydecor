@@ -48,4 +48,112 @@ class ProductModel
         $product['images'] = $imgs->fetchAll(\PDO::FETCH_COLUMN);
         return $product;
     }
+
+    public static function all(): array
+    {
+        $pdo = Database::getConnection();
+        return $pdo->query(
+            'SELECT p.*,
+                    (SELECT filename FROM product_images WHERE product_id = p.id AND is_primary = 1 LIMIT 1) AS primary_image
+             FROM products p
+             ORDER BY p.id DESC'
+        )->fetchAll();
+    }
+
+    public static function findById(int $id): ?array
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare('SELECT * FROM products WHERE id = ? LIMIT 1');
+        $stmt->execute([$id]);
+        $product = $stmt->fetch();
+        if (!$product) return null;
+        $imgs = $pdo->prepare('SELECT * FROM product_images WHERE product_id = ? ORDER BY sort_order, id');
+        $imgs->execute([$id]);
+        $product['images'] = $imgs->fetchAll();
+        return $product;
+    }
+
+    public static function create(array $data): int
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare(
+            'INSERT INTO products (sku, price, category_id, is_active, sort_order)
+             VALUES (:sku, :price, :category_id, :is_active, 0)'
+        );
+        $stmt->execute([
+            'sku'         => $data['sku'],
+            'price'       => $data['price'],
+            'category_id' => $data['category_id'] ?: 1,
+            'is_active'   => (int) ($data['is_active'] ?? 1),
+        ]);
+        return (int) $pdo->lastInsertId();
+    }
+
+    public static function update(int $id, array $data): void
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare(
+            'UPDATE products SET sku = :sku, price = :price, category_id = :category_id, is_active = :is_active WHERE id = :id'
+        );
+        $stmt->execute([
+            'sku'         => $data['sku'],
+            'price'       => $data['price'],
+            'category_id' => $data['category_id'] ?: 1,
+            'is_active'   => (int) ($data['is_active'] ?? 1),
+            'id'          => $id,
+        ]);
+    }
+
+    public static function delete(int $id): void
+    {
+        $pdo = Database::getConnection();
+        $pdo->prepare('DELETE FROM products WHERE id = ?')->execute([$id]);
+    }
+
+    public static function getTranslations(int $id): array
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare('SELECT lang_code, name, description FROM product_t WHERE product_id = ?');
+        $stmt->execute([$id]);
+        $result = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $result[$row['lang_code']] = $row;
+        }
+        return $result;
+    }
+
+    public static function setTranslations(int $id, array $translations): void
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare(
+            'INSERT INTO product_t (product_id, lang_code, name, description)
+             VALUES (?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE name = VALUES(name), description = VALUES(description)'
+        );
+        foreach ($translations as $lang => $t) {
+            if (empty($t['name'])) continue;
+            $stmt->execute([$id, $lang, $t['name'], $t['description'] ?? '']);
+        }
+    }
+
+    public static function addImage(int $productId, string $filename, bool $isPrimary = false): void
+    {
+        $pdo = Database::getConnection();
+        if ($isPrimary) {
+            $pdo->prepare('UPDATE product_images SET is_primary = 0 WHERE product_id = ?')->execute([$productId]);
+        }
+        $pdo->prepare('INSERT INTO product_images (product_id, filename, is_primary, sort_order) VALUES (?, ?, ?, 0)')
+            ->execute([$productId, $filename, $isPrimary ? 1 : 0]);
+    }
+
+    public static function deleteImage(int $imageId): ?string
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare('SELECT filename FROM product_images WHERE id = ?');
+        $stmt->execute([$imageId]);
+        $row  = $stmt->fetch();
+        if (!$row) return null;
+        $pdo->prepare('DELETE FROM product_images WHERE id = ?')->execute([$imageId]);
+        return $row['filename'];
+    }
 }

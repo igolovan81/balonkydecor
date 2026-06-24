@@ -1,0 +1,33 @@
+{% extends "layout/admin-base.twig" %}
+{% block title %}Uživatelé{% endblock %}
+{% block content %}
+<div class="admin-topbar">
+    <h1>Uživatelé</h1>
+    <a href="/admin/users/new" class="btn btn-primary">+ Přidat uživatele</a>
+</div>
+<table class="admin-table">
+    <thead><tr><th>ID</th><th>E-mail</th><th>Role</th><th>Vytvořen</th><th>Akce</th></tr></thead>
+    <tbody>
+    {% for u in users %}
+    <tr>
+        <td>{{ u.id }}</td>
+        <td>{{ u.email }}</td>
+        <td>{{ u.role }}</td>
+        <td>{{ u.created_at }}</td>
+        <td>
+            <form method="POST" action="/admin/users/{{ u.id }}/password" style="display:inline-flex;gap:0.4rem;align-items:center;">
+                <input type="password" name="password" placeholder="Nové heslo" minlength="8" style="width:140px;">
+                <button type="submit" class="btn btn-secondary" style="padding:0.3rem 0.6rem;font-size:0.85rem;">Změnit heslo</button>
+            </form>
+            |
+            <form method="POST" action="/admin/users/{{ u.id }}/delete" style="display:inline" onsubmit="return confirm('Smazat uživatele?')">
+                <button class="btn-link">Smazat</button>
+            </form>
+        </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5">Žádní uživatelé.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

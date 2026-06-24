@@ -49,4 +49,81 @@ class BlogModel
         $row = $stmt->fetch();
         return $row ?: null;
     }
+
+    public static function adminList(int $page = 1, int $perPage = 20): array
+    {
+        $pdo    = Database::getConnection();
+        $total  = (int) $pdo->query('SELECT COUNT(*) FROM blog_posts')->fetchColumn();
+        $offset = ($page - 1) * $perPage;
+        $stmt   = $pdo->prepare(
+            'SELECT id, slug, status, published_at, created_at FROM blog_posts ORDER BY created_at DESC LIMIT :limit OFFSET :offset'
+        );
+        $stmt->bindValue(':limit',  $perPage, \PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset,  \PDO::PARAM_INT);
+        $stmt->execute();
+        return ['posts' => $stmt->fetchAll(), 'total' => $total, 'pages' => max(1, (int) ceil($total / $perPage))];
+    }
+
+    public static function findById(int $id): ?array
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare('SELECT * FROM blog_posts WHERE id = ? LIMIT 1');
+        $stmt->execute([$id]);
+        return $stmt->fetch() ?: null;
+    }
+
+    public static function create(array $data): int
+    {
+        $pdo    = Database::getConnection();
+        $status = ($data['status'] ?? 'draft') === 'published' ? 'published' : 'draft';
+        $pubAt  = ($status === 'published') ? ($data['published_at'] ?: date('Y-m-d H:i:s')) : null;
+        $stmt   = $pdo->prepare(
+            'INSERT INTO blog_posts (slug, status, published_at) VALUES (:slug, :status, :published_at)'
+        );
+        $stmt->execute(['slug' => $data['slug'], 'status' => $status, 'published_at' => $pubAt]);
+        return (int) $pdo->lastInsertId();
+    }
+
+    public static function update(int $id, array $data): void
+    {
+        $pdo    = Database::getConnection();
+        $status = ($data['status'] ?? 'draft') === 'published' ? 'published' : 'draft';
+        $pubAt  = ($status === 'published') ? ($data['published_at'] ?: date('Y-m-d H:i:s')) : null;
+        $stmt   = $pdo->prepare(
+            'UPDATE blog_posts SET slug = :slug, status = :status, published_at = :published_at WHERE id = :id'
+        );
+        $stmt->execute(['slug' => $data['slug'], 'status' => $status, 'published_at' => $pubAt, 'id' => $id]);
+    }
+
+    public static function delete(int $id): void
+    {
+        $pdo = Database::getConnection();
+        $pdo->prepare('DELETE FROM blog_posts WHERE id = ?')->execute([$id]);
+    }
+
+    public static function getTranslations(int $id): array
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare('SELECT lang_code, title, body FROM blog_post_t WHERE post_id = ?');
+        $stmt->execute([$id]);
+        $result = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $result[$row['lang_code']] = $row;
+        }
+        return $result;
+    }
+
+    public static function setTranslations(int $id, array $translations): void
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare(
+            'INSERT INTO blog_post_t (post_id, lang_code, title, body)
+             VALUES (?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE title = VALUES(title), body = VALUES(body)'
+        );
+        foreach ($translations as $lang => $t) {
+            if (empty($t['title'])) continue;
+            $stmt->execute([$id, $lang, $t['title'], $t['body'] ?? '']);
+        }
+    }
 }

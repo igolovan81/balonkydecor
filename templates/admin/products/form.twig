@@ -1,0 +1,85 @@
+{% extends "layout/admin-base.twig" %}
+{% block title %}{{ product ? 'Upravit produkt' : 'Nový produkt' }}{% endblock %}
+{% block content %}
+<div class="admin-topbar">
+    <h1>{{ product ? 'Upravit produkt' : 'Nový produkt' }}</h1>
+    <a href="/admin/products" class="btn btn-secondary">← Zpět</a>
+</div>
+<form method="POST" action="{{ product ? '/admin/products/' ~ product.id ~ '/edit' : '/admin/products/new' }}" enctype="multipart/form-data" class="admin-form">
+    <div class="form-group">
+        <label>SKU</label>
+        <input type="text" name="sku" value="{{ product.sku ?? '' }}" required>
+    </div>
+    <div class="form-group">
+        <label>Cena (Kč)</label>
+        <input type="number" name="price" step="0.01" min="0" value="{{ product.price ?? '0.00' }}" required>
+    </div>
+    <div class="form-group">
+        <label>Kategorie</label>
+        <select name="category_id">
+            {% for cat in categories %}
+            <option value="{{ cat.id }}" {% if product.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label>
+            <input type="checkbox" name="is_active" value="1" {% if product is null or product.is_active %}checked{% endif %}>
+            Aktivní
+        </label>
+    </div>
+    <div class="form-group">
+        <label>Přidat obrázek</label>
+        <input type="file" name="image" accept="image/*">
+    </div>
+    {% if product and product.images %}
+    <div class="form-group">
+        <label>Stávající obrázky</label>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
+        {% for img in product.images %}
+        <div style="text-align:center;">
+            <img src="/assets/uploads/products/thumb_{{ img.filename }}" class="img-thumb"><br>
+            <form method="POST" action="/admin/products/{{ product.id }}/image/{{ img.id }}/delete">
+                <button class="btn-link" style="font-size:0.8rem">Smazat</button>
+            </form>
+        </div>
+        {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    <h3>Překlady</h3>
+    <div class="lang-tabs">
+        {% for lang in langs %}
+        <button type="button" class="lang-tab {% if loop.first %}active{% endif %}" data-lang="{{ lang }}">{{ lang|upper }}</button>
+        {% endfor %}
+    </div>
+    {% for lang in langs %}
+    <div class="lang-panel {% if loop.first %}active{% endif %}" id="panel-{{ lang }}">
+        <div class="form-group">
+            <label>Název ({{ lang }})</label>
+            <input type="text" name="t[{{ lang }}][name]" value="{{ translations[lang].name ?? '' }}">
+        </div>
+        <div class="form-group">
+            <label>Popis ({{ lang }})</label>
+            <textarea name="t[{{ lang }}][description]">{{ translations[lang].description ?? '' }}</textarea>
+        </div>
+    </div>
+    {% endfor %}
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Uložit</button>
+        <a href="/admin/products" class="btn btn-secondary">Zrušit</a>
+    </div>
+</form>
+{% block scripts %}
+<script>
+document.querySelectorAll('.lang-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.lang-panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('panel-' + tab.dataset.lang).classList.add('active');
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}
