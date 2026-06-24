@@ -8,6 +8,10 @@ use Slim\Views\TwigMiddleware;
 require __DIR__ . '/../vendor/autoload.php';
 
 $settings = require __DIR__ . '/../config/settings.php';
+$prodConfig = __DIR__ . '/../config/settings.prod.php';
+if (file_exists($prodConfig)) {
+    $settings = array_replace_recursive($settings, require $prodConfig);
+}
 
 $builder = new ContainerBuilder();
 $builder->addDefinitions([

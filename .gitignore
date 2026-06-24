@@ -1,5 +1,7 @@
+/.env
 /vendor/
 /composer.lock
+/config/settings.prod.php
 /config/settings.local.php
 /tmp/twig_cache/
 www/assets/uploads/*
