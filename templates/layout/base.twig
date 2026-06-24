@@ -22,7 +22,7 @@
                 <a href="/{{ lang }}/cart" class="cart-link">{{ t('nav.cart') }}</a>
             </nav>
             <div class="lang-switcher">
-                {% for code, label in {'cs': 'CZ', 'ru': 'RU', 'en': 'EN', 'uk': 'UA', 'sk': 'SK'} %}
+                {% for code, label in {'cs': 'CZ', 'sk': 'SK', 'en': 'EN', 'uk': 'UA', 'ru': 'RU'} %}
                     <a href="/{{ code }}{{ current_path }}"
                        class="{{ code == lang ? 'active' : '' }}">{{ label }}</a>
                 {% endfor %}

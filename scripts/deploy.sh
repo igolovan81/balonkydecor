@@ -16,9 +16,15 @@ FTP_USER="w399580"
 REMOTE_DIR="/"
 LOCAL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
+ENV_FILE="$LOCAL_DIR/.env"
+if [[ -f "$ENV_FILE" ]]; then
+  set -o allexport
+  source "$ENV_FILE"
+  set +o allexport
+fi
+
 if [[ -z "${FTP_PASS:-}" ]]; then
-  echo "Error: FTP_PASS environment variable is not set."
-  echo "Usage: FTP_PASS='...' ./scripts/deploy.sh"
+  echo "Error: FTP_PASS is not set. Add it to .env or run: FTP_PASS='...' ./scripts/deploy.sh"
   exit 1
 fi
 
@@ -29,6 +35,7 @@ set ftp:passive-mode yes
 set mirror:use-pget-n 4
 mirror --reverse --delete --verbose \
   --exclude '^\.' \
+  --exclude '^config/settings\.prod\.php$' \
   --exclude '^docker-compose\.yml$' \
   --exclude '^phpunit\.xml$' \
   --exclude '^composer\.(json|lock)$' \

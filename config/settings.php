@@ -8,7 +8,7 @@ return [
         'pass'    => 'balonky',
         'charset' => 'utf8mb4',
     ],
-    'languages'       => ['cs', 'ru', 'en', 'uk', 'sk'],
+    'languages'       => ['cs', 'sk', 'en', 'uk', 'ru'],
     'default_lang'    => 'cs',
     'upload_dir'      => __DIR__ . '/../www/assets/uploads/',
     'upload_url'      => '/assets/uploads/',
