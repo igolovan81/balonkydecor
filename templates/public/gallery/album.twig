@@ -1,0 +1,25 @@
+{% extends "layout/base.twig" %}
+
+{% block title %}{{ album.name }} — {{ t('site.name') }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container">
+        <a href="/{{ lang }}/gallery" class="back-link">{{ t('gallery.back') }}</a>
+        <h1>{{ album.name }}</h1>
+    </div>
+</section>
+<div class="container" style="padding: 2.5rem 1.5rem;">
+    {% if album.images %}
+    <div class="photo-grid">
+        {% for img in album.images %}
+        <a href="/assets/uploads/{{ img }}" class="photo-item" target="_blank">
+            <img src="/assets/uploads/{{ img }}" alt="{{ album.name }}">
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty-state">{{ t('gallery.no_albums') }}</p>
+    {% endif %}
+</div>
+{% endblock %}

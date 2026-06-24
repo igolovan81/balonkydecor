@@ -1,0 +1,29 @@
+{% extends "layout/base.twig" %}
+
+{% block title %}{{ t('gallery.title') }} — {{ t('site.name') }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container"><h1>{{ t('gallery.title') }}</h1></div>
+</section>
+<div class="container" style="padding: 2.5rem 1.5rem;">
+    {% if albums %}
+    <div class="gallery-grid">
+        {% for album in albums %}
+        <a href="/{{ lang }}/gallery/{{ album.slug }}" class="gallery-album-card">
+            <div class="gallery-cover">
+                {% if album.cover_image %}
+                    <img src="/assets/uploads/{{ album.cover_image }}" alt="{{ album.name }}">
+                {% else %}
+                    <div class="gallery-cover-placeholder"></div>
+                {% endif %}
+            </div>
+            <div class="gallery-album-name">{{ album.name }}</div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty-state">{{ t('gallery.no_albums') }}</p>
+    {% endif %}
+</div>
+{% endblock %}

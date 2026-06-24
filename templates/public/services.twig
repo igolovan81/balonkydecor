@@ -1,0 +1,19 @@
+{% extends "layout/base.twig" %}
+
+{% block title %}{{ t('services.title') }} — {{ t('site.name') }}{% endblock %}
+{% block meta_desc %}{{ page.meta_desc ?? '' }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container">
+        <h1>{{ page ? page.title : t('services.title') }}</h1>
+    </div>
+</section>
+<div class="container content-page">
+    {% if page and page.body %}
+        <div class="rich-content">{{ page.body|raw }}</div>
+    {% else %}
+        <p class="empty-state">{{ t('services.no_content') }}</p>
+    {% endif %}
+</div>
+{% endblock %}
