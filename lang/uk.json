@@ -1,0 +1,21 @@
+{
+  "nav.home": "Головна",
+  "nav.shop": "Магазин",
+  "nav.services": "Послуги",
+  "nav.gallery": "Галерея",
+  "nav.blog": "Блог",
+  "nav.contact": "Контакти",
+  "nav.cart": "Кошик",
+  "site.name": "BalonkyDecor",
+  "home.hero_title": "Красиві кульки для кожного свята",
+  "home.hero_subtitle": "Гелій, кульки та прикраси на замовлення",
+  "home.cta": "Переглянути каталог",
+  "cart.empty": "Кошик порожній",
+  "cart.total": "Разом",
+  "checkout.pickup_date": "Дата отримання",
+  "order.status.pending": "Очікує оплати",
+  "order.status.paid": "Оплачено",
+  "order.status.ready": "Готово до отримання",
+  "order.status.completed": "Завершено",
+  "order.status.cancelled": "Скасовано"
+}

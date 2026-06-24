@@ -1,0 +1,21 @@
+{
+  "nav.home": "Главная",
+  "nav.shop": "Магазин",
+  "nav.services": "Услуги",
+  "nav.gallery": "Галерея",
+  "nav.blog": "Блог",
+  "nav.contact": "Контакты",
+  "nav.cart": "Корзина",
+  "site.name": "BalonkyDecor",
+  "home.hero_title": "Красивые шары для любого праздника",
+  "home.hero_subtitle": "Гелий, шары и украшения на заказ",
+  "home.cta": "Смотреть каталог",
+  "cart.empty": "Корзина пуста",
+  "cart.total": "Итого",
+  "checkout.pickup_date": "Дата получения",
+  "order.status.pending": "Ожидает оплаты",
+  "order.status.paid": "Оплачено",
+  "order.status.ready": "Готово к получению",
+  "order.status.completed": "Завершено",
+  "order.status.cancelled": "Отменено"
+}

@@ -1,0 +1,21 @@
+{
+  "nav.home": "Domů",
+  "nav.shop": "Obchod",
+  "nav.services": "Služby",
+  "nav.gallery": "Galerie",
+  "nav.blog": "Blog",
+  "nav.contact": "Kontakt",
+  "nav.cart": "Košík",
+  "site.name": "BalonkyDecor",
+  "home.hero_title": "Krásné balónky pro každou příležitost",
+  "home.hero_subtitle": "Hélium, balónky a dekorace na míru",
+  "home.cta": "Prohlédnout nabídku",
+  "cart.empty": "Košík je prázdný",
+  "cart.total": "Celkem",
+  "checkout.pickup_date": "Datum vyzvednutí",
+  "order.status.pending": "Čeká na platbu",
+  "order.status.paid": "Zaplaceno",
+  "order.status.ready": "Připraveno k vyzvednutí",
+  "order.status.completed": "Dokončeno",
+  "order.status.cancelled": "Zrušeno"
+}
