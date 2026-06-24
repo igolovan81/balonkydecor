@@ -1,0 +1,67 @@
+{% extends "layout/base.twig" %}
+
+{% block title %}{{ t('checkout.title') }} — {{ t('site.name') }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container"><h1>{{ t('checkout.title') }}</h1></div>
+</section>
+<div class="container checkout-layout">
+    <div class="checkout-form-col">
+        {% if error %}
+        <p class="form-error">{{ t('checkout.error') }}</p>
+        {% endif %}
+        <form action="/{{ lang }}/checkout" method="POST" class="contact-form">
+            <div class="form-group">
+                <label>{{ t('checkout.name') }}</label>
+                <input type="text" name="customer_name" required
+                       value="{{ values.customer_name ?? '' }}">
+            </div>
+            <div class="form-group">
+                <label>{{ t('checkout.email') }}</label>
+                <input type="email" name="customer_email" required
+                       value="{{ values.customer_email ?? '' }}">
+            </div>
+            <div class="form-group">
+                <label>{{ t('checkout.phone') }}</label>
+                <input type="tel" name="customer_phone" required
+                       value="{{ values.customer_phone ?? '' }}">
+            </div>
+            <div class="form-group">
+                <label>{{ t('checkout.pickup_date') }}</label>
+                <input type="date" name="pickup_date"
+                       value="{{ values.pickup_date ?? '' }}">
+            </div>
+            <div class="form-group">
+                <label>{{ t('checkout.notes') }}</label>
+                <textarea name="notes" rows="3">{{ values.notes ?? '' }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg">{{ t('checkout.submit') }}</button>
+        </form>
+    </div>
+    <aside class="checkout-summary">
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>{{ t('cart.product') }}</th>
+                    <th>{{ t('cart.qty') }}</th>
+                    <th>{{ t('cart.subtotal') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sku, item in items %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.qty }}</td>
+                    <td>{{ item.subtotal|number_format(2, '.', ' ') }} Kč</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="summary-total">
+            <span>{{ t('cart.total') }}</span>
+            <strong>{{ total|number_format(2, '.', ' ') }} Kč</strong>
+        </div>
+    </aside>
+</div>
+{% endblock %}

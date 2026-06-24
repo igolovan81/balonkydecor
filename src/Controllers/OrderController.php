@@ -1,11 +1,21 @@
 <?php
 namespace App\Controllers;
+
+use App\Models\OrderModel;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Views\Twig;
-class OrderController {
-    public function __construct(private Twig $twig) {}
-    public function status(Request $req, Response $res, array $args): Response {
-        $res->getBody()->write('Order status — coming soon'); return $res;
+
+class OrderController extends BaseController
+{
+    public function status(Request $request, Response $response, array $args): Response
+    {
+        $lang  = $request->getAttribute('lang');
+        $order = OrderModel::findByNumber($args['number']);
+        if (!$order) {
+            return $response->withStatus(404);
+        }
+        return $this->render($request, $response, 'public/order/status.twig', [
+            'order' => $order,
+        ]);
     }
 }

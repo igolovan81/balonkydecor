@@ -1,0 +1,43 @@
+{% extends "layout/base.twig" %}
+
+{% block title %}{{ t('checkout.confirm_title') }} — {{ t('site.name') }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container"><h1>{{ t('checkout.confirm_title') }}</h1></div>
+</section>
+<div class="container checkout-confirm">
+    <div class="confirm-meta">
+        <p><strong>{{ t('checkout.order_number') }}:</strong> {{ order.order_number }}</p>
+        <p><strong>{{ t('checkout.pickup') }}:</strong> {{ order.pickup_date ?? '—' }}</p>
+    </div>
+    <table class="cart-table" style="margin: 1.5rem 0;">
+        <thead>
+            <tr>
+                <th>{{ t('order.product') }}</th>
+                <th>{{ t('order.qty') }}</th>
+                <th>{{ t('order.unit_price') }}</th>
+                <th>{{ t('order.total') }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.items %}
+            <tr>
+                <td>{{ item.product_name_snapshot }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.unit_price|number_format(2, '.', ' ') }} Kč</td>
+                <td>{{ (item.unit_price * item.quantity)|number_format(2, '.', ' ') }} Kč</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="summary-total">
+        <span>{{ t('cart.total') }}</span>
+        <strong>{{ order.total_amount|number_format(2, '.', ' ') }} Kč</strong>
+    </div>
+    <form action="/{{ lang }}/payment/gopay" method="POST" style="margin-top: 2rem;">
+        <input type="hidden" name="order_number" value="{{ order.order_number }}">
+        <button type="submit" class="btn btn-primary btn-lg">{{ t('checkout.pay_now') }}</button>
+    </form>
+</div>
+{% endblock %}
