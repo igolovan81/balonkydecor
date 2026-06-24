@@ -1,0 +1,6 @@
+/vendor/
+/composer.lock
+/config/settings.local.php
+/tmp/twig_cache/
+www/assets/uploads/*
+!www/assets/uploads/.gitkeep
