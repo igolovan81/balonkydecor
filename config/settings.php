@@ -2,10 +2,10 @@
 return [
     'displayErrorDetails' => true,   // set false in production
     'db' => [
-        'host'    => 'localhost',
+        'host'    => '127.0.0.1',
         'name'    => 'balonkydecor',
-        'user'    => 'root',
-        'pass'    => '',
+        'user'    => 'balonky',
+        'pass'    => 'balonky',
         'charset' => 'utf8mb4',
     ],
     'languages'       => ['cs', 'ru', 'en', 'uk', 'sk'],
