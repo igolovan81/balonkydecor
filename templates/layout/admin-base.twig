@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin{% endblock %} — BalonkyDecor</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/admin.css">
+    {% block head %}{% endblock %}
+</head>
+<body class="admin-body">
+    <aside class="admin-sidebar">
+        <div class="admin-logo">BalonkyDecor</div>
+        <nav class="admin-nav">
+            <a href="/admin">Dashboard</a>
+            <a href="/admin/products">Produkty</a>
+            <a href="/admin/categories">Kategorie</a>
+            <a href="/admin/orders">Objednávky</a>
+            <a href="/admin/gallery">Galerie</a>
+            <a href="/admin/blog">Blog</a>
+            <a href="/admin/pages">Stránky</a>
+            <a href="/admin/translations">Překlady</a>
+            <a href="/admin/settings">Nastavení</a>
+            <a href="/admin/users">Uživatelé</a>
+        </nav>
+    </aside>
+    <main class="admin-main">
+        {% block content %}{% endblock %}
+    </main>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

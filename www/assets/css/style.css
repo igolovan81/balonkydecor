@@ -1,0 +1,39 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --bg:       #fafaf8;
+    --text:     #2c2c2c;
+    --muted:    #888;
+    --accent:   #b8967a;
+    --border:   #e8e3dc;
+    --font:     Georgia, serif;
+    --ui-font:  system-ui, sans-serif;
+    --width:    1100px;
+}
+
+body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 1rem; line-height: 1.7; }
+.container { max-width: var(--width); margin: 0 auto; padding: 0 1.5rem; }
+
+/* Header */
+.site-header { background: #fff; border-bottom: 1px solid var(--border); padding: 1rem 0; }
+.header-inner { display: flex; align-items: center; gap: 2rem; }
+.logo { font-size: 1.4rem; color: var(--accent); text-decoration: none; letter-spacing: .04em; font-weight: bold; }
+.main-nav { display: flex; gap: 1.5rem; flex: 1; }
+.main-nav a { color: var(--text); text-decoration: none; font-family: var(--ui-font); font-size: .9rem; letter-spacing: .03em; }
+.main-nav a:hover { color: var(--accent); }
+.lang-switcher { display: flex; gap: .5rem; font-family: var(--ui-font); font-size: .8rem; }
+.lang-switcher a { color: var(--muted); text-decoration: none; }
+.lang-switcher a.active { color: var(--accent); font-weight: bold; }
+
+/* Hero */
+.hero { padding: 6rem 0; text-align: center; background: linear-gradient(to bottom,#fff,var(--bg)); }
+.hero h1 { font-size: 2.8rem; font-weight: normal; margin-bottom: 1rem; }
+.hero-subtitle { color: var(--muted); font-size: 1.2rem; margin-bottom: 2rem; }
+
+/* Buttons */
+.btn { display: inline-block; padding: .75rem 2rem; border-radius: 2px; font-family: var(--ui-font); font-size: .9rem; letter-spacing: .08em; text-decoration: none; border: none; cursor: pointer; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: #a0806a; }
+
+/* Footer */
+.site-footer { border-top: 1px solid var(--border); padding: 2rem 0; text-align: center; color: var(--muted); font-family: var(--ui-font); font-size: .85rem; margin-top: 4rem; }

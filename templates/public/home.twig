@@ -1,0 +1,13 @@
+{% extends "layout/base.twig" %}
+
+{% block title %}{{ t('home.hero_title') }} — {{ t('site.name') }}{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="container">
+        <h1>{{ t('home.hero_title') }}</h1>
+        <p class="hero-subtitle">{{ t('home.hero_subtitle') }}</p>
+        <a href="/{{ lang }}/shop" class="btn btn-primary">{{ t('home.cta') }}</a>
+    </div>
+</section>
+{% endblock %}

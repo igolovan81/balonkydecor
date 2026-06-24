@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ t('site.name') }}{% endblock %}</title>
+    <meta name="description" content="{% block meta_desc %}{% endblock %}">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="/{{ lang }}/" class="logo">{{ t('site.name') }}</a>
+            <nav class="main-nav">
+                <a href="/{{ lang }}/">{{ t('nav.home') }}</a>
+                <a href="/{{ lang }}/shop">{{ t('nav.shop') }}</a>
+                <a href="/{{ lang }}/services">{{ t('nav.services') }}</a>
+                <a href="/{{ lang }}/gallery">{{ t('nav.gallery') }}</a>
+                <a href="/{{ lang }}/blog">{{ t('nav.blog') }}</a>
+                <a href="/{{ lang }}/contact">{{ t('nav.contact') }}</a>
+                <a href="/{{ lang }}/cart" class="cart-link">{{ t('nav.cart') }}</a>
+            </nav>
+            <div class="lang-switcher">
+                {% for code, label in {'cs': 'CZ', 'ru': 'RU', 'en': 'EN', 'uk': 'UA', 'sk': 'SK'} %}
+                    <a href="/{{ code }}{{ current_path }}"
+                       class="{{ code == lang ? 'active' : '' }}">{{ label }}</a>
+                {% endfor %}
+            </div>
+        </div>
+    </header>
+
+    <main>{% block content %}{% endblock %}</main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; {{ "now"|date("Y") }} {{ t('site.name') }}</p>
+        </div>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
