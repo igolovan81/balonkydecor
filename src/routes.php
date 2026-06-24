@@ -32,6 +32,7 @@ $app->post('/{lang}/contact',         ContactController::class . ':send');
 $app->get('/{lang}/cart',             CartController::class    . ':index');
 $app->post('/{lang}/cart/add',        CartController::class    . ':add');
 $app->post('/{lang}/cart/remove',     CartController::class    . ':remove');
+$app->post('/{lang}/cart/update',     CartController::class    . ':update');
 $app->get('/{lang}/checkout',         CheckoutController::class . ':index');
 $app->post('/{lang}/checkout',        CheckoutController::class . ':submit');
 $app->get('/{lang}/checkout/confirm', CheckoutController::class . ':confirm');
