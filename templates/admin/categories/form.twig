@@ -47,6 +47,26 @@ document.querySelectorAll('.lang-tab').forEach(tab => {
         document.getElementById('panel-' + tab.dataset.lang).classList.add('active');
     });
 });
+
+(function () {
+    const slugInput  = document.querySelector('input[name="slug"]');
+    const csName     = document.querySelector('input[name="t[cs][name]"]');
+    if (!slugInput || !csName) return;
+
+    function toSlug(s) {
+        return s.toLowerCase()
+            .replace(/[áä]/g,'a').replace(/č/g,'c').replace(/ď/g,'d')
+            .replace(/[éě]/g,'e').replace(/í/g,'i').replace(/ň/g,'n')
+            .replace(/[óö]/g,'o').replace(/[řŕ]/g,'r').replace(/š/g,'s')
+            .replace(/ť/g,'t').replace(/[úůü]/g,'u').replace(/ý/g,'y')
+            .replace(/ž/g,'z')
+            .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+    }
+
+    let locked = slugInput.value !== '';
+    slugInput.addEventListener('input', () => { locked = slugInput.value !== ''; });
+    csName.addEventListener('input', () => { if (!locked) slugInput.value = toSlug(csName.value); });
+})();
 </script>
 {% endblock %}
 {% endblock %}
