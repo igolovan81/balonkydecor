@@ -11,6 +11,7 @@ class SettingsController extends AdminBaseController
         'site_name', 'contact_email', 'contact_phone',
         'smtp_host', 'smtp_port', 'smtp_user', 'smtp_pass', 'smtp_from',
         'gopay_go_id', 'gopay_client_id', 'gopay_client_secret', 'gopay_test_mode',
+        'deepl_api_key',
     ];
 
     public function index(Request $request, Response $response, array $args): Response
