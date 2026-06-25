@@ -96,8 +96,7 @@ class Migrator
 
     private function splitStatements(string $sql): array
     {
-        // Split on semicolons that end a statement (not inside string literals).
-        // Handles single-quoted strings; sufficient for controlled migration files.
+        $sql        = preg_replace('/^[ \t]*--[^\n]*\n?/m', '', $sql);
         $statements = [];
         $current    = '';
         $inString   = false;
@@ -112,7 +111,7 @@ class Migrator
 
             if ($c === ';' && !$inString) {
                 $stmt = trim($current);
-                if ($stmt !== '' && !preg_match('/^--/', $stmt)) {
+                if ($stmt !== '') {
                     $statements[] = $stmt;
                 }
                 $current = '';
@@ -122,7 +121,7 @@ class Migrator
         }
 
         $stmt = trim($current);
-        if ($stmt !== '' && !preg_match('/^--/', $stmt)) {
+        if ($stmt !== '') {
             $statements[] = $stmt;
         }
 
