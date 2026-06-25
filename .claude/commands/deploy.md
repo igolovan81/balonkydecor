@@ -18,7 +18,7 @@ Deploy the BalonkyDecor application to WEDOS shared hosting via FTP.
 
 4. After deploy, remind the user:
    - Upload `config/settings.prod.php` via FTP if DB credentials changed or it's a first deploy
-   - Import `database/schema.sql` via phpMyAdmin (`https://pma.wedos.net/`) if schema changed
+   - Run migrations via `GET /migrate.php?token=…` if new migration files were deployed
    - Verify the site at `http://balonkydecor.cz/cs/`
 
 ## What gets deployed

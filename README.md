@@ -44,8 +44,8 @@ composer install
 # 2. Start MySQL
 docker compose up -d
 
-# The schema is loaded automatically from database/schema.sql.
 # DB: balonkydecor  User: balonky  Pass: balonky  Port: 3306
+# Run migrations: GET http://localhost:8080/migrate.php?token=... (see settings.php)
 
 # 3. Serve the app (web root is www/)
 php -S localhost:8080 -t www
@@ -113,7 +113,7 @@ www/               Apache web root
   assets/css/      style.css (public), admin.css (admin)
   assets/uploads/  Product and gallery images (created on first upload)
 database/
-  schema.sql       Full MySQL schema (17 tables, seed data)
+  migrations/      Versioned SQL migrations (V001 schema, V002 demo data, …)
 config/
   settings.php     DB credentials, language list, upload settings
 ```

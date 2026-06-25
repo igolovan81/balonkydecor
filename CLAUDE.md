@@ -22,7 +22,7 @@ docker compose up -d          # MySQL on 127.0.0.1:3306, db=balonkydecor, user=b
 php -S localhost:8080 -t www
 ```
 
-Schema: `database/schema.sql`. Config: `config/settings.php`.
+Schema: `database/migrations/V001__schema.sql`. Config: `config/settings.php`.
 
 ## Directory Structure
 
@@ -56,7 +56,7 @@ www/                         # Apache web root
   assets/css/admin.css       # Admin CSS
   assets/uploads/products/   # Product images (created on first upload)
   assets/uploads/gallery/    # Gallery images (created on first upload)
-database/schema.sql          # Full MySQL schema (17 tables)
+database/migrations/         # Versioned SQL migrations (V001–V00N)
 config/settings.php          # DB creds, language list, upload settings
 session/                     # PHP session storage (outside web root)
 tmp/                         # Twig cache, mail.log (outside web root)
