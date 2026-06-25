@@ -10,7 +10,11 @@ class Database
     public static function getConnection(): PDO
     {
         if (self::$connection === null) {
-            $settings = require __DIR__ . '/../../config/settings.php';
+            $settings   = require __DIR__ . '/../../config/settings.php';
+            $prodConfig = __DIR__ . '/../../config/settings.prod.php';
+            if (file_exists($prodConfig)) {
+                $settings = array_replace_recursive($settings, require $prodConfig);
+            }
             $db  = $settings['db'];
             $dsn = "mysql:host={$db['host']};dbname={$db['name']};charset={$db['charset']}";
             self::$connection = new PDO($dsn, $db['user'], $db['pass'], [
