@@ -29,6 +29,10 @@ class DeepL
             throw new RuntimeException('DeepL API key not configured.');
         }
 
+        if (!in_array(strtoupper($targetLang), self::VALID_TARGETS, true)) {
+            throw new RuntimeException('Invalid DeepL target language: ' . $targetLang);
+        }
+
         $body    = json_encode(['text' => $texts, 'target_lang' => strtoupper($targetLang)]);
         $headers = [
             'Authorization: DeepL-Auth-Key ' . $key,
@@ -59,10 +63,15 @@ class DeepL
             ]);
             $response = curl_exec($ch);
             $error    = curl_error($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
 
             if ($response === false) {
                 throw new RuntimeException('DeepL request failed: ' . $error);
+            }
+
+            if ($httpCode !== 200) {
+                throw new RuntimeException('DeepL API error ' . $httpCode . ': ' . substr($response, 0, 200));
             }
 
             return $response;
