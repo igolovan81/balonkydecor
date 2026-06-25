@@ -84,6 +84,28 @@ $app->group('/admin', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->get('/settings',  SettingsController::class . ':index');
     $group->post('/settings', SettingsController::class . ':save');
 
+    // Auto-translate (DeepL)
+    $group->post('/translate', function ($request, $response) {
+        $body       = json_decode((string) $request->getBody(), true) ?? [];
+        $texts      = $body['texts'] ?? null;
+        $targetLang = strtoupper(trim($body['target'] ?? ''));
+        $allowed    = ['CS', 'SK', 'EN', 'UK', 'RU'];
+
+        if (!is_array($texts) || count($texts) === 0 || !in_array($targetLang, $allowed, true)) {
+            $response->getBody()->write(json_encode(['error' => 'Invalid parameters.']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
+        try {
+            $translated = \App\Services\DeepL::translate($texts, $targetLang);
+            $response->getBody()->write(json_encode(['texts' => $translated]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        } catch (\Throwable $e) {
+            $response->getBody()->write(json_encode(['error' => $e->getMessage()]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        }
+    });
+
     // Users
     $group->get('/users',                          UserController::class . ':index');
     $group->get('/users/new',                      UserController::class . ':createForm');
