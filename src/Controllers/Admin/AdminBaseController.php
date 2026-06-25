@@ -14,8 +14,12 @@ abstract class AdminBaseController
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
-        $flash = $this->getFlash();
-        return $this->twig->render($response, $template, array_merge(['flash' => $flash], $data));
+        $flash       = $this->getFlash();
+        $sessionRole = $_SESSION['admin_user']['role'] ?? '';
+        return $this->twig->render($response, $template, array_merge([
+            'flash'        => $flash,
+            'session_role' => $sessionRole,
+        ], $data));
     }
 
     protected function flash(string $type, string $message): void

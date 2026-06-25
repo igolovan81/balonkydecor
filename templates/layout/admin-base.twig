@@ -20,7 +20,7 @@
             <a href="/admin/blog">Blog</a>
             <a href="/admin/pages">Stránky</a>
             <a href="/admin/settings">Nastavení</a>
-            <a href="/admin/users">Uživatelé</a>
+            {% if session_role == 'admin' %}<a href="/admin/users">Uživatelé</a>{% endif %}
         </nav>
         <div style="margin-top:auto;padding:1rem;">
             <a href="/admin/logout" style="color:#c0c0d0;font-size:0.85rem;">Odhlásit se</a>
