@@ -14,11 +14,11 @@ abstract class AdminBaseController
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
-        $flash       = $this->getFlash();
-        $sessionRole = $_SESSION['admin_user']['role'] ?? '';
+        $flash = $this->getFlash();
         return $this->twig->render($response, $template, array_merge([
-            'flash'        => $flash,
-            'session_role' => $sessionRole,
+            'flash'          => $flash,
+            'session_role'   => $_SESSION['admin_user']['role']  ?? '',
+            'session_email'  => $_SESSION['admin_user']['email'] ?? '',
         ], $data));
     }
 
