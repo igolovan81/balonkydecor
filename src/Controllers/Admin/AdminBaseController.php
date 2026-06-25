@@ -37,4 +37,16 @@ abstract class AdminBaseController
     {
         return $response->withHeader('Location', $url)->withStatus($status);
     }
+
+    protected function requireRole(Response $response, string $role): ?Response
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        if (($_SESSION['admin_user']['role'] ?? '') !== $role) {
+            $this->flash('error', 'Nemáte oprávnění k této akci.');
+            return $this->redirect($response, '/admin');
+        }
+        return null;
+    }
 }

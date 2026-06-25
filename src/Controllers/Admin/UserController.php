@@ -9,17 +9,20 @@ class UserController extends AdminBaseController
 {
     public function index(Request $request, Response $response, array $args): Response
     {
+        if ($redirect = $this->requireRole($response, 'admin')) return $redirect;
         $users = AdminUserModel::all();
         return $this->renderAdmin($request, $response, 'admin/users/index.twig', compact('users'));
     }
 
     public function createForm(Request $request, Response $response, array $args): Response
     {
+        if ($redirect = $this->requireRole($response, 'admin')) return $redirect;
         return $this->renderAdmin($request, $response, 'admin/users/form.twig', ['user' => null]);
     }
 
     public function createSubmit(Request $request, Response $response, array $args): Response
     {
+        if ($redirect = $this->requireRole($response, 'admin')) return $redirect;
         $body  = (array) $request->getParsedBody();
         $email = trim($body['email'] ?? '');
         $pass  = $body['password'] ?? '';
@@ -35,6 +38,7 @@ class UserController extends AdminBaseController
 
     public function changePassword(Request $request, Response $response, array $args): Response
     {
+        if ($redirect = $this->requireRole($response, 'admin')) return $redirect;
         $body = (array) $request->getParsedBody();
         $pass = $body['password'] ?? '';
         if (strlen($pass) < 8) {
@@ -48,6 +52,7 @@ class UserController extends AdminBaseController
 
     public function delete(Request $request, Response $response, array $args): Response
     {
+        if ($redirect = $this->requireRole($response, 'admin')) return $redirect;
         if (session_status() === PHP_SESSION_NONE) session_start();
         $currentId = (int) ($_SESSION['admin_user']['id'] ?? 0);
         if ((int) $args['id'] === $currentId) {
