@@ -207,3 +207,9 @@ INSERT INTO `settings` (`key`, `value`) VALUES
   ('smtp_user',           ''),
   ('smtp_pass',           ''),
   ('smtp_from',           '');
+
+CREATE TABLE `schema_migrations` (
+  `version`    varchar(255) NOT NULL,
+  `applied_at` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`version`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
