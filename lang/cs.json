@@ -63,6 +63,8 @@
   "contact.title": "Kontakt",
   "contact.name": "Jméno",
   "contact.email": "E-mail",
+  "contact.phone": "Telefon",
+  "contact.address": "Adresa",
   "contact.message": "Zpráva",
   "contact.send": "Odeslat",
   "contact.success": "Děkujeme! Vaše zpráva byla odeslána.",
