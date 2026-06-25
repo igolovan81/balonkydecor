@@ -23,11 +23,12 @@ class UserController extends AdminBaseController
         $body  = (array) $request->getParsedBody();
         $email = trim($body['email'] ?? '');
         $pass  = $body['password'] ?? '';
+        $role  = in_array($body['role'] ?? '', ['admin', 'editor']) ? $body['role'] : 'admin';
         if (!$email || strlen($pass) < 8) {
             $this->flash('error', 'Vyplňte e-mail a heslo (min. 8 znaků).');
             return $this->redirect($response, '/admin/users/new');
         }
-        AdminUserModel::create($email, password_hash($pass, PASSWORD_BCRYPT), 'admin');
+        AdminUserModel::create($email, password_hash($pass, PASSWORD_BCRYPT), $role);
         $this->flash('success', 'Uživatel vytvořen.');
         return $this->redirect($response, '/admin/users');
     }
