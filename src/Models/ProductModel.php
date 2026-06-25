@@ -54,8 +54,10 @@ class ProductModel
         $pdo = Database::getConnection();
         return $pdo->query(
             'SELECT p.*,
-                    (SELECT filename FROM product_images WHERE product_id = p.id AND is_primary = 1 LIMIT 1) AS primary_image
+                    (SELECT filename FROM product_images WHERE product_id = p.id AND is_primary = 1 LIMIT 1) AS primary_image,
+                    ct.name AS category_name
              FROM products p
+             LEFT JOIN category_t ct ON ct.category_id = p.category_id AND ct.lang_code = \'cs\'
              ORDER BY p.id DESC'
         )->fetchAll();
     }

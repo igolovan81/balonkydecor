@@ -6,11 +6,12 @@
     <a href="/admin/categories/new" class="btn btn-primary">+ Přidat kategorii</a>
 </div>
 <table class="admin-table">
-    <thead><tr><th>ID</th><th>Slug</th><th>Pořadí</th><th>Akce</th></tr></thead>
+    <thead><tr><th>ID</th><th>Název</th><th>Slug</th><th>Pořadí</th><th>Akce</th></tr></thead>
     <tbody>
     {% for cat in categories %}
     <tr>
         <td>{{ cat.id }}</td>
+        <td>{{ cat.name ?? '—' }}</td>
         <td>{{ cat.slug }}</td>
         <td>{{ cat.sort_order }}</td>
         <td>
@@ -21,7 +22,7 @@
         </td>
     </tr>
     {% else %}
-    <tr><td colspan="4">Žádné kategorie.</td></tr>
+    <tr><td colspan="5">Žádné kategorie.</td></tr>
     {% endfor %}
     </tbody>
 </table>

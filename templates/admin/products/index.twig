@@ -6,7 +6,7 @@
     <a href="/admin/products/new" class="btn btn-primary">+ Přidat produkt</a>
 </div>
 <table class="admin-table">
-    <thead><tr><th>Obrázek</th><th>SKU</th><th>Cena</th><th>Aktivní</th><th>Akce</th></tr></thead>
+    <thead><tr><th>Obrázek</th><th>SKU</th><th>Kategorie</th><th>Cena</th><th>Aktivní</th><th>Akce</th></tr></thead>
     <tbody>
     {% for p in products %}
     <tr>
@@ -16,6 +16,7 @@
             {% endif %}
         </td>
         <td>{{ p.sku }}</td>
+        <td>{{ p.category_name ?? '—' }}</td>
         <td>{{ p.price|number_format(2, '.', ' ') }} Kč</td>
         <td>{{ p.is_active ? '✓' : '—' }}</td>
         <td>
@@ -26,7 +27,7 @@
         </td>
     </tr>
     {% else %}
-    <tr><td colspan="5">Žádné produkty.</td></tr>
+    <tr><td colspan="6">Žádné produkty.</td></tr>
     {% endfor %}
     </tbody>
 </table>

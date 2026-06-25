@@ -57,7 +57,12 @@ class CategoryController extends AdminBaseController
 
     public function delete(Request $request, Response $response, array $args): Response
     {
-        CategoryModel::delete((int) $args['id']);
+        $id = (int) $args['id'];
+        if (CategoryModel::hasProducts($id)) {
+            $this->flash('error', 'Kategorii nelze smazat — obsahuje produkty. Nejprve přesuňte nebo smažte produkty.');
+            return $this->redirect($response, '/admin/categories');
+        }
+        CategoryModel::delete($id);
         $this->flash('success', 'Kategorie smazána.');
         return $this->redirect($response, '/admin/categories');
     }

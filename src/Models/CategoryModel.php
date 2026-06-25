@@ -21,7 +21,12 @@ class CategoryModel
     public static function all(): array
     {
         $pdo = Database::getConnection();
-        return $pdo->query('SELECT * FROM categories ORDER BY sort_order, id')->fetchAll();
+        return $pdo->query(
+            'SELECT c.*, ct.name AS name
+             FROM categories c
+             LEFT JOIN category_t ct ON ct.category_id = c.id AND ct.lang_code = \'cs\'
+             ORDER BY c.sort_order, c.id'
+        )->fetchAll();
     }
 
     public static function findById(int $id): ?array
@@ -45,6 +50,14 @@ class CategoryModel
         $pdo  = Database::getConnection();
         $stmt = $pdo->prepare('UPDATE categories SET slug = ?, sort_order = ? WHERE id = ?');
         $stmt->execute([$data['slug'], (int) ($data['sort_order'] ?? 0), $id]);
+    }
+
+    public static function hasProducts(int $id): bool
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM products WHERE category_id = ?');
+        $stmt->execute([$id]);
+        return (int) $stmt->fetchColumn() > 0;
     }
 
     public static function delete(int $id): void
