@@ -48,10 +48,14 @@ class Migrator
 
     private function ensureTable(): void
     {
-        $this->pdo->exec('CREATE TABLE IF NOT EXISTS schema_migrations (
-            version    VARCHAR(255) NOT NULL PRIMARY KEY,
-            applied_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
+        try {
+            $this->pdo->query('SELECT 1 FROM schema_migrations LIMIT 1');
+        } catch (\PDOException $e) {
+            throw new \RuntimeException(
+                'Table schema_migrations missing. Create it manually: ' .
+                'CREATE TABLE schema_migrations (version VARCHAR(255) NOT NULL PRIMARY KEY, applied_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;'
+            );
+        }
     }
 
     private function appliedVersions(): array
