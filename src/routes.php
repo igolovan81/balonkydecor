@@ -88,7 +88,7 @@ $app->group('/admin', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->post('/translate', function ($request, $response) {
         $body       = json_decode((string) $request->getBody(), true) ?? [];
         $texts      = $body['texts'] ?? null;
-        $targetLang = strtoupper(trim($body['target'] ?? ''));
+        $targetLang = strtoupper(trim(is_string($body['target'] ?? '') ? ($body['target'] ?? '') : ''));
         $allowed    = ['CS', 'SK', 'EN', 'UK', 'RU'];
 
         if (!is_array($texts) || count($texts) === 0 || !in_array($targetLang, $allowed, true)) {

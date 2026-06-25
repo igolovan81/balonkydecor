@@ -7,7 +7,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class CategoryController extends AdminBaseController
 {
-    private const LANGS = ['cs', 'en', 'ru', 'uk', 'sk'];
+    private const LANGS = ['cs', 'sk', 'en', 'uk', 'ru'];
 
     public function index(Request $request, Response $response, array $args): Response
     {
