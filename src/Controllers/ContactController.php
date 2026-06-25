@@ -10,17 +10,9 @@ class ContactController extends BaseController
 {
     public function index(Request $request, Response $response, array $args): Response
     {
-        $pdo  = Database::getConnection();
-        $rows = $pdo->query("SELECT `key`, `value` FROM settings WHERE `key` IN ('contact_email','contact_phone','contact_address')")
-                    ->fetchAll();
-        $info = array_column($rows, 'value', 'key');
-
         return $this->render($request, $response, 'public/contact.twig', [
-            'success'       => false,
-            'error'         => false,
-            'contact_email' => $info['contact_email'] ?? '',
-            'contact_phone' => $info['contact_phone'] ?? '',
-            'contact_address' => $info['contact_address'] ?? '',
+            'success' => false,
+            'error'   => false,
         ]);
     }
 
@@ -32,22 +24,17 @@ class ContactController extends BaseController
         $email   = trim($body['email']   ?? '');
         $message = trim($body['message'] ?? '');
 
-        $pdo     = Database::getConnection();
-        $rows    = $pdo->query("SELECT `key`, `value` FROM settings WHERE `key` IN ('contact_email','contact_phone','contact_address')")
-                       ->fetchAll();
-        $info    = array_column($rows, 'value', 'key');
-        $adminTo = ($info['contact_email'] ?? '') ?: 'admin@balonkydecor.cz';
-
         if (!$name || !filter_var($email, FILTER_VALIDATE_EMAIL) || !$message) {
             return $this->render($request, $response, 'public/contact.twig', [
-                'success'         => false,
-                'error'           => true,
-                'values'          => ['name' => $name, 'email' => $email, 'message' => $message],
-                'contact_email'   => $info['contact_email'] ?? '',
-                'contact_phone'   => $info['contact_phone'] ?? '',
-                'contact_address' => $info['contact_address'] ?? '',
+                'success' => false,
+                'error'   => true,
+                'values'  => ['name' => $name, 'email' => $email, 'message' => $message],
             ]);
         }
+
+        $pdo     = Database::getConnection();
+        $setting = $pdo->query("SELECT value FROM settings WHERE `key`='contact_email'")->fetchColumn();
+        $adminTo = $setting ?: 'admin@balonkydecor.cz';
 
         $html = "<p><strong>Name:</strong> " . htmlspecialchars($name) . "</p>"
               . "<p><strong>Email:</strong> " . htmlspecialchars($email) . "</p>"

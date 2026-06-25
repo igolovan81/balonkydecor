@@ -63,8 +63,6 @@
   "contact.title": "Контакты",
   "contact.name": "Имя",
   "contact.email": "E-mail",
-  "contact.phone": "Телефон",
-  "contact.address": "Адрес",
   "contact.message": "Сообщение",
   "contact.send": "Отправить",
   "contact.success": "Спасибо! Ваше сообщение отправлено.",

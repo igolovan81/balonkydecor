@@ -63,8 +63,6 @@
   "contact.title": "Contact",
   "contact.name": "Name",
   "contact.email": "Email",
-  "contact.phone": "Phone",
-  "contact.address": "Address",
   "contact.message": "Message",
   "contact.send": "Send",
   "contact.success": "Thank you! Your message has been sent.",

@@ -7,28 +7,6 @@
     <div class="container"><h1>{{ t('contact.title') }}</h1></div>
 </section>
 <div class="container contact-layout">
-    {% if contact_email or contact_phone or contact_address %}
-    <div class="contact-info">
-        {% if contact_email %}
-        <div class="contact-info-item">
-            <strong>{{ t('contact.email') }}</strong>
-            <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>
-        </div>
-        {% endif %}
-        {% if contact_phone %}
-        <div class="contact-info-item">
-            <strong>{{ t('contact.phone') }}</strong>
-            <a href="tel:{{ contact_phone }}">{{ contact_phone }}</a>
-        </div>
-        {% endif %}
-        {% if contact_address %}
-        <div class="contact-info-item">
-            <strong>{{ t('contact.address') }}</strong>
-            <span>{{ contact_address }}</span>
-        </div>
-        {% endif %}
-    </div>
-    {% endif %}
     <div class="contact-form-wrap">
         {% if success %}
         <p class="form-success">{{ t('contact.success') }}</p>
