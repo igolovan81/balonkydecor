@@ -84,7 +84,7 @@ $app->group('/admin', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->get('/settings',  SettingsController::class . ':index');
     $group->post('/settings', SettingsController::class . ':save');
 
-    // Auto-translate (DeepL)
+    // Auto-translate (MyMemory)
     $group->post('/translate', function ($request, $response) {
         $body       = json_decode((string) $request->getBody(), true) ?? [];
         $texts      = $body['texts'] ?? null;
@@ -97,7 +97,7 @@ $app->group('/admin', function (\Slim\Routing\RouteCollectorProxy $group) {
         }
 
         try {
-            $translated = \App\Services\DeepL::translate($texts, $targetLang);
+            $translated = \App\Services\Translator::translate($texts, $targetLang);
             $response->getBody()->write(json_encode(['texts' => $translated]));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
         } catch (\Throwable $e) {

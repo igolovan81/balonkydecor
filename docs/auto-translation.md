@@ -1,16 +1,12 @@
-# Auto-Translation (DeepL)
+# Auto-Translation (MyMemory)
 
-BalonkyDecor uses the DeepL API to auto-populate translation fields in the admin panel. Currently available on the category form; other entity types (products, blog, pages, gallery) are out of scope for now.
+BalonkyDecor uses the [MyMemory](https://mymemory.translated.net/) free translation API to auto-populate translation fields in the admin panel. No API key or registration required. Currently available on the category form; other entity types (products, blog, pages, gallery) are out of scope for now.
 
 ---
 
 ## Setup
 
-1. Obtain a DeepL API key from [deepl.com](https://www.deepl.com/pro-api) (free tier works).
-2. Log in to the admin panel and go to **Nastavení** (`/admin/settings`).
-3. Paste the key into the **DeepL API klíč** field and save.
-
-The key is stored in the `settings` table under the key `deepl_api_key`. The free-tier endpoint (`api-free.deepl.com`) is used; switching to a paid plan requires changing the base URL in `src/Services/DeepL.php`.
+No configuration needed. MyMemory is a public free API with a limit of ~1,000 words/day. No API key or admin settings change is required — the translate buttons work out of the box.
 
 ---
 
@@ -43,8 +39,8 @@ The translate button is available on every non-CZ tab. It always translates from
 | Situation | Behaviour |
 |-----------|-----------|
 | CZ name and description both empty | Inline message "Nejprve vyplňte český název." — no API call is made |
-| `deepl_api_key` not set in settings | Inline message "Překlad se nezdařil: DeepL API key not configured" |
-| DeepL API error (quota, network, etc.) | Inline message "Překlad se nezdařil: \<error detail\>" |
+| MyMemory quota exceeded (~1,000 words/day) | Inline message "Překlad se nezdařil: \<error detail\>" |
+| Network error | Inline message "Překlad se nezdařil: \<error detail\>" |
 | Invalid target language | 400 JSON error from the endpoint (not reachable via normal UI) |
 
 Existing field values are never cleared on error.
@@ -53,11 +49,11 @@ Existing field values are never cleared on error.
 
 ## Architecture
 
-### `src/Services/DeepL.php`
+### `src/Services/Translator.php`
 
-Static service class. `DeepL::translate(array $texts, string $targetLang)` reads `deepl_api_key` from the `settings` table and POSTs all texts in a single request to the DeepL v2 API. Returns translated strings in the same order as input.
+Static service class. `Translator::translate(array $texts, string $targetLang)` makes one GET request to the MyMemory API per text and returns translated strings in the same order as input. Source language is always Czech (`cs`).
 
-The transport (HTTP call) is injectable via an optional `$transport` callable — used by unit tests to avoid real HTTP and DB access.
+The transport (HTTP call) is injectable via an optional `$transport` callable — used by unit tests to avoid real HTTP calls.
 
 ### `POST /admin/translate`
 
@@ -73,7 +69,7 @@ Response 200:
 { "texts": ["Slovak name", "Slovak description"] }
 ```
 
-Response 400 — invalid parameters. Response 500 — DeepL failure.
+Response 400 — invalid parameters. Response 500 — translation failure.
 
 ### `templates/admin/categories/form.twig`
 
@@ -83,14 +79,8 @@ Each non-CZ language panel contains a `.translate-btn` button and a `.translate-
 
 ## Tests
 
-`tests/Unit/Services/DeepLTest.php` — 4 tests covering happy path, malformed response, missing API key, and target language validation. All use an injectable transport; no real HTTP or database access required.
+`tests/Unit/Services/TranslatorTest.php` — 4 tests covering happy path, malformed response, invalid target language, and URL construction. All use an injectable transport; no real HTTP calls required.
 
 ```bash
-php vendor/bin/phpunit tests/Unit/Services/DeepLTest.php --testdox
+php vendor/bin/phpunit tests/Unit/Services/TranslatorTest.php --testdox
 ```
-
----
-
-## Database Migration
-
-`database/migrations/V005__deepl_api_key_setting.sql` — adds the `deepl_api_key` row to the `settings` table (empty string default). Must be applied on any environment where the feature is used.
