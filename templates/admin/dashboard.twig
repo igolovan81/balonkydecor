@@ -1,29 +1,35 @@
 {% extends "layout/admin-base.twig" %}
-{% block title %}Dashboard{% endblock %}
+{% block title %}{{ t('dashboard.title') }}{% endblock %}
 {% block content %}
-<div class="admin-topbar"><h1>Dashboard</h1></div>
+<div class="admin-topbar"><h1>{{ t('dashboard.title') }}</h1></div>
 <div class="stat-grid">
     <div class="stat-card">
         <div class="stat-value">{{ stats.orders_today }}</div>
-        <div class="stat-label">Objednávky dnes</div>
+        <div class="stat-label">{{ t('dashboard.stats.orders_today') }}</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ stats.orders_pending }}</div>
-        <div class="stat-label">Čekající objednávky</div>
+        <div class="stat-label">{{ t('dashboard.stats.orders_pending') }}</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ stats.orders_total }}</div>
-        <div class="stat-label">Celkem objednávek</div>
+        <div class="stat-label">{{ t('dashboard.stats.orders_total') }}</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ stats.products_active }}</div>
-        <div class="stat-label">Aktivní produkty</div>
+        <div class="stat-label">{{ t('dashboard.stats.products_active') }}</div>
     </div>
 </div>
-<h2>Poslední objednávky</h2>
+<h2>{{ t('dashboard.recent_orders') }}</h2>
 <table class="admin-table">
     <thead>
-        <tr><th>Číslo</th><th>Zákazník</th><th>Celkem</th><th>Status</th><th>Vytvořena</th></tr>
+        <tr>
+            <th>{{ t('dashboard.col.number') }}</th>
+            <th>{{ t('dashboard.col.customer') }}</th>
+            <th>{{ t('dashboard.col.total') }}</th>
+            <th>{{ t('dashboard.col.status') }}</th>
+            <th>{{ t('dashboard.col.created') }}</th>
+        </tr>
     </thead>
     <tbody>
     {% for o in recent %}
@@ -35,7 +41,7 @@
         <td>{{ o.created_at }}</td>
     </tr>
     {% else %}
-    <tr><td colspan="5">Žádné objednávky.</td></tr>
+    <tr><td colspan="5">{{ t('dashboard.no_orders') }}</td></tr>
     {% endfor %}
     </tbody>
 </table>

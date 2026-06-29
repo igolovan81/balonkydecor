@@ -26,5 +26,17 @@
   "settings.client_id": "Client ID",
   "settings.client_secret": "Client Secret",
   "settings.test_mode": "Test mode (sandbox)",
-  "settings.save": "Save settings"
+  "settings.save": "Save settings",
+  "dashboard.title": "Dashboard",
+  "dashboard.stats.orders_today": "Orders today",
+  "dashboard.stats.orders_pending": "Pending orders",
+  "dashboard.stats.orders_total": "Total orders",
+  "dashboard.stats.products_active": "Active products",
+  "dashboard.recent_orders": "Recent orders",
+  "dashboard.col.number": "Number",
+  "dashboard.col.customer": "Customer",
+  "dashboard.col.total": "Total",
+  "dashboard.col.status": "Status",
+  "dashboard.col.created": "Created",
+  "dashboard.no_orders": "No orders."
 }

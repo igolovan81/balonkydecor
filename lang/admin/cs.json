@@ -26,5 +26,17 @@
   "settings.client_id": "Client ID",
   "settings.client_secret": "Client Secret",
   "settings.test_mode": "Testovací režim (sandbox)",
-  "settings.save": "Uložit nastavení"
+  "settings.save": "Uložit nastavení",
+  "dashboard.title": "Dashboard",
+  "dashboard.stats.orders_today": "Objednávky dnes",
+  "dashboard.stats.orders_pending": "Čekající objednávky",
+  "dashboard.stats.orders_total": "Celkem objednávek",
+  "dashboard.stats.products_active": "Aktivní produkty",
+  "dashboard.recent_orders": "Poslední objednávky",
+  "dashboard.col.number": "Číslo",
+  "dashboard.col.customer": "Zákazník",
+  "dashboard.col.total": "Celkem",
+  "dashboard.col.status": "Status",
+  "dashboard.col.created": "Vytvořena",
+  "dashboard.no_orders": "Žádné objednávky."
 }

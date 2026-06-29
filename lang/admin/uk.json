@@ -26,5 +26,17 @@
   "settings.client_id": "Client ID",
   "settings.client_secret": "Client Secret",
   "settings.test_mode": "Тестовий режим (sandbox)",
-  "settings.save": "Зберегти налаштування"
+  "settings.save": "Зберегти налаштування",
+  "dashboard.title": "Дашборд",
+  "dashboard.stats.orders_today": "Замовлення сьогодні",
+  "dashboard.stats.orders_pending": "Очікуючі замовлення",
+  "dashboard.stats.orders_total": "Всього замовлень",
+  "dashboard.stats.products_active": "Активні товари",
+  "dashboard.recent_orders": "Останні замовлення",
+  "dashboard.col.number": "Номер",
+  "dashboard.col.customer": "Клієнт",
+  "dashboard.col.total": "Разом",
+  "dashboard.col.status": "Статус",
+  "dashboard.col.created": "Створено",
+  "dashboard.no_orders": "Немає замовлень."
 }

@@ -26,5 +26,17 @@
   "settings.client_id": "Client ID",
   "settings.client_secret": "Client Secret",
   "settings.test_mode": "Тестовый режим (sandbox)",
-  "settings.save": "Сохранить настройки"
+  "settings.save": "Сохранить настройки",
+  "dashboard.title": "Дашборд",
+  "dashboard.stats.orders_today": "Заказы сегодня",
+  "dashboard.stats.orders_pending": "Ожидающие заказы",
+  "dashboard.stats.orders_total": "Всего заказов",
+  "dashboard.stats.products_active": "Активные товары",
+  "dashboard.recent_orders": "Последние заказы",
+  "dashboard.col.number": "Номер",
+  "dashboard.col.customer": "Клиент",
+  "dashboard.col.total": "Итого",
+  "dashboard.col.status": "Статус",
+  "dashboard.col.created": "Создан",
+  "dashboard.no_orders": "Нет заказов."
 }
