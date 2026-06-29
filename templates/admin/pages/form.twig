@@ -1,9 +1,9 @@
 {% extends "layout/admin-base.twig" %}
-{% block title %}Stránka: {{ slug }}{% endblock %}
+{% block title %}{{ t('pages.form.title') }} {{ slug }}{% endblock %}
 {% block content %}
 <div class="admin-topbar">
-    <h1>Stránka: {{ slug }}</h1>
-    <a href="/admin/pages" class="btn btn-secondary">← Zpět</a>
+    <h1>{{ t('pages.form.title') }} {{ slug }}</h1>
+    <a href="/admin/pages" class="btn btn-secondary">{{ t('pages.form.back') }}</a>
 </div>
 <form method="POST" action="/admin/pages/{{ slug }}/edit" class="admin-form">
     <div class="lang-tabs">
@@ -14,18 +14,18 @@
     {% for lang in langs %}
     <div class="lang-panel {% if loop.first %}active{% endif %}" id="panel-{{ lang }}">
         <div class="form-group">
-            <label>Nadpis ({{ lang }})</label>
+            <label>{{ t('pages.form.title_label') }} ({{ lang|upper }})</label>
             <input type="text" name="t[{{ lang }}][title]" value="{{ translations[lang].title ?? '' }}">
         </div>
         <div class="form-group">
-            <label>Obsah ({{ lang }}) — HTML povoleno</label>
+            <label>{{ t('pages.form.body_label') }} ({{ lang|upper }})</label>
             <textarea name="t[{{ lang }}][body]" style="min-height:300px;">{{ translations[lang].body ?? '' }}</textarea>
         </div>
     </div>
     {% endfor %}
     <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Uložit</button>
-        <a href="/admin/pages" class="btn btn-secondary">Zrušit</a>
+        <button type="submit" class="btn btn-primary">{{ t('pages.form.save') }}</button>
+        <a href="/admin/pages" class="btn btn-secondary">{{ t('pages.form.cancel') }}</a>
     </div>
 </form>
 {% block scripts %}

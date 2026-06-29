@@ -1,14 +1,14 @@
 {% extends "layout/admin-base.twig" %}
-{% block title %}Stránky{% endblock %}
+{% block title %}{{ t('pages.title') }}{% endblock %}
 {% block content %}
-<div class="admin-topbar"><h1>Stránky</h1></div>
+<div class="admin-topbar"><h1>{{ t('pages.title') }}</h1></div>
 <table class="admin-table">
-    <thead><tr><th>Stránka</th><th>Akce</th></tr></thead>
+    <thead><tr><th>{{ t('pages.col.page') }}</th><th>{{ t('pages.col.actions') }}</th></tr></thead>
     <tbody>
     {% for slug in slugs %}
     <tr>
         <td>{{ slug }}</td>
-        <td><a href="/admin/pages/{{ slug }}/edit">Upravit překlady</a></td>
+        <td><a href="/admin/pages/{{ slug }}/edit">{{ t('pages.edit') }}</a></td>
     </tr>
     {% endfor %}
     </tbody>
