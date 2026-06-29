@@ -1,8 +1,114 @@
 # Admin Internationalisation — Design Spec
 
 **Date:** 2026-06-29  
-**Scope:** Navigation links and Settings page. Flash messages from controllers are out of scope for this iteration.  
 **Languages:** cs, sk, en, uk, ru (same set as the public site)
+
+---
+
+## Iteration 2 — Dashboard, Users, Blog (2026-06-29)
+
+**Scope:** Extend i18n to Dashboard, Users, and Blog section templates. Flash messages from PHP controllers and JS `confirm()` dialogs are out of scope (matches Settings pattern).
+
+### Infrastructure (already in place from Iteration 1)
+- `lang/admin/{cs,en,ru,sk,uk}.json` with `nav.*` + `settings.*` keys
+- `AdminBaseController::renderAdmin()` wires up `I18nExtension` from `admin_i18n` request attribute
+- `AdminLangController` + `/admin/set-lang` route
+
+### New translation keys
+
+**`dashboard.*` (12 keys)**
+
+| Key | CS | EN |
+|-----|----|----|
+| `dashboard.title` | Dashboard | Dashboard |
+| `dashboard.stats.orders_today` | Objednávky dnes | Orders today |
+| `dashboard.stats.orders_pending` | Čekající objednávky | Pending orders |
+| `dashboard.stats.orders_total` | Celkem objednávek | Total orders |
+| `dashboard.stats.products_active` | Aktivní produkty | Active products |
+| `dashboard.recent_orders` | Poslední objednávky | Recent orders |
+| `dashboard.col.number` | Číslo | Number |
+| `dashboard.col.customer` | Zákazník | Customer |
+| `dashboard.col.total` | Celkem | Total |
+| `dashboard.col.status` | Status | Status |
+| `dashboard.col.created` | Vytvořena | Created |
+| `dashboard.no_orders` | Žádné objednávky. | No orders. |
+
+**`users.*` (19 keys)**
+
+| Key | CS | EN |
+|-----|----|----|
+| `users.title` | Uživatelé | Users |
+| `users.add` | + Přidat uživatele | + Add user |
+| `users.col.id` | ID | ID |
+| `users.col.email` | E-mail | E-mail |
+| `users.col.role` | Role | Role |
+| `users.col.created` | Vytvořen | Created |
+| `users.col.actions` | Akce | Actions |
+| `users.new_password` | Nové heslo | New password |
+| `users.change_password` | Změnit heslo | Change password |
+| `users.delete` | Smazat | Delete |
+| `users.confirm_delete` | Smazat uživatele? | Delete user? |
+| `users.no_users` | Žádní uživatelé. | No users. |
+| `users.form.title_new` | Nový uživatel | New user |
+| `users.form.back` | ← Zpět | ← Back |
+| `users.form.email` | E-mail | E-mail |
+| `users.form.password` | Heslo (min. 8 znaků) | Password (min. 8 characters) |
+| `users.form.role` | Role | Role |
+| `users.form.create` | Vytvořit | Create |
+| `users.form.cancel` | Zrušit | Cancel |
+
+**`blog.*` (24 keys)**
+
+| Key | CS | EN |
+|-----|----|----|
+| `blog.title` | Blog | Blog |
+| `blog.add` | + Nový příspěvek | + New post |
+| `blog.col.id` | ID | ID |
+| `blog.col.slug` | Slug | Slug |
+| `blog.col.status` | Status | Status |
+| `blog.col.date` | Datum | Date |
+| `blog.col.actions` | Akce | Actions |
+| `blog.edit` | Upravit | Edit |
+| `blog.delete` | Smazat | Delete |
+| `blog.confirm_delete` | Smazat příspěvek? | Delete post? |
+| `blog.no_posts` | Žádné příspěvky. | No posts. |
+| `blog.form.title_new` | Nový příspěvek | New post |
+| `blog.form.title_edit` | Upravit příspěvek | Edit post |
+| `blog.form.back` | ← Zpět | ← Back |
+| `blog.form.slug` | Slug | Slug |
+| `blog.form.status` | Status | Status |
+| `blog.form.status_draft` | Koncept (draft) | Draft |
+| `blog.form.status_published` | Publikováno | Published |
+| `blog.form.published_at` | Datum publikace | Publication date |
+| `blog.form.translations` | Překlady | Translations |
+| `blog.form.title_label` | Nadpis | Title |
+| `blog.form.body_label` | Obsah — HTML povoleno | Content — HTML allowed |
+| `blog.form.save` | Uložit | Save |
+| `blog.form.cancel` | Zrušit | Cancel |
+
+### Twig templates to update
+
+- `templates/admin/dashboard.twig` — 12 strings
+- `templates/admin/users/index.twig` — 10 strings
+- `templates/admin/users/form.twig` — 9 strings
+- `templates/admin/blog/index.twig` — 10 strings
+- `templates/admin/blog/form.twig` — 14 strings
+
+**Dynamic label pattern (blog/form.twig, inside `for lang in langs` loop):**
+```twig
+{{ t('blog.form.title_label') }} ({{ lang|upper }})
+{{ t('blog.form.body_label') }} ({{ lang|upper }})
+```
+
+### Key invariant
+After this iteration, all 5 lang files must have identical key sets:
+`nav.*` (10) + `settings.*` (16) + `dashboard.*` (12) + `users.*` (19) + `blog.*` (24) = **81 keys per file**
+
+---
+
+## Iteration 1 — Navigation and Settings (2026-06-29)
+
+**Scope:** Navigation links and Settings page. Flash messages from controllers are out of scope for this iteration.  
 
 ---
 
