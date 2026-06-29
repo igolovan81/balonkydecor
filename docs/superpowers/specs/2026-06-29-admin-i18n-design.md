@@ -204,6 +204,96 @@ After this iteration, all 5 lang files must have identical key sets:
 
 ---
 
+## Iteration 4 — Orders, Gallery + key sort (2026-06-29)
+
+**Scope:** Extend i18n to Orders and Gallery section templates. Additionally, sort all keys in all 5 `lang/admin/*.json` files alphabetically by key name (one-time housekeeping). Flash messages, JS `confirm()` dialogs, and JS runtime strings remain hardcoded Czech (same pattern as Iterations 1–3).
+
+### Infrastructure (already in place)
+Same as Iterations 1–3 — no new files or classes.
+
+### Key-sort housekeeping
+
+All 5 lang files currently have 132 keys in insertion order. As part of Task 13 (Orders), after adding the `orders.*` keys, sort the resulting file alphabetically by key name. Task 14 (Gallery) then adds `gallery.*` keys already in their sorted positions.
+
+Final alphabetical section order: `blog.*` → `categories.*` → `dashboard.*` → `gallery.*` → `nav.*` → `orders.*` → `products.*` → `settings.*` → `users.*`
+
+### New translation keys
+
+**`orders.*` (27 keys)**
+
+| Key | CS | EN |
+|-----|----|----|
+| `orders.title` | Objednávky | Orders |
+| `orders.filter` | Filtrovat: | Filter: |
+| `orders.filter_all` | — všechny — | — all — |
+| `orders.col.number` | Číslo | Number |
+| `orders.col.customer` | Zákazník | Customer |
+| `orders.col.email` | E-mail | E-mail |
+| `orders.col.total` | Celkem | Total |
+| `orders.col.status` | Status | Status |
+| `orders.col.created` | Vytvořena | Created |
+| `orders.detail_link` | Detail → | Detail → |
+| `orders.no_orders` | Žádné objednávky. | No orders. |
+| `orders.detail.title` | Objednávka | Order |
+| `orders.detail.back` | ← Zpět | ← Back |
+| `orders.detail.customer` | Zákazník | Customer |
+| `orders.detail.name` | Jméno: | Name: |
+| `orders.detail.email` | E-mail: | E-mail: |
+| `orders.detail.phone` | Telefon: | Phone: |
+| `orders.detail.pickup_date` | Datum vyzvednutí: | Pickup date: |
+| `orders.detail.notes` | Poznámka: | Notes: |
+| `orders.detail.gopay_id` | GoPay ID: | GoPay ID: |
+| `orders.detail.created` | Vytvořena: | Created: |
+| `orders.detail.change_status` | Změnit status | Change status |
+| `orders.detail.save` | Uložit | Save |
+| `orders.detail.col.product` | Produkt | Product |
+| `orders.detail.col.qty` | Ks | Qty |
+| `orders.detail.col.unit_price` | Cena/ks | Unit price |
+| `orders.detail.col.total` | Celkem | Total |
+
+**`gallery.*` (23 keys)**
+
+| Key | CS | EN |
+|-----|----|----|
+| `gallery.title` | Galerie | Gallery |
+| `gallery.add` | + Přidat album | + Add album |
+| `gallery.col.id` | ID | ID |
+| `gallery.col.slug` | Slug | Slug |
+| `gallery.col.order` | Pořadí | Order |
+| `gallery.col.actions` | Akce | Actions |
+| `gallery.edit` | Upravit | Edit |
+| `gallery.delete` | Smazat | Delete |
+| `gallery.confirm_delete` | Smazat album i se všemi fotkami? | Delete album with all photos? |
+| `gallery.no_albums` | Žádná alba. | No albums. |
+| `gallery.form.title_new` | Nové album | New album |
+| `gallery.form.title_edit` | Upravit album | Edit album |
+| `gallery.form.back` | ← Zpět | ← Back |
+| `gallery.form.slug` | Slug | Slug |
+| `gallery.form.order` | Pořadí | Order |
+| `gallery.form.existing_photos` | Fotky v albu | Album photos |
+| `gallery.form.delete_photo` | Smazat | Delete |
+| `gallery.form.add_photos` | Přidat fotky | Add photos |
+| `gallery.form.translations` | Překlady | Translations |
+| `gallery.form.name_label` | Název alba | Album name |
+| `gallery.form.desc_label` | Popis | Description |
+| `gallery.form.save` | Uložit | Save |
+| `gallery.form.cancel` | Zrušit | Cancel |
+
+Note: `gallery.confirm_delete` is defined but not used in the template — the JS `confirm('Smazat album i se všemi fotkami?')` stays hardcoded Czech. This matches the established pattern for `products.confirm_delete` and `categories.confirm_delete`.
+
+### Twig templates to update
+
+- `templates/admin/orders/index.twig` — 11 strings
+- `templates/admin/orders/detail.twig` — 16 strings; title becomes `{{ t('orders.detail.title') }} {{ order.order_number }}`; `orders.detail.col.total` used for both the column header and the summary label
+- `templates/admin/gallery/index.twig` — 9 strings (JS confirm stays Czech)
+- `templates/admin/gallery/form.twig` — 13 strings; dynamic label pattern: `{{ t('gallery.form.name_label') }} ({{ lang|upper }})`, `{{ t('gallery.form.desc_label') }} ({{ lang|upper }})`
+
+### Key invariant
+After this iteration, all 5 lang files must have identical key sets, sorted alphabetically:
+132 (existing) + 27 (orders) + 23 (gallery) = **182 keys per file**
+
+---
+
 ## Iteration 1 — Navigation and Settings (2026-06-29)
 
 **Scope:** Navigation links and Settings page. Flash messages from controllers are out of scope for this iteration.  
