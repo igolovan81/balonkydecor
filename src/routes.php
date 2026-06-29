@@ -19,6 +19,7 @@ use App\Controllers\Admin\PageController as AdminPageController;
 use App\Controllers\Admin\ProductController;
 use App\Controllers\Admin\SettingsController;
 use App\Controllers\Admin\UserController;
+use App\Middleware\AdminLangMiddleware;
 use App\Middleware\AuthMiddleware;
 use Slim\App;
 
@@ -112,7 +113,7 @@ $app->group('/admin', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->post('/users/new',                     UserController::class . ':createSubmit');
     $group->post('/users/{id:[0-9]+}/password',    UserController::class . ':changePassword');
     $group->post('/users/{id:[0-9]+}/delete',      UserController::class . ':delete');
-})->add(new AuthMiddleware());
+})->add(new AdminLangMiddleware(__DIR__ . '/../lang/admin'))->add(new AuthMiddleware());
 
 // Redirect bare root to default language
 $app->get('/', function ($req, $res) {
