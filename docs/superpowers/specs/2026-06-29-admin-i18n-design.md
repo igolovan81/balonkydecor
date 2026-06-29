@@ -106,6 +106,104 @@ After this iteration, all 5 lang files must have identical key sets:
 
 ---
 
+## Iteration 3 — Products, Categories (2026-06-29)
+
+**Scope:** Extend i18n to Products and Categories section templates. Flash messages, JS confirm() dialogs, and JS runtime strings remain hardcoded Czech (same pattern as Iterations 1–2).
+
+### Infrastructure (already in place)
+Same as Iteration 2 — no new files or classes.
+
+### New translation keys
+
+**`products.*` (27 keys)**
+
+| Key | CS | EN |
+|-----|----|----|
+| `products.title` | Produkty | Products |
+| `products.add` | + Přidat produkt | + Add product |
+| `products.col.image` | Obrázek | Image |
+| `products.col.sku` | SKU | SKU |
+| `products.col.category` | Kategorie | Category |
+| `products.col.price` | Cena | Price |
+| `products.col.active` | Aktivní | Active |
+| `products.col.actions` | Akce | Actions |
+| `products.edit` | Upravit | Edit |
+| `products.delete` | Smazat | Delete |
+| `products.confirm_delete` | Smazat produkt? | Delete product? |
+| `products.no_products` | Žádné produkty. | No products. |
+| `products.form.title_new` | Nový produkt | New product |
+| `products.form.title_edit` | Upravit produkt | Edit product |
+| `products.form.back` | ← Zpět | ← Back |
+| `products.form.sku` | SKU | SKU |
+| `products.form.price` | Cena (Kč) | Price (CZK) |
+| `products.form.category` | Kategorie | Category |
+| `products.form.active` | Aktivní | Active |
+| `products.form.add_image` | Přidat obrázek | Add image |
+| `products.form.existing_images` | Stávající obrázky | Existing images |
+| `products.form.delete_image` | Smazat | Delete |
+| `products.form.translations` | Překlady | Translations |
+| `products.form.name_label` | Název | Name |
+| `products.form.desc_label` | Popis | Description |
+| `products.form.save` | Uložit | Save |
+| `products.form.cancel` | Zrušit | Cancel |
+
+**`categories.*` (22 keys)**
+
+| Key | CS | EN |
+|-----|----|----|
+| `categories.title` | Kategorie | Categories |
+| `categories.add` | + Přidat kategorii | + Add category |
+| `categories.col.id` | ID | ID |
+| `categories.col.name` | Název | Name |
+| `categories.col.slug` | Slug | Slug |
+| `categories.col.order` | Pořadí | Order |
+| `categories.col.actions` | Akce | Actions |
+| `categories.edit` | Upravit | Edit |
+| `categories.delete` | Smazat | Delete |
+| `categories.confirm_delete` | Smazat? | Delete? |
+| `categories.no_categories` | Žádné kategorie. | No categories. |
+| `categories.form.title_new` | Nová kategorie | New category |
+| `categories.form.title_edit` | Upravit kategorii | Edit category |
+| `categories.form.back` | ← Zpět | ← Back |
+| `categories.form.slug` | Slug (URL) | Slug (URL) |
+| `categories.form.order` | Pořadí | Order |
+| `categories.form.translations` | Překlady | Translations |
+| `categories.form.name_label` | Název | Name |
+| `categories.form.desc_label` | Popis | Description |
+| `categories.form.translate_btn` | Přeložit z češtiny | Translate from Czech |
+| `categories.form.save` | Uložit | Save |
+| `categories.form.cancel` | Zrušit | Cancel |
+
+### Twig templates to update
+
+- `templates/admin/products/index.twig` — 11 strings
+- `templates/admin/products/form.twig` — 15 strings
+- `templates/admin/categories/index.twig` — 10 strings
+- `templates/admin/categories/form.twig` — 12 strings
+
+**Dynamic label pattern (products/form.twig, inside `for lang in langs` loop):**
+```twig
+{{ t('products.form.name_label') }} ({{ lang|upper }})
+{{ t('products.form.desc_label') }} ({{ lang|upper }})
+```
+
+**Dynamic label pattern (categories/form.twig, inside `for lang in langs` loop):**
+The form uses a `lang_labels` map already in place — preserve it:
+```twig
+{{ t('categories.form.name_label') }} ({{ lang_labels[lang] ?? lang|upper }})
+{{ t('categories.form.desc_label') }} ({{ lang_labels[lang] ?? lang|upper }})
+```
+
+**Auto-translate button (categories/form.twig, line 36):**
+The Twig-rendered button label is translated: `{{ t('categories.form.translate_btn') }}`.
+The JS runtime strings (loading state, error messages, button reset) remain hardcoded Czech — known minor inconsistency, out of scope per spec.
+
+### Key invariant
+After this iteration, all 5 lang files must have identical key sets:
+28 (nav+settings) + 55 (dashboard+users+blog) + 49 (products+categories) = **132 keys per file**
+
+---
+
 ## Iteration 1 — Navigation and Settings (2026-06-29)
 
 **Scope:** Navigation links and Settings page. Flash messages from controllers are out of scope for this iteration.  
