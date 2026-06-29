@@ -22,7 +22,11 @@ class AdminLangController extends AdminBaseController
             $_SESSION['admin_lang'] = $lang;
         }
 
-        $referer = $request->getServerParams()['HTTP_REFERER'] ?? '/admin';
+        $referer = $request->getServerParams()['HTTP_REFERER'] ?? '';
+        $host    = $request->getServerParams()['HTTP_HOST'] ?? '';
+        if (!$referer || ($host && !str_contains($referer, $host))) {
+            $referer = '/admin';
+        }
         return $this->redirect($response, $referer);
     }
 }
