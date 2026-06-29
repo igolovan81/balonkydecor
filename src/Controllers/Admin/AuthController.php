@@ -26,6 +26,7 @@ class AuthController extends AdminBaseController
         $user = AdminUserModel::findByEmail($email);
         if ($user && password_verify($password, $user['password_hash'])) {
             $_SESSION['admin_user'] = ['id' => $user['id'], 'email' => $user['email'], 'role' => $user['role']];
+            $_SESSION['admin_lang'] = AdminUserModel::getLang((int) $user['id']);
             return $this->redirect($response, '/admin');
         }
 
@@ -66,6 +67,7 @@ class AuthController extends AdminBaseController
         if (session_status() === PHP_SESSION_NONE) session_start();
         $user = AdminUserModel::findByEmail($email);
         $_SESSION['admin_user'] = ['id' => $user['id'], 'email' => $user['email'], 'role' => $user['role']];
+        $_SESSION['admin_lang'] = 'cs';
         return $this->redirect($response, '/admin');
     }
 }
