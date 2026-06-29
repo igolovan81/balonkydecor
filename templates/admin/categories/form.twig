@@ -1,20 +1,20 @@
 {% extends "layout/admin-base.twig" %}
-{% block title %}{{ category ? 'Upravit kategorii' : 'Nová kategorie' }}{% endblock %}
+{% block title %}{{ category ? t('categories.form.title_edit') : t('categories.form.title_new') }}{% endblock %}
 {% block content %}
 <div class="admin-topbar">
-    <h1>{{ category ? 'Upravit kategorii' : 'Nová kategorie' }}</h1>
-    <a href="/admin/categories" class="btn btn-secondary">← Zpět</a>
+    <h1>{{ category ? t('categories.form.title_edit') : t('categories.form.title_new') }}</h1>
+    <a href="/admin/categories" class="btn btn-secondary">{{ t('categories.form.back') }}</a>
 </div>
 <form method="POST" action="{{ category ? '/admin/categories/' ~ category.id ~ '/edit' : '/admin/categories/new' }}" class="admin-form">
     <div class="form-group">
-        <label>Slug (URL)</label>
+        <label>{{ t('categories.form.slug') }}</label>
         <input type="text" name="slug" value="{{ category.slug ?? '' }}" required>
     </div>
     <div class="form-group">
-        <label>Pořadí</label>
+        <label>{{ t('categories.form.order') }}</label>
         <input type="number" name="sort_order" value="{{ category.sort_order ?? 0 }}">
     </div>
-    <h3>Překlady</h3>
+    <h3>{{ t('categories.form.translations') }}</h3>
     {% set lang_labels = {cs: 'CZ', sk: 'SK', en: 'EN', uk: 'UA', ru: 'RU'} %}
     <div class="lang-tabs">
         {% for lang in langs %}
@@ -24,24 +24,24 @@
     {% for lang in langs %}
     <div class="lang-panel {% if loop.first %}active{% endif %}" id="panel-{{ lang }}">
         <div class="form-group">
-            <label>Název ({{ lang_labels[lang] ?? lang|upper }})</label>
+            <label>{{ t('categories.form.name_label') }} ({{ lang_labels[lang] ?? lang|upper }})</label>
             <input type="text" name="t[{{ lang }}][name]" value="{{ translations[lang].name ?? '' }}">
         </div>
         <div class="form-group">
-            <label>Popis ({{ lang_labels[lang] ?? lang|upper }})</label>
+            <label>{{ t('categories.form.desc_label') }} ({{ lang_labels[lang] ?? lang|upper }})</label>
             <textarea name="t[{{ lang }}][description]">{{ translations[lang].description ?? '' }}</textarea>
         </div>
         {% if lang != 'cs' %}
         <div class="form-group">
-            <button type="button" class="btn btn-secondary translate-btn" data-lang="{{ lang }}">Přeložit z češtiny</button>
+            <button type="button" class="btn btn-secondary translate-btn" data-lang="{{ lang }}">{{ t('categories.form.translate_btn') }}</button>
             <span class="translate-msg" style="display:none;margin-left:0.5rem;font-size:0.85rem;"></span>
         </div>
         {% endif %}
     </div>
     {% endfor %}
     <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Uložit</button>
-        <a href="/admin/categories" class="btn btn-secondary">Zrušit</a>
+        <button type="submit" class="btn btn-primary">{{ t('categories.form.save') }}</button>
+        <a href="/admin/categories" class="btn btn-secondary">{{ t('categories.form.cancel') }}</a>
     </div>
 </form>
 {% block scripts %}
@@ -77,7 +77,7 @@ document.querySelectorAll('.lang-tab').forEach(tab => {
     csName.addEventListener('input', () => { if (!locked) slugInput.value = toSlug(csName.value); });
 })();
 
-// Translate buttons
+// Translate buttons — JS runtime strings remain hardcoded Czech per spec
 document.querySelectorAll('.translate-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
         const targetLang = btn.dataset.lang;

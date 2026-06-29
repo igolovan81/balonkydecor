@@ -1,12 +1,20 @@
 {% extends "layout/admin-base.twig" %}
-{% block title %}Kategorie{% endblock %}
+{% block title %}{{ t('categories.title') }}{% endblock %}
 {% block content %}
 <div class="admin-topbar">
-    <h1>Kategorie</h1>
-    <a href="/admin/categories/new" class="btn btn-primary">+ Přidat kategorii</a>
+    <h1>{{ t('categories.title') }}</h1>
+    <a href="/admin/categories/new" class="btn btn-primary">{{ t('categories.add') }}</a>
 </div>
 <table class="admin-table">
-    <thead><tr><th>ID</th><th>Název</th><th>Slug</th><th>Pořadí</th><th>Akce</th></tr></thead>
+    <thead>
+        <tr>
+            <th>{{ t('categories.col.id') }}</th>
+            <th>{{ t('categories.col.name') }}</th>
+            <th>{{ t('categories.col.slug') }}</th>
+            <th>{{ t('categories.col.order') }}</th>
+            <th>{{ t('categories.col.actions') }}</th>
+        </tr>
+    </thead>
     <tbody>
     {% for cat in categories %}
     <tr>
@@ -15,14 +23,14 @@
         <td>{{ cat.slug }}</td>
         <td>{{ cat.sort_order }}</td>
         <td>
-            <a href="/admin/categories/{{ cat.id }}/edit">Upravit</a> |
+            <a href="/admin/categories/{{ cat.id }}/edit">{{ t('categories.edit') }}</a> |
             <form method="POST" action="/admin/categories/{{ cat.id }}/delete" style="display:inline" onsubmit="return confirm('Smazat?')">
-                <button class="btn-link">Smazat</button>
+                <button class="btn-link">{{ t('categories.delete') }}</button>
             </form>
         </td>
     </tr>
     {% else %}
-    <tr><td colspan="5">Žádné kategorie.</td></tr>
+    <tr><td colspan="5">{{ t('categories.no_categories') }}</td></tr>
     {% endfor %}
     </tbody>
 </table>
