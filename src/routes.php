@@ -18,6 +18,7 @@ use App\Controllers\Admin\OrderController as AdminOrderController;
 use App\Controllers\Admin\PageController as AdminPageController;
 use App\Controllers\Admin\ProductController;
 use App\Controllers\Admin\SettingsController;
+use App\Controllers\Admin\AdminLangController;
 use App\Controllers\Admin\UserController;
 use App\Middleware\AdminLangMiddleware;
 use App\Middleware\AuthMiddleware;
@@ -84,6 +85,9 @@ $app->group('/admin', function (\Slim\Routing\RouteCollectorProxy $group) {
     // Settings
     $group->get('/settings',  SettingsController::class . ':index');
     $group->post('/settings', SettingsController::class . ':save');
+
+    // Language switcher
+    $group->get('/set-lang', AdminLangController::class . ':setLang');
 
     // Auto-translate (MyMemory)
     $group->post('/translate', function ($request, $response) {
