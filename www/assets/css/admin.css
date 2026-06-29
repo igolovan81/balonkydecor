@@ -80,3 +80,8 @@ body.admin-login-page { background:#1a1a2e; display:flex; align-items:center; ju
 .pagination { display:flex; gap:0.5rem; }
 .pagination a { padding:0.35rem 0.65rem; border:1px solid #ddd; border-radius:4px; text-decoration:none; color:#333; font-size:0.9rem; }
 .pagination a.active { background:#e91e8c; color:#fff; border-color:#e91e8c; }
+
+.admin-lang-switcher { display: flex; gap: 0.4rem; margin-bottom: 0.75rem; font-size: 0.75rem; flex-wrap: wrap; }
+.admin-lang-switcher a { color: #6060a0; text-decoration: none; }
+.admin-lang-switcher a:hover { color: #a0a0c8; }
+.admin-lang-switcher a.active { color: #ffffff; font-weight: 600; }
