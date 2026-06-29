@@ -1,12 +1,12 @@
 {% extends "layout/admin-base.twig" %}
-{% block title %}Galerie{% endblock %}
+{% block title %}{{ t('gallery.title') }}{% endblock %}
 {% block content %}
 <div class="admin-topbar">
-    <h1>Galerie</h1>
-    <a href="/admin/gallery/new" class="btn btn-primary">+ Přidat album</a>
+    <h1>{{ t('gallery.title') }}</h1>
+    <a href="/admin/gallery/new" class="btn btn-primary">{{ t('gallery.add') }}</a>
 </div>
 <table class="admin-table">
-    <thead><tr><th>ID</th><th>Slug</th><th>Pořadí</th><th>Akce</th></tr></thead>
+    <thead><tr><th>{{ t('gallery.col.id') }}</th><th>{{ t('gallery.col.slug') }}</th><th>{{ t('gallery.col.order') }}</th><th>{{ t('gallery.col.actions') }}</th></tr></thead>
     <tbody>
     {% for a in albums %}
     <tr>
@@ -14,14 +14,14 @@
         <td>{{ a.slug }}</td>
         <td>{{ a.sort_order }}</td>
         <td>
-            <a href="/admin/gallery/{{ a.id }}/edit">Upravit</a> |
+            <a href="/admin/gallery/{{ a.id }}/edit">{{ t('gallery.edit') }}</a> |
             <form method="POST" action="/admin/gallery/{{ a.id }}/delete" style="display:inline" onsubmit="return confirm('Smazat album i se všemi fotkami?')">
-                <button class="btn-link">Smazat</button>
+                <button class="btn-link">{{ t('gallery.delete') }}</button>
             </form>
         </td>
     </tr>
     {% else %}
-    <tr><td colspan="4">Žádná alba.</td></tr>
+    <tr><td colspan="4">{{ t('gallery.no_albums') }}</td></tr>
     {% endfor %}
     </tbody>
 </table>
