@@ -1,12 +1,21 @@
 {% extends "layout/admin-base.twig" %}
-{% block title %}Produkty{% endblock %}
+{% block title %}{{ t('products.title') }}{% endblock %}
 {% block content %}
 <div class="admin-topbar">
-    <h1>Produkty</h1>
-    <a href="/admin/products/new" class="btn btn-primary">+ Přidat produkt</a>
+    <h1>{{ t('products.title') }}</h1>
+    <a href="/admin/products/new" class="btn btn-primary">{{ t('products.add') }}</a>
 </div>
 <table class="admin-table">
-    <thead><tr><th>Obrázek</th><th>SKU</th><th>Kategorie</th><th>Cena</th><th>Aktivní</th><th>Akce</th></tr></thead>
+    <thead>
+        <tr>
+            <th>{{ t('products.col.image') }}</th>
+            <th>{{ t('products.col.sku') }}</th>
+            <th>{{ t('products.col.category') }}</th>
+            <th>{{ t('products.col.price') }}</th>
+            <th>{{ t('products.col.active') }}</th>
+            <th>{{ t('products.col.actions') }}</th>
+        </tr>
+    </thead>
     <tbody>
     {% for p in products %}
     <tr>
@@ -20,14 +29,14 @@
         <td>{{ p.price|number_format(2, '.', ' ') }} Kč</td>
         <td>{{ p.is_active ? '✓' : '—' }}</td>
         <td>
-            <a href="/admin/products/{{ p.id }}/edit">Upravit</a> |
+            <a href="/admin/products/{{ p.id }}/edit">{{ t('products.edit') }}</a> |
             <form method="POST" action="/admin/products/{{ p.id }}/delete" style="display:inline" onsubmit="return confirm('Smazat produkt?')">
-                <button class="btn-link">Smazat</button>
+                <button class="btn-link">{{ t('products.delete') }}</button>
             </form>
         </td>
     </tr>
     {% else %}
-    <tr><td colspan="6">Žádné produkty.</td></tr>
+    <tr><td colspan="6">{{ t('products.no_products') }}</td></tr>
     {% endfor %}
     </tbody>
 </table>
