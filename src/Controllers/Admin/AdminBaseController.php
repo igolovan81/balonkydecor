@@ -15,10 +15,16 @@ abstract class AdminBaseController
             session_start();
         }
         $flash = $this->getFlash();
+        $i18n  = $request->getAttribute('admin_i18n');
+        $env   = $this->twig->getEnvironment();
+        if ($i18n && !$env->hasExtension(\App\Twig\I18nExtension::class)) {
+            $env->addExtension(new \App\Twig\I18nExtension($i18n));
+        }
         return $this->twig->render($response, $template, array_merge([
             'flash'          => $flash,
             'session_role'   => $_SESSION['admin_user']['role']  ?? '',
             'session_email'  => $_SESSION['admin_user']['email'] ?? '',
+            'admin_lang'     => $request->getAttribute('admin_lang', 'cs'),
         ], $data));
     }
 
