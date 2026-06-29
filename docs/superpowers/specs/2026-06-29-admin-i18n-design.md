@@ -204,6 +204,55 @@ After this iteration, all 5 lang files must have identical key sets:
 
 ---
 
+## Iteration 5 — Pages (2026-06-29)
+
+**Scope:** Extend i18n to the Pages section templates. Flash messages remain hardcoded Czech. No JS confirms or runtime strings in this section.
+
+### Infrastructure (already in place)
+Same as Iterations 1–4 — no new files or classes.
+
+### New translation keys
+
+**`pages.*` (10 keys)**
+
+| Key | CS | EN |
+|-----|----|----|
+| `pages.title` | Stránky | Pages |
+| `pages.col.page` | Stránka | Page |
+| `pages.col.actions` | Akce | Actions |
+| `pages.edit` | Upravit překlady | Edit translations |
+| `pages.form.title` | Stránka: | Page: |
+| `pages.form.back` | ← Zpět | ← Back |
+| `pages.form.title_label` | Nadpis | Title |
+| `pages.form.body_label` | Obsah — HTML povoleno | Content — HTML allowed |
+| `pages.form.save` | Uložit | Save |
+| `pages.form.cancel` | Zrušit | Cancel |
+
+Note: "— HTML povoleno" is absorbed into the `pages.form.body_label` value rather than hardcoded after the `t()` call, keeping the template clean.
+
+### Twig templates to update
+
+- `templates/admin/pages/index.twig` — 4 strings
+- `templates/admin/pages/form.twig` — 6 strings
+
+**Dynamic label pattern (inside `for lang in langs` loop):**
+```twig
+{{ t('pages.form.title_label') }} ({{ lang|upper }})
+{{ t('pages.form.body_label') }} ({{ lang|upper }})
+```
+
+**Title pattern (uses slug):**
+```twig
+{% block title %}{{ t('pages.form.title') }} {{ slug }}{% endblock %}
+<h1>{{ t('pages.form.title') }} {{ slug }}</h1>
+```
+
+### Key invariant
+After this iteration, all 5 lang files must have identical key sets:
+182 (post-Iteration 4) + 10 (pages) = **192 keys per file**
+
+---
+
 ## Iteration 4 — Orders, Gallery + key sort (2026-06-29)
 
 **Scope:** Extend i18n to Orders and Gallery section templates. Additionally, sort all keys in all 5 `lang/admin/*.json` files alphabetically by key name (one-time housekeeping). Flash messages, JS `confirm()` dialogs, and JS runtime strings remain hardcoded Czech (same pattern as Iterations 1–3).
