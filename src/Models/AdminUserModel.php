@@ -52,4 +52,19 @@ class AdminUserModel
         $stmt = $pdo->prepare('DELETE FROM users WHERE id = ?');
         $stmt->execute([$id]);
     }
+
+    public static function getLang(int $id): string
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare('SELECT lang FROM users WHERE id = ? LIMIT 1');
+        $stmt->execute([$id]);
+        return $stmt->fetchColumn() ?: 'cs';
+    }
+
+    public static function setLang(int $id, string $lang): void
+    {
+        $pdo  = Database::getConnection();
+        $pdo->prepare('UPDATE users SET lang = ? WHERE id = ?')
+            ->execute([$lang, $id]);
+    }
 }
