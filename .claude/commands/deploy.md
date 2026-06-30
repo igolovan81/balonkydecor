@@ -16,9 +16,27 @@ Deploy the BalonkyDecor application to WEDOS shared hosting via FTP.
    FTP_PASS="$FTP_PASS" ./scripts/deploy.sh
    ```
 
-4. After deploy, remind the user:
+4. Check for new migration files:
+   ```bash
+   git diff HEAD~1 --name-only | grep 'database/migrations/'
+   ```
+   If any new migration files were deployed, run them automatically:
+   ```bash
+   MIGRATE_TOKEN=$(php -r "echo (require 'config/settings.php')['migrate_token'];")
+   curl -s "http://balonkydecor.cz/migrate.php?token=${MIGRATE_TOKEN}" | python3 -m json.tool
+   ```
+   Interpret the response:
+   - `{"applied":[...],"count":N}` — success, N migrations applied
+   - `{"applied":[],"count":0}` — nothing pending, already up to date
+   - `{"error":"..."}` — failure, report the error to the user and stop
+
+   **Known WEDOS limitation:** If the error mentions `CREATE command denied`, the `schema_migrations` table is out of sync with the actual DB state (previous migrations were applied manually). In that case:
+   - Identify which migration actually needs to run (the new one only)
+   - Ask the user to run its SQL directly in WEDOS phpMyAdmin
+   - Then sync the tracker: `INSERT INTO schema_migrations (version) VALUES ('V00X__name');`
+
+5. After deploy, remind the user:
    - Upload `config/settings.prod.php` via FTP if DB credentials changed or it's a first deploy
-   - Run migrations via `GET /migrate.php?token=…` if new migration files were deployed
    - Verify the site at `http://balonkydecor.cz/cs/`
 
 ## What gets deployed

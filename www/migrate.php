@@ -19,12 +19,18 @@ if ($token === '' || ($_GET['token'] ?? '') !== $token) {
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use App\Models\Database;
 use App\Services\Migrator;
 
 try {
+    $db = $settings['db_admin'] ?? $settings['db'];
+    $pdo = new PDO(
+        "mysql:host={$db['host']};dbname={$db['name']};charset=utf8mb4",
+        $db['user'], $db['pass'],
+        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    );
+
     $migrator = new Migrator(
-        Database::getConnection(),
+        $pdo,
         __DIR__ . '/../database/migrations'
     );
 
