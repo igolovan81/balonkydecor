@@ -35,6 +35,7 @@ src/
   Middleware/
     LangMiddleware.php        # Extracts /{lang}/ prefix, loads I18n, attaches to request
     AuthMiddleware.php        # Redirects /admin/* to /admin/login unless session active
+    AdminLangMiddleware.php   # Reads $_SESSION['admin_lang'], attaches admin_i18n + admin_lang to request
   Models/                    # Static model classes (PDO singleton)
   Services/
     Cart.php                 # Session-backed cart
@@ -50,7 +51,9 @@ templates/
   public/                    # Public page templates
   admin/                     # Admin panel templates
 lang/
-  cs.json en.json ru.json uk.json sk.json   # Translation key/value files
+  cs.json en.json ru.json uk.json sk.json   # Public translation key/value files
+  admin/
+    cs.json en.json ru.json uk.json sk.json # Admin UI translations (loaded by AdminLangMiddleware)
 www/                         # Apache web root
   assets/css/style.css       # Public CSS
   assets/css/admin.css       # Admin CSS
@@ -74,7 +77,7 @@ Current order in `routes.php`:
 
 **Multilingual URLs:** `/{lang}/{path}` where lang ∈ `{cs, ru, en, uk, sk}`. `LangMiddleware` runs on every request, extracts lang from the first path segment, loads `lang/{lang}.json`, and attaches `I18n` + `lang` attributes to the PSR-7 request. Unknown/missing segments default to `cs`.
 
-**Admin URLs:** `/admin/*` — no lang prefix. `AuthMiddleware` protects the group; checks `$_SESSION['admin_user']`. First-time setup at `/admin/setup` (only works when `users` table is empty).
+**Admin URLs:** `/admin/*` — no lang prefix. `AuthMiddleware` protects the group; checks `$_SESSION['admin_user']`. First-time setup at `/admin/setup` (only works when `users` table is empty). `AdminLangMiddleware` runs on the protected group and injects `admin_i18n` (an `I18n` instance reading from `lang/admin/`) and `admin_lang` into the request. Language preference is stored in `$_SESSION['admin_lang']` and persisted to `users.lang` via `GET /admin/set-lang?l={lang}`.
 
 ## Controllers
 
@@ -82,7 +85,7 @@ Current order in `routes.php`:
 `$this->render($request, $response, 'template.twig', $data)` — registers `I18nExtension` if not already present, injects `lang` and `current_path` into every template. The `t('key')` Twig function is available on all public pages.
 
 ### Admin — `AdminBaseController`
-`$this->renderAdmin($request, $response, 'admin/x.twig', $data)` — no I18n, reads `$_SESSION['flash']` and clears it, passes `flash` to template. `$this->flash('success'|'error', 'message')` sets the next flash. `$this->redirect($response, '/url')` returns a 302 response.
+`$this->renderAdmin($request, $response, 'admin/x.twig', $data)` — reads `admin_i18n` and `admin_lang` from the request (set by `AdminLangMiddleware`), reads `$_SESSION['flash']` and clears it, passes `flash`, `admin_lang`, and the `t()` Twig function to every admin template. `$this->flash('success'|'error', 'message')` sets the next flash. `$this->redirect($response, '/url')` returns a 302 response.
 
 ## Models
 
@@ -98,9 +101,9 @@ All static methods. `Database::getConnection()` returns a PDO singleton (`FETCH_
 | `BlogModel` | `published(lang, page, perPage)`, `findBySlug(slug, lang)` | `adminList()`, `findById()`, `create()`, `update()`, `delete()`, `getTranslations()`, `setTranslations()` |
 | `GalleryModel` | `albums(lang)`, `album(slug, lang)` | `allAlbums()`, `findAlbumById()`, `createAlbum()`, `updateAlbum()`, `deleteAlbum()`, `getAlbumTranslations()`, `setAlbumTranslations()`, `addImage()`, `deleteImage()` |
 | `PageModel` | `find(slug, lang)` | `allSlugs()`, `allTranslations(slug)`, `upsert(slug, lang, title, body)` |
-| `AdminUserModel` | — | wraps `users` table: `findByEmail()`, `findById()`, `count()`, `create()`, `all()`, `updatePassword()`, `delete()` |
+| `AdminUserModel` | — | wraps `users` table: `findByEmail()`, `findById()`, `count()`, `create()`, `all()`, `updatePassword()`, `delete()`, `setLang(id, lang)` |
 
-**`users` table columns:** `id`, `email`, `password_hash`, `role` enum(`admin`,`editor`), `created_at`. No `name` column.
+**`users` table columns:** `id`, `email`, `password_hash`, `role` enum(`admin`,`editor`), `lang` VARCHAR(5) DEFAULT `cs`, `created_at`. No `name` column.
 
 **`blog_posts.status`** is `enum('draft','published')` — not a boolean. Use `status = 'published'` in queries.
 
@@ -138,7 +141,7 @@ POST /{lang}/checkout → validate → OrderModel::create() → $_SESSION['pendi
 
 Files: `lang/cs.json`, `lang/en.json`, `lang/ru.json`, `lang/uk.json`, `lang/sk.json` — all must have identical keys (65 keys total). Use `t('key')` in public Twig templates. Key groups: `nav.*`, `site.*`, `home.*`, `cart.*`, `checkout.*`, `order.*`, `order.status.*`, `shop.*`, `services.*`, `gallery.*`, `blog.*`, `contact.*`.
 
-Admin templates are hard-coded Czech — they do not use the `t()` function.
+Admin templates use `t('key')` via the `admin_i18n` instance injected by `AdminLangMiddleware`. Admin translation files live in `lang/admin/` — all 5 files must have identical keys.
 
 ## Testing
 
@@ -147,3 +150,7 @@ PHPUnit 11, tests in `tests/Unit/`. All model tests use a real MySQL DB (Docker)
 ## Deployment
 
 No CI/CD. FTP/SFTP files to WEDOS. `www/` is the Apache web root. `session/` and `tmp/` are outside the web root. Before deploying: set `displayErrorDetails => false` in `config/settings.php`.
+
+Use the `/deploy` Claude command (auto-runs migrations) and `/verify` to confirm health after deploy.
+
+`config/settings.prod.php` lives only on the server (gitignored). It must include both `db` (web user, limited privileges) and `db_admin` (admin user, DDL privileges) keys. `migrate.php` prefers `db_admin` so that `ALTER TABLE` / `CREATE TABLE` migrations work without manual intervention.

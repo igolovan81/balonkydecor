@@ -21,6 +21,7 @@ Multilingual e-commerce website for a Czech helium balloon decoration business. 
 
 **Admin panel** (`/admin`)
 - Session-based authentication with bcrypt passwords
+- Language switcher — admin UI available in all 5 languages (preference stored per user)
 - Dashboard with order statistics
 - Products — CRUD, multilingual name/description, image upload (auto-resize)
 - Categories — CRUD with translations
@@ -89,10 +90,14 @@ php vendor/bin/phpunit --testdox
 
 No CI/CD. Deploy by copying files to WEDOS shared hosting via FTP/SFTP. The local repository mirrors the hosting account root — `www/` is the Apache web root.
 
+Use the `/deploy` Claude command to deploy, or run `./scripts/deploy.sh` directly. After deploying, use `/verify` to confirm all pages and migrations are healthy.
+
 Before deploying to production:
 - Set `'displayErrorDetails' => false` in `config/settings.php`
 - Configure GoPay credentials and SMTP via `/admin/settings`
 - Ensure `session/` and `tmp/` are writable (outside the web root)
+
+`config/settings.prod.php` lives only on the server (gitignored). It must include a `db_admin` key with the MariaDB admin user credentials so that `migrate.php` can run DDL migrations (ALTER TABLE etc.) that the web user lacks privileges for.
 
 ## Project Structure
 
@@ -108,7 +113,8 @@ templates/         Twig templates
   layout/          base.twig (public), admin-base.twig (admin)
   public/          Public page templates
   admin/           Admin panel templates
-lang/              Translation files: cs.json en.json ru.json uk.json sk.json
+lang/              Public translation files: cs.json en.json ru.json uk.json sk.json
+  admin/           Admin UI translations (same 5 languages)
 www/               Apache web root
   assets/css/      style.css (public), admin.css (admin)
   assets/uploads/  Product and gallery images (created on first upload)
