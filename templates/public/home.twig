@@ -1,6 +1,7 @@
 {% extends "layout/base.twig" %}
 
-{% block title %}{{ t('home.hero_title') }} — {{ t('site.name') }}{% endblock %}
+{% block title %}{{ page.meta_title ?? t('home.hero_title') }} — {{ t('site.name') }}{% endblock %}
+{% block meta_desc %}{{ page.meta_desc ?? '' }}{% endblock %}
 
 {% block content %}
 <section class="hero">
