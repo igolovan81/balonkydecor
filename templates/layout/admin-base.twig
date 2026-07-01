@@ -22,15 +22,23 @@
             <a href="/admin/settings">{{ t('nav.settings') }}</a>
             {% if session_role == 'admin' %}<a href="/admin/users">{{ t('nav.users') }}</a>{% endif %}
         </nav>
-        <div style="margin-top:auto;padding:1rem;border-top:1px solid rgba(255,255,255,0.1);">
-            <div style="font-size:0.8rem;color:#a0a0b8;margin-bottom:0.25rem;">{{ session_email }}</div>
-            <div style="font-size:0.75rem;color:#6060a0;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.75rem;">{{ session_role }}</div>
+        <div class="admin-sidebar-footer">
+            <div class="admin-user">
+                <div class="admin-user-avatar">{{ session_email|first|upper }}</div>
+                <div class="admin-user-info">
+                    <div class="admin-user-email">{{ session_email }}</div>
+                    <div class="admin-user-role">{{ session_role }}</div>
+                </div>
+            </div>
             <div class="admin-lang-switcher">
                 {% for code, label in {cs: 'CZ', sk: 'SK', en: 'EN', uk: 'UA', ru: 'RU'} %}
                     <a href="/admin/set-lang?l={{ code }}"{% if admin_lang == code %} class="active"{% endif %}>{{ label }}</a>
                 {% endfor %}
             </div>
-            <a href="/admin/logout" style="color:#c0c0d0;font-size:0.85rem;">{{ t('nav.logout') }}</a>
+            <a href="/admin/logout" class="admin-logout">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                {{ t('nav.logout') }}
+            </a>
         </div>
     </aside>
     <main class="admin-main">
