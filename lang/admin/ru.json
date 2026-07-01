@@ -71,6 +71,8 @@
   "gallery.form.delete_photo": "Удалить",
   "gallery.form.desc_label": "Описание",
   "gallery.form.existing_photos": "Фото в альбоме",
+  "gallery.form.meta_desc_label": "SEO-описание (meta description)",
+  "gallery.form.meta_title_label": "SEO-заголовок",
   "gallery.form.name_label": "Название альбома",
   "gallery.form.order": "Порядок",
   "gallery.form.save": "Сохранить",

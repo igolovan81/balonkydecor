@@ -71,6 +71,8 @@
   "gallery.form.delete_photo": "Smazat",
   "gallery.form.desc_label": "Popis",
   "gallery.form.existing_photos": "Fotky v albu",
+  "gallery.form.meta_desc_label": "SEO popis (meta description)",
+  "gallery.form.meta_title_label": "SEO titulek",
   "gallery.form.name_label": "Název alba",
   "gallery.form.order": "Pořadí",
   "gallery.form.save": "Uložit",

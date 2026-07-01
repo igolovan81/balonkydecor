@@ -1,6 +1,7 @@
 {% extends "layout/base.twig" %}
 
-{% block title %}{{ album.name }} — {{ t('site.name') }}{% endblock %}
+{% block title %}{{ album.meta_title ?? album.name }} — {{ t('site.name') }}{% endblock %}
+{% block meta_desc %}{{ album.meta_desc ?? '' }}{% endblock %}
 
 {% block content %}
 <section class="page-hero">

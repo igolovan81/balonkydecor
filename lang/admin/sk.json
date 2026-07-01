@@ -71,6 +71,8 @@
   "gallery.form.delete_photo": "Zmazať",
   "gallery.form.desc_label": "Popis",
   "gallery.form.existing_photos": "Fotky v albume",
+  "gallery.form.meta_desc_label": "SEO popis (meta description)",
+  "gallery.form.meta_title_label": "SEO titulok",
   "gallery.form.name_label": "Názov albumu",
   "gallery.form.order": "Poradie",
   "gallery.form.save": "Uložiť",

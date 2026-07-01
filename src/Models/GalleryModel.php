@@ -22,7 +22,7 @@ class GalleryModel
         $pdo  = Database::getConnection();
         $stmt = $pdo->prepare('
             SELECT a.id, a.slug, a.cover_image,
-                   COALESCE(t.name, a.slug) AS name, t.description
+                   COALESCE(t.name, a.slug) AS name, t.description, t.meta_title, t.meta_desc
             FROM gallery_albums a
             LEFT JOIN gallery_album_t t ON t.album_id = a.id AND t.lang_code = :lang
             WHERE a.slug = :slug
@@ -81,7 +81,7 @@ class GalleryModel
     public static function getAlbumTranslations(int $id): array
     {
         $pdo  = Database::getConnection();
-        $stmt = $pdo->prepare('SELECT lang_code, name, description FROM gallery_album_t WHERE album_id = ?');
+        $stmt = $pdo->prepare('SELECT lang_code, name, description, meta_title, meta_desc FROM gallery_album_t WHERE album_id = ?');
         $stmt->execute([$id]);
         $result = [];
         foreach ($stmt->fetchAll() as $row) {
@@ -94,13 +94,14 @@ class GalleryModel
     {
         $pdo  = Database::getConnection();
         $stmt = $pdo->prepare(
-            'INSERT INTO gallery_album_t (album_id, lang_code, name, description)
-             VALUES (?, ?, ?, ?)
-             ON DUPLICATE KEY UPDATE name = VALUES(name), description = VALUES(description)'
+            'INSERT INTO gallery_album_t (album_id, lang_code, name, description, meta_title, meta_desc)
+             VALUES (?, ?, ?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE name = VALUES(name), description = VALUES(description),
+                                     meta_title = VALUES(meta_title), meta_desc = VALUES(meta_desc)'
         );
         foreach ($translations as $lang => $t) {
             if (empty($t['name'])) continue;
-            $stmt->execute([$id, $lang, $t['name'], $t['description'] ?? '']);
+            $stmt->execute([$id, $lang, $t['name'], $t['description'] ?? '', $t['meta_title'] ?? null, $t['meta_desc'] ?? null]);
         }
     }
 

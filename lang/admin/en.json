@@ -71,6 +71,8 @@
   "gallery.form.delete_photo": "Delete",
   "gallery.form.desc_label": "Description",
   "gallery.form.existing_photos": "Album photos",
+  "gallery.form.meta_desc_label": "SEO description (meta description)",
+  "gallery.form.meta_title_label": "SEO title",
   "gallery.form.name_label": "Album name",
   "gallery.form.order": "Order",
   "gallery.form.save": "Save",

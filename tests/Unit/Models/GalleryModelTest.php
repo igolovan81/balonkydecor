@@ -34,4 +34,28 @@ class GalleryModelTest extends TestCase
     {
         $this->assertNull(GalleryModel::album('no-such-album', 'en'));
     }
+
+    public function test_set_album_translations_stores_meta_fields(): void
+    {
+        $pdo = Database::getConnection();
+        $id  = $pdo->query("SELECT id FROM gallery_albums WHERE slug='test-album'")->fetch()['id'];
+        GalleryModel::setAlbumTranslations($id, [
+            'en' => ['name' => 'Test Album', 'meta_title' => 'Our Test Album', 'meta_desc' => 'Photos from our test album.'],
+        ]);
+        $translations = GalleryModel::getAlbumTranslations($id);
+        $this->assertSame('Our Test Album', $translations['en']['meta_title']);
+        $this->assertSame('Photos from our test album.', $translations['en']['meta_desc']);
+    }
+
+    public function test_album_read_includes_meta_fields(): void
+    {
+        $pdo = Database::getConnection();
+        $id  = $pdo->query("SELECT id FROM gallery_albums WHERE slug='test-album'")->fetch()['id'];
+        GalleryModel::setAlbumTranslations($id, [
+            'en' => ['name' => 'Test Album', 'meta_title' => 'Our Test Album', 'meta_desc' => 'Photos from our test album.'],
+        ]);
+        $album = GalleryModel::album('test-album', 'en');
+        $this->assertSame('Our Test Album', $album['meta_title']);
+        $this->assertSame('Photos from our test album.', $album['meta_desc']);
+    }
 }
