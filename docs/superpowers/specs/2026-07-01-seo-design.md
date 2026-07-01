@@ -86,10 +86,7 @@ added directly in those templates' `<head>`-contributing blocks.
 
 ## 3. Wiring up `meta_title` / `meta_desc` consistently
 
-**Current state:** `product_t`, `blog_post_t`, `page_t` already have `meta_title varchar(255)` / `meta_desc varchar(500)` columns and the Models already read/write them. But:
-- `<title>` blocks hardcode `{{ product.name }} — {{ site.name }}` etc., ignoring `meta_title`.
-- `category_t` and `gallery_album_t` have no meta columns at all.
-- No admin form exposes any of these fields for editing.
+**Current state (verified against the actual Model code, not just the schema):** `product_t`, `blog_post_t`, `page_t` have `meta_title varchar(255)` / `meta_desc varchar(500)` columns, but the columns are only read by the single-item *public* lookups — `ProductModel::findBySku()`, `BlogModel::findBySlug()`, `PageModel::find()`. The *admin* round-trip (`getTranslations()` / `setTranslations()` on `ProductModel`, `BlogModel`, `CategoryModel`, `GalleryModel`, and `PageModel::upsert()`) never selects or writes `meta_title`/`meta_desc` for **any** content type — so despite the columns existing since `V001`, no admin form has ever been able to set them; they are and always have been `NULL` in every environment. `category_t` and `gallery_album_t` don't have the columns at all yet. On top of that, `<title>` blocks hardcode `{{ product.name }} — {{ site.name }}` etc., ignoring `meta_title` even where it is readable.
 
 **Changes:**
 
@@ -107,9 +104,9 @@ added directly in those templates' `<head>`-contributing blocks.
    ```
    (falls back to existing name/title field when `meta_title` is empty, same pattern `meta_desc` already uses).
 
-3. **`CategoryModel` / `GalleryModel`:** extend `getTranslations()` / `setTranslations()` to read/write `meta_title`/`meta_desc`, matching the existing pattern in `ProductModel`/`BlogModel`.
+3. **`ProductModel`, `BlogModel`, `CategoryModel`, `GalleryModel`:** extend `getTranslations()` / `setTranslations()` (`getAlbumTranslations()` / `setAlbumTranslations()` for Gallery) to read/write `meta_title`/`meta_desc`. This is a genuinely new capability for all four — their admin round-trip has never touched these columns (see "Current state" above); only the separate single-item public lookups (`findBySku`, `findBySlug`) could read them, and only because those queries happened to include the columns.
 
-4. **`PageModel` is a special case.** Unlike the other four models, it doesn't use a batch `setTranslations()` — it has a positional `upsert(slug, lang, title, body)` called once per language, and its `meta_title`/`meta_desc` columns are currently dead (selected by `find()` but never written, since `upsert()` doesn't accept them and `allTranslations()` doesn't select them). Fix:
+4. **`PageModel` is a further special case on top of point 3.** Unlike the other four models, it doesn't use a batch `setTranslations()` — it has a positional `upsert(slug, lang, title, body)` called once per language, and its `meta_title`/`meta_desc` columns are currently dead (selected by `find()` but never written, since `upsert()` doesn't accept them and `allTranslations()` doesn't select them). Fix:
    - `PageModel::upsert()` signature becomes `upsert(string $slug, string $lang, string $title, string $body, ?string $metaTitle, ?string $metaDesc)`, and its `INSERT ... ON DUPLICATE KEY UPDATE` includes both columns.
    - `PageModel::allTranslations()` adds `pt.meta_title, pt.meta_desc` to its `SELECT`.
    - `PageController::editSubmit()` passes `$t['meta_title'] ?? null, $t['meta_desc'] ?? null` through to `upsert()`.
