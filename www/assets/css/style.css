@@ -192,6 +192,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
     }
     .cat-filter {
         white-space: nowrap; flex-shrink: 0; border: 1px solid var(--border); border-radius: 999px;
+        padding: .65rem .75rem;
     }
     .product-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
     .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; }
