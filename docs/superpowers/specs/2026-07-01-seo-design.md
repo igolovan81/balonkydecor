@@ -86,37 +86,37 @@ added directly in those templates' `<head>`-contributing blocks.
 
 ## 3. Wiring up `meta_title` / `meta_desc` consistently
 
-**Current state (verified against the actual Model code, not just the schema):** `product_t`, `blog_post_t`, `page_t` have `meta_title varchar(255)` / `meta_desc varchar(500)` columns, but the columns are only read by the single-item *public* lookups — `ProductModel::findBySku()`, `BlogModel::findBySlug()`, `PageModel::find()`. The *admin* round-trip (`getTranslations()` / `setTranslations()` on `ProductModel`, `BlogModel`, `CategoryModel`, `GalleryModel`, and `PageModel::upsert()`) never selects or writes `meta_title`/`meta_desc` for **any** content type — so despite the columns existing since `V001`, no admin form has ever been able to set them; they are and always have been `NULL` in every environment. `category_t` and `gallery_album_t` don't have the columns at all yet. On top of that, `<title>` blocks hardcode `{{ product.name }} — {{ site.name }}` etc., ignoring `meta_title` even where it is readable.
+**Current state (verified against the actual Model code, not just the schema):** `product_t`, `blog_post_t`, `page_t` have `meta_title varchar(255)` / `meta_desc varchar(500)` columns, but the columns are only read by the single-item *public* lookups — `ProductModel::findBySku()`, `BlogModel::findBySlug()`, `PageModel::find()`. The *admin* round-trip (`getTranslations()` / `setTranslations()` on `ProductModel`, `BlogModel`, and `PageModel::upsert()`) never selects or writes `meta_title`/`meta_desc` for **any** content type — so despite the columns existing since `V001`, no admin form has ever been able to set them; they are and always have been `NULL` in every environment. `gallery_album_t` doesn't have the columns at all yet. On top of that, `<title>` blocks hardcode `{{ product.name }} — {{ site.name }}` etc., ignoring `meta_title` even where it is readable.
+
+**Categories are excluded from this section.** `category_t` deliberately does *not* get `meta_title`/`meta_desc` columns: categories have no dedicated indexable URL (`/shop?category=X` is a query-param filter on the single `/shop` route — see "Out of Scope" below), so the fields would render nowhere. Adding them now would repeat the exact dead-column mistake just found in `PageModel`, plus clutter the category admin form with inputs that silently do nothing. If categories ever get real landing pages, adding these two columns at that point is a trivial follow-up migration.
 
 **Changes:**
 
-1. **New migration `database/migrations/V007__category_gallery_meta.sql`:**
+1. **New migration `database/migrations/V007__gallery_meta.sql`:**
    ```sql
-   ALTER TABLE category_t     ADD COLUMN meta_title VARCHAR(255) DEFAULT NULL,
-                               ADD COLUMN meta_desc  VARCHAR(500) DEFAULT NULL;
    ALTER TABLE gallery_album_t ADD COLUMN meta_title VARCHAR(255) DEFAULT NULL,
                                ADD COLUMN meta_desc  VARCHAR(500) DEFAULT NULL;
    ```
 
-2. **Template `<title>` blocks** for product/blog/page/category/gallery-album templates change to:
+2. **Template `<title>` blocks** for product/blog/page/gallery-album templates change to:
    ```twig
    {% block title %}{{ x.meta_title ?? x.name }} — {{ t('site.name') }}{% endblock %}
    ```
    (falls back to existing name/title field when `meta_title` is empty, same pattern `meta_desc` already uses).
 
-3. **`ProductModel`, `BlogModel`, `CategoryModel`, `GalleryModel`:** extend `getTranslations()` / `setTranslations()` (`getAlbumTranslations()` / `setAlbumTranslations()` for Gallery) to read/write `meta_title`/`meta_desc`. This is a genuinely new capability for all four — their admin round-trip has never touched these columns (see "Current state" above); only the separate single-item public lookups (`findBySku`, `findBySlug`) could read them, and only because those queries happened to include the columns.
+3. **`ProductModel`, `BlogModel`, `GalleryModel`:** extend `getTranslations()` / `setTranslations()` (`getAlbumTranslations()` / `setAlbumTranslations()` for Gallery) to read/write `meta_title`/`meta_desc`. This is a genuinely new capability for all three — their admin round-trip has never touched these columns (see "Current state" above); only the separate single-item public lookups (`findBySku`, `findBySlug`) could read them, and only because those queries happened to include the columns.
 
-4. **`PageModel` is a further special case on top of point 3.** Unlike the other four models, it doesn't use a batch `setTranslations()` — it has a positional `upsert(slug, lang, title, body)` called once per language, and its `meta_title`/`meta_desc` columns are currently dead (selected by `find()` but never written, since `upsert()` doesn't accept them and `allTranslations()` doesn't select them). Fix:
+4. **`PageModel` is a further special case on top of point 3.** Unlike the other models, it doesn't use a batch `setTranslations()` — it has a positional `upsert(slug, lang, title, body)` called once per language, and its `meta_title`/`meta_desc` columns are currently dead (selected by `find()` but never written, since `upsert()` doesn't accept them and `allTranslations()` doesn't select them). Fix:
    - `PageModel::upsert()` signature becomes `upsert(string $slug, string $lang, string $title, string $body, ?string $metaTitle, ?string $metaDesc)`, and its `INSERT ... ON DUPLICATE KEY UPDATE` includes both columns.
    - `PageModel::allTranslations()` adds `pt.meta_title, pt.meta_desc` to its `SELECT`.
    - `PageController::editSubmit()` passes `$t['meta_title'] ?? null, $t['meta_desc'] ?? null` through to `upsert()`.
 
-5. **Admin forms** (`templates/admin/products/form.twig`, `categories/form.twig`, `blog/form.twig`, `gallery/form.twig` (album), `pages/form.twig`): add two inputs per language block, inside the existing `t[{{ lang }}][...]` loop:
+5. **Admin forms** (`templates/admin/products/form.twig`, `blog/form.twig`, `gallery/form.twig` (album), `pages/form.twig`): add two inputs per language block, inside the existing `t[{{ lang }}][...]` loop:
    ```twig
    <input type="text" name="t[{{ lang }}][meta_title]" value="{{ translations[lang].meta_title ?? '' }}" maxlength="255">
    <textarea name="t[{{ lang }}][meta_desc]" maxlength="500">{{ translations[lang].meta_desc ?? '' }}</textarea>
    ```
-   For Product/Category/Blog/Gallery, no controller changes are needed beyond point 3: those four admin controllers already pass `$body['t'] ?? []` straight through to `setTranslations()` without touching individual keys, so new form fields flow through automatically once the Models accept them. Page is the exception per point 4.
+   For Product/Blog/Gallery, no controller changes are needed beyond point 3: those admin controllers already pass `$body['t'] ?? []` straight through to `setTranslations()` without touching individual keys, so new form fields flow through automatically once the Models accept them. Page is the exception per point 4. `categories/form.twig` is untouched.
 
 ---
 
@@ -175,7 +175,7 @@ This prevents `http://` and `https://` versions of every page being indexed as s
 ## Testing
 
 - New `tests/Unit/Controllers/SeoControllerTest.php` (or closest existing pattern for controller tests) — verify `sitemap.xml` includes an entry for a known active product/blog post/gallery album per language, excludes inactive/unpublished ones, and includes correct hreflang alternates. Verify `robots.txt` disallows the expected paths and references the sitemap URL.
-- Existing `ProductModelTest`/`BlogModelTest`/`PageModelTest` patterns extended (or new `CategoryModelTest`/`GalleryModelTest` cases added) to cover `meta_title`/`meta_desc` round-tripping through `setTranslations()`/`getTranslations()`.
+- Existing `ProductModelTest`/`BlogModelTest`/`PageModelTest`/`GalleryModelTest` patterns extended to cover `meta_title`/`meta_desc` round-tripping through `setTranslations()`/`getTranslations()` (`upsert()`/`allTranslations()` for Page, `setAlbumTranslations()`/`getAlbumTranslations()` for Gallery).
 - Manual verification post-deploy: `curl https://balonkydecor.cz/sitemap.xml`, `curl https://balonkydecor.cz/robots.txt`, view-source a product page for JSON-LD, and run it through Google's Rich Results Test.
 
 ---
@@ -183,7 +183,7 @@ This prevents `http://` and `https://` versions of every page being indexed as s
 ## Out of Scope
 
 - `AggregateRating`/`Review` structured data (no reviews feature exists).
-- Per-category indexable pages (categories remain a query-param filter on `/shop`).
+- Per-category indexable pages and `category_t` meta columns (categories remain a query-param filter on `/shop` — see §3).
 - Sitemap/robots caching layer — not justified at this catalog size/traffic.
 - `www` → non-`www` redirect — site has never used `www`.
 - Migrating existing analytics/Search Console setup (out of this repo's scope) — user handles Search Console verification/submission separately once the sitemap is live.
