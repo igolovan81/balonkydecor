@@ -19,14 +19,17 @@
                 <a href="/{{ lang }}/gallery">{{ t('nav.gallery') }}</a>
                 <a href="/{{ lang }}/blog">{{ t('nav.blog') }}</a>
                 <a href="/{{ lang }}/contact">{{ t('nav.contact') }}</a>
-                <a href="/{{ lang }}/cart" class="cart-link">{{ t('nav.cart') }}</a>
             </nav>
+            <a href="/{{ lang }}/cart" class="cart-link">{{ t('nav.cart') }}</a>
             <div class="lang-switcher">
                 {% for code, label in {'cs': 'CZ', 'sk': 'SK', 'en': 'EN', 'uk': 'UA', 'ru': 'RU'} %}
                     <a href="/{{ code }}{{ current_path }}"
                        class="{{ code == lang ? 'active' : '' }}">{{ label }}</a>
                 {% endfor %}
             </div>
+            <button type="button" class="nav-toggle" aria-label="Menu" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
         </div>
     </header>
 
@@ -38,6 +41,8 @@
         </div>
     </footer>
 
-    {% block scripts %}{% endblock %}
+    {% block scripts %}
+    <script src="/assets/js/nav.js" defer></script>
+    {% endblock %}
 </body>
 </html>
