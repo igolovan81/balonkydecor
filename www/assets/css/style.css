@@ -202,3 +202,9 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 @media (max-width: 480px) {
     .photo-grid { columns: 1; }
 }
+
+/* Responsive: product detail & checkout */
+@media (max-width: 768px) {
+    .product-detail { grid-template-columns: 1fr; gap: 2rem; padding: 2rem 1rem; }
+    .checkout-layout { grid-template-columns: 1fr; gap: 2rem; padding: 2rem 1rem; }
+}
