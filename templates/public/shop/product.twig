@@ -3,6 +3,36 @@
 {% block title %}{{ product.meta_title ?? product.name }} — {{ t('site.name') }}{% endblock %}
 {% block meta_desc %}{{ product.meta_desc ?? product.description|striptags|slice(0, 160) }}{% endblock %}
 
+{% block head %}
+{% set product_schema = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    'name': product.name,
+    'description': product.description ? product.description|striptags : '',
+    'sku': product.sku,
+    'offers': {
+        '@type': 'Offer',
+        'price': product.price,
+        'priceCurrency': 'CZK',
+        'availability': (product.stock_type == 'limited' and product.stock_qty <= 0) ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
+        'url': canonical_url
+    }
+} %}
+{% if product.images %}
+    {% set product_schema = product_schema|merge({'image': base_url ~ '/assets/uploads/' ~ product.images[0]}) %}
+{% endif %}
+<script type="application/ld+json">{{ product_schema|json_encode|raw }}</script>
+<script type="application/ld+json">{{ {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': [
+        {'@type': 'ListItem', 'position': 1, 'name': t('nav.home'), 'item': base_url ~ '/' ~ lang ~ '/'},
+        {'@type': 'ListItem', 'position': 2, 'name': t('nav.shop'), 'item': base_url ~ '/' ~ lang ~ '/shop'},
+        {'@type': 'ListItem', 'position': 3, 'name': product.name, 'item': canonical_url}
+    ]
+}|json_encode|raw }}</script>
+{% endblock %}
+
 {% block content %}
 <div class="container product-detail">
     <div class="product-gallery">
