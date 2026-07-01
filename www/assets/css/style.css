@@ -223,3 +223,21 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
         content: attr(data-label); font-family: var(--ui-font); font-size: .8rem; color: var(--muted); margin-right: 1rem;
     }
 }
+
+/* Responsive: typography, forms, spacing (phone only) */
+@media (max-width: 480px) {
+    .container { padding: 0 1rem; }
+    .hero { padding: 3rem 0; }
+    .hero h1 { font-size: 2rem; }
+    .hero-subtitle { font-size: 1rem; }
+    .page-hero { padding: 2rem 0 1.5rem; }
+    .page-hero h1 { font-size: 1.5rem; }
+    .product-detail-info h1 { font-size: 1.4rem; }
+    .product-price-lg { font-size: 1.3rem; }
+    .blog-post-full h1 { font-size: 1.5rem; }
+    .btn { width: 100%; text-align: center; }
+    .contact-form input, .contact-form textarea, .add-to-cart-form .qty-input { font-size: 16px; }
+    .qty-input { width: 100%; }
+    .cart-total-block { flex-wrap: wrap; width: 100%; }
+    .cart-footer { flex-direction: column; align-items: stretch; }
+}
