@@ -22,14 +22,14 @@
             <tbody>
                 {% for sku, item in items %}
                 <tr>
-                    <td class="cart-name">{{ item.name }}</td>
-                    <td class="cart-price">{{ item.price|number_format(2, '.', ' ') }} Kč</td>
-                    <td class="cart-qty">
+                    <td class="cart-name" data-label="{{ t('cart.product') }}">{{ item.name }}</td>
+                    <td class="cart-price" data-label="{{ t('cart.price') }}">{{ item.price|number_format(2, '.', ' ') }} Kč</td>
+                    <td class="cart-qty" data-label="{{ t('cart.qty') }}">
                         <input type="number" name="items[{{ sku }}]"
                                value="{{ item.qty }}" min="0" class="qty-input">
                     </td>
-                    <td class="cart-subtotal">{{ item.subtotal|number_format(2, '.', ' ') }} Kč</td>
-                    <td class="cart-actions">
+                    <td class="cart-subtotal" data-label="{{ t('cart.subtotal') }}">{{ item.subtotal|number_format(2, '.', ' ') }} Kč</td>
+                    <td class="cart-actions" data-label="">
                         <button type="submit" name="items[{{ sku }}]" value="0"
                                 class="btn-remove" title="{{ t('cart.remove') }}">×</button>
                     </td>

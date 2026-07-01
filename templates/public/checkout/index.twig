@@ -51,9 +51,9 @@
             <tbody>
                 {% for sku, item in items %}
                 <tr>
-                    <td>{{ item.name }}</td>
-                    <td>{{ item.qty }}</td>
-                    <td>{{ item.subtotal|number_format(2, '.', ' ') }} Kč</td>
+                    <td data-label="{{ t('cart.product') }}">{{ item.name }}</td>
+                    <td data-label="{{ t('cart.qty') }}">{{ item.qty }}</td>
+                    <td data-label="{{ t('cart.subtotal') }}">{{ item.subtotal|number_format(2, '.', ' ') }} Kč</td>
                 </tr>
                 {% endfor %}
             </tbody>

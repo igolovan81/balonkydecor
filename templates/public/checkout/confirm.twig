@@ -23,10 +23,10 @@
         <tbody>
             {% for item in order.items %}
             <tr>
-                <td>{{ item.product_name_snapshot }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>{{ item.unit_price|number_format(2, '.', ' ') }} Kč</td>
-                <td>{{ (item.unit_price * item.quantity)|number_format(2, '.', ' ') }} Kč</td>
+                <td data-label="{{ t('order.product') }}">{{ item.product_name_snapshot }}</td>
+                <td data-label="{{ t('order.qty') }}">{{ item.quantity }}</td>
+                <td data-label="{{ t('order.unit_price') }}">{{ item.unit_price|number_format(2, '.', ' ') }} Kč</td>
+                <td data-label="{{ t('order.total') }}">{{ (item.unit_price * item.quantity)|number_format(2, '.', ' ') }} Kč</td>
             </tr>
             {% endfor %}
         </tbody>

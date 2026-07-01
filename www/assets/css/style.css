@@ -208,3 +208,18 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
     .product-detail { grid-template-columns: 1fr; gap: 2rem; padding: 2rem 1rem; }
     .checkout-layout { grid-template-columns: 1fr; gap: 2rem; padding: 2rem 1rem; }
 }
+
+/* Responsive: cart-table stacked cards (phone only) */
+@media (max-width: 480px) {
+    .cart-table thead { display: none; }
+    .cart-table, .cart-table tbody, .cart-table tr, .cart-table td { display: block; width: 100%; }
+    .cart-table tr { border: 1px solid var(--border); border-radius: 4px; margin-bottom: 1rem; padding: .5rem .75rem; }
+    .cart-table td {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: .5rem 0; border-bottom: 1px solid var(--border);
+    }
+    .cart-table td:last-child { border-bottom: none; }
+    .cart-table td::before {
+        content: attr(data-label); font-family: var(--ui-font); font-size: .8rem; color: var(--muted); margin-right: 1rem;
+    }
+}
