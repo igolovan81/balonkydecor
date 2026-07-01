@@ -2,6 +2,8 @@
 
 {% block title %}{{ t('order.title') }} {{ order.order_number }} — {{ t('site.name') }}{% endblock %}
 
+{% block head %}<meta name="robots" content="noindex,nofollow">{% endblock %}
+
 {% block content %}
 <section class="page-hero">
     <div class="container">
