@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{{ t('site.name') }}{% endblock %}</title>
     <meta name="description" content="{% block meta_desc %}{% endblock %}">
+    <link rel="canonical" href="{{ canonical_url }}">
+    {% for alt in alternate_urls %}
+    <link rel="alternate" hreflang="{{ alt.lang }}" href="{{ alt.url }}">
+    {% endfor %}
+    <script type="application/ld+json">{{ organization_json_ld|raw }}</script>
     <link rel="stylesheet" href="/assets/css/style.css">
     {% block head %}{% endblock %}
 </head>
