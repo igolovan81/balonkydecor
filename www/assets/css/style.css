@@ -182,3 +182,22 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 .order-status--ready     { background: #d4edda; color: #155724; }
 .order-status--completed { background: #d4edda; color: #155724; }
 .order-status--cancelled { background: #f8d7da; color: #721c24; }
+
+/* Responsive: shop sidebar & product/gallery grids */
+@media (max-width: 768px) {
+    .shop-layout { grid-template-columns: 1fr; gap: 1.5rem; padding: 1.5rem 1rem; }
+    .shop-sidebar {
+        flex-direction: row; overflow-x: auto; gap: .5rem; padding-bottom: .5rem;
+        -webkit-overflow-scrolling: touch;
+    }
+    .cat-filter {
+        white-space: nowrap; flex-shrink: 0; border: 1px solid var(--border); border-radius: 999px;
+    }
+    .product-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
+    .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; }
+    .photo-grid { columns: 2; }
+}
+
+@media (max-width: 480px) {
+    .photo-grid { columns: 1; }
+}
