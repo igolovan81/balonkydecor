@@ -214,6 +214,12 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
     .pagination a { padding: .7rem .8rem; }
 }
 
+/* Responsive: page-hero banner sizing (tablet) */
+@media (max-width: 768px) {
+    .page-hero { padding: 1.75rem 0 1.25rem; }
+    .page-hero h1 { font-size: 1.75rem; }
+}
+
 /* Responsive: cart-table stacked cards (phone only) */
 @media (max-width: 480px) {
     .cart-table thead { display: none; }
@@ -235,8 +241,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
     .hero { padding: 3rem 0; }
     .hero h1 { font-size: 2rem; }
     .hero-subtitle { font-size: 1rem; }
-    .page-hero { padding: 2rem 0 1.5rem; }
-    .page-hero h1 { font-size: 1.5rem; }
+    .page-hero { padding: 1.25rem 0 1rem; }
+    .page-hero h1 { font-size: 1.4rem; }
     .product-detail-info h1 { font-size: 1.4rem; }
     .product-price-lg { font-size: 1.3rem; }
     .blog-post-full h1 { font-size: 1.5rem; }
