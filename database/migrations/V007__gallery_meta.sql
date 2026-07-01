@@ -1,0 +1,3 @@
+ALTER TABLE gallery_album_t
+  ADD COLUMN meta_title VARCHAR(255) DEFAULT NULL,
+  ADD COLUMN meta_desc  VARCHAR(500) DEFAULT NULL;
