@@ -127,6 +127,8 @@
   "pages.form.back": "← Back",
   "pages.form.body_label": "Content — HTML allowed",
   "pages.form.cancel": "Cancel",
+  "pages.form.meta_desc_label": "SEO description (meta description)",
+  "pages.form.meta_title_label": "SEO title",
   "pages.form.save": "Save",
   "pages.form.title": "Page:",
   "pages.form.title_label": "Title",

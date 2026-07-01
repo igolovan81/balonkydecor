@@ -27,7 +27,7 @@ class PageModel
     {
         $pdo  = Database::getConnection();
         $stmt = $pdo->prepare(
-            'SELECT pt.lang_code, pt.title, pt.body
+            'SELECT pt.lang_code, pt.title, pt.body, pt.meta_title, pt.meta_desc
              FROM pages p
              LEFT JOIN page_t pt ON pt.page_id = p.id
              WHERE p.slug = ?'
@@ -42,7 +42,7 @@ class PageModel
         return $result;
     }
 
-    public static function upsert(string $slug, string $lang, string $title, string $body): void
+    public static function upsert(string $slug, string $lang, string $title, string $body, ?string $metaTitle = null, ?string $metaDesc = null): void
     {
         $pdo  = Database::getConnection();
         $stmt = $pdo->prepare('SELECT id FROM pages WHERE slug = ? LIMIT 1');
@@ -55,8 +55,9 @@ class PageModel
             $pageId = (int) $page['id'];
         }
         $pdo->prepare(
-            'INSERT INTO page_t (page_id, lang_code, title, body) VALUES (?, ?, ?, ?)
-             ON DUPLICATE KEY UPDATE title = VALUES(title), body = VALUES(body)'
-        )->execute([$pageId, $lang, $title, $body]);
+            'INSERT INTO page_t (page_id, lang_code, title, body, meta_title, meta_desc) VALUES (?, ?, ?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE title = VALUES(title), body = VALUES(body),
+                                     meta_title = VALUES(meta_title), meta_desc = VALUES(meta_desc)'
+        )->execute([$pageId, $lang, $title, $body, $metaTitle, $metaDesc]);
     }
 }

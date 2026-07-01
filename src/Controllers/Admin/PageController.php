@@ -34,7 +34,7 @@ class PageController extends AdminBaseController
         $body = (array) $request->getParsedBody();
         foreach (self::LANGS as $lang) {
             $t = $body['t'][$lang] ?? [];
-            PageModel::upsert($slug, $lang, $t['title'] ?? '', $t['body'] ?? '');
+            PageModel::upsert($slug, $lang, $t['title'] ?? '', $t['body'] ?? '', $t['meta_title'] ?? null, $t['meta_desc'] ?? null);
         }
         $this->flash('success', 'Stránka uložena.');
         return $this->redirect($response, '/admin/pages');

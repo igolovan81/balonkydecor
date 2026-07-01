@@ -26,4 +26,20 @@ class PageModelTest extends TestCase
     {
         $this->assertNull(PageModel::find('nonexistent-page', 'en'));
     }
+
+    public function test_upsert_stores_meta_fields(): void
+    {
+        PageModel::upsert('services', 'en', 'Services', '<p>Our services</p>', 'Our Balloon Services', 'Book balloon decoration services.');
+        $page = PageModel::find('services', 'en');
+        $this->assertSame('Our Balloon Services', $page['meta_title']);
+        $this->assertSame('Book balloon decoration services.', $page['meta_desc']);
+    }
+
+    public function test_all_translations_includes_meta_fields(): void
+    {
+        PageModel::upsert('services', 'en', 'Services', '<p>Our services</p>', 'Our Balloon Services', 'Book balloon decoration services.');
+        $translations = PageModel::allTranslations('services');
+        $this->assertSame('Our Balloon Services', $translations['en']['meta_title']);
+        $this->assertSame('Book balloon decoration services.', $translations['en']['meta_desc']);
+    }
 }

@@ -127,6 +127,8 @@
   "pages.form.back": "← Zpět",
   "pages.form.body_label": "Obsah — HTML povoleno",
   "pages.form.cancel": "Zrušit",
+  "pages.form.meta_desc_label": "SEO popis (meta description)",
+  "pages.form.meta_title_label": "SEO titulek",
   "pages.form.save": "Uložit",
   "pages.form.title": "Stránka:",
   "pages.form.title_label": "Nadpis",

@@ -127,6 +127,8 @@
   "pages.form.back": "← Назад",
   "pages.form.body_label": "Вміст — HTML дозволено",
   "pages.form.cancel": "Скасувати",
+  "pages.form.meta_desc_label": "SEO-опис (meta description)",
+  "pages.form.meta_title_label": "SEO-заголовок",
   "pages.form.save": "Зберегти",
   "pages.form.title": "Сторінка:",
   "pages.form.title_label": "Заголовок",
