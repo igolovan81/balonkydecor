@@ -63,6 +63,14 @@
             <label>{{ t('products.form.desc_label') }} ({{ lang|upper }})</label>
             <textarea name="t[{{ lang }}][description]">{{ translations[lang].description ?? '' }}</textarea>
         </div>
+        <div class="form-group">
+            <label>{{ t('products.form.meta_title_label') }} ({{ lang|upper }})</label>
+            <input type="text" name="t[{{ lang }}][meta_title]" value="{{ translations[lang].meta_title ?? '' }}" maxlength="255">
+        </div>
+        <div class="form-group">
+            <label>{{ t('products.form.meta_desc_label') }} ({{ lang|upper }})</label>
+            <textarea name="t[{{ lang }}][meta_desc]" maxlength="500">{{ translations[lang].meta_desc ?? '' }}</textarea>
+        </div>
     </div>
     {% endfor %}
     <div class="form-actions">

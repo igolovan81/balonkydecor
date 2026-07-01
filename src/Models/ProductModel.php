@@ -115,7 +115,7 @@ class ProductModel
     public static function getTranslations(int $id): array
     {
         $pdo  = Database::getConnection();
-        $stmt = $pdo->prepare('SELECT lang_code, name, description FROM product_t WHERE product_id = ?');
+        $stmt = $pdo->prepare('SELECT lang_code, name, description, meta_title, meta_desc FROM product_t WHERE product_id = ?');
         $stmt->execute([$id]);
         $result = [];
         foreach ($stmt->fetchAll() as $row) {
@@ -128,13 +128,14 @@ class ProductModel
     {
         $pdo  = Database::getConnection();
         $stmt = $pdo->prepare(
-            'INSERT INTO product_t (product_id, lang_code, name, description)
-             VALUES (?, ?, ?, ?)
-             ON DUPLICATE KEY UPDATE name = VALUES(name), description = VALUES(description)'
+            'INSERT INTO product_t (product_id, lang_code, name, description, meta_title, meta_desc)
+             VALUES (?, ?, ?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE name = VALUES(name), description = VALUES(description),
+                                     meta_title = VALUES(meta_title), meta_desc = VALUES(meta_desc)'
         );
         foreach ($translations as $lang => $t) {
             if (empty($t['name'])) continue;
-            $stmt->execute([$id, $lang, $t['name'], $t['description'] ?? '']);
+            $stmt->execute([$id, $lang, $t['name'], $t['description'] ?? '', $t['meta_title'] ?? null, $t['meta_desc'] ?? null]);
         }
     }
 

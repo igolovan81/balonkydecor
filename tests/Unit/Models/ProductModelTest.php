@@ -49,4 +49,16 @@ class ProductModelTest extends TestCase
             $this->assertSame(self::$categoryId, (int) $row['category_id']);
         }
     }
+
+    public function test_set_translations_stores_meta_fields(): void
+    {
+        $pdo = Database::getConnection();
+        $id  = $pdo->query("SELECT id FROM products WHERE sku='TEST-SKU-001'")->fetch()['id'];
+        ProductModel::setTranslations($id, [
+            'en' => ['name' => 'Test Product', 'meta_title' => 'Buy Test Product', 'meta_desc' => 'Best test product in town.'],
+        ]);
+        $translations = ProductModel::getTranslations($id);
+        $this->assertSame('Buy Test Product', $translations['en']['meta_title']);
+        $this->assertSame('Best test product in town.', $translations['en']['meta_desc']);
+    }
 }

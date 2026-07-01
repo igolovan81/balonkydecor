@@ -147,6 +147,8 @@
   "products.form.delete_image": "Видалити",
   "products.form.desc_label": "Опис",
   "products.form.existing_images": "Наявні зображення",
+  "products.form.meta_desc_label": "SEO-опис (meta description)",
+  "products.form.meta_title_label": "SEO-заголовок",
   "products.form.name_label": "Назва",
   "products.form.price": "Ціна (Kč)",
   "products.form.save": "Зберегти",

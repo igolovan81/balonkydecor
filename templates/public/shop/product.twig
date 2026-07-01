@@ -1,6 +1,6 @@
 {% extends "layout/base.twig" %}
 
-{% block title %}{{ product.name }} — {{ t('site.name') }}{% endblock %}
+{% block title %}{{ product.meta_title ?? product.name }} — {{ t('site.name') }}{% endblock %}
 {% block meta_desc %}{{ product.meta_desc ?? product.description|striptags|slice(0, 160) }}{% endblock %}
 
 {% block content %}
