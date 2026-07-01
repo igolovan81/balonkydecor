@@ -8,6 +8,7 @@ use App\Controllers\HomeController;
 use App\Controllers\OrderController;
 use App\Controllers\PageController;
 use App\Controllers\PaymentController;
+use App\Controllers\SeoController;
 use App\Controllers\ShopController;
 use App\Controllers\Admin\AuthController;
 use App\Controllers\Admin\BlogController as AdminBlogController;
@@ -123,6 +124,10 @@ $app->group('/admin', function (\Slim\Routing\RouteCollectorProxy $group) {
 $app->get('/', function ($req, $res) {
     return $res->withHeader('Location', '/cs/')->withStatus(302);
 });
+
+// SEO — static routes — must come before /{lang}/* variable routes
+$app->get('/robots.txt',  SeoController::class . ':robots');
+$app->get('/sitemap.xml', SeoController::class . ':sitemap');
 
 // Public
 $app->get('/{lang}/',                 HomeController::class    . ':index');
