@@ -104,7 +104,7 @@ class BlogModel
     public static function getTranslations(int $id): array
     {
         $pdo  = Database::getConnection();
-        $stmt = $pdo->prepare('SELECT lang_code, title, body FROM blog_post_t WHERE post_id = ?');
+        $stmt = $pdo->prepare('SELECT lang_code, title, body, meta_title, meta_desc FROM blog_post_t WHERE post_id = ?');
         $stmt->execute([$id]);
         $result = [];
         foreach ($stmt->fetchAll() as $row) {
@@ -117,13 +117,14 @@ class BlogModel
     {
         $pdo  = Database::getConnection();
         $stmt = $pdo->prepare(
-            'INSERT INTO blog_post_t (post_id, lang_code, title, body)
-             VALUES (?, ?, ?, ?)
-             ON DUPLICATE KEY UPDATE title = VALUES(title), body = VALUES(body)'
+            'INSERT INTO blog_post_t (post_id, lang_code, title, body, meta_title, meta_desc)
+             VALUES (?, ?, ?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE title = VALUES(title), body = VALUES(body),
+                                     meta_title = VALUES(meta_title), meta_desc = VALUES(meta_desc)'
         );
         foreach ($translations as $lang => $t) {
             if (empty($t['title'])) continue;
-            $stmt->execute([$id, $lang, $t['title'], $t['body'] ?? '']);
+            $stmt->execute([$id, $lang, $t['title'], $t['body'] ?? '', $t['meta_title'] ?? null, $t['meta_desc'] ?? null]);
         }
     }
 }

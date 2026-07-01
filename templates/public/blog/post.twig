@@ -1,6 +1,6 @@
 {% extends "layout/base.twig" %}
 
-{% block title %}{{ post.title }} — {{ t('site.name') }}{% endblock %}
+{% block title %}{{ post.meta_title ?? post.title }} — {{ t('site.name') }}{% endblock %}
 {% block meta_desc %}{{ post.meta_desc ?? '' }}{% endblock %}
 
 {% block content %}

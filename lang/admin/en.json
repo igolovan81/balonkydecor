@@ -11,6 +11,8 @@
   "blog.form.back": "← Back",
   "blog.form.body_label": "Content — HTML allowed",
   "blog.form.cancel": "Cancel",
+  "blog.form.meta_desc_label": "SEO description (meta description)",
+  "blog.form.meta_title_label": "SEO title",
   "blog.form.published_at": "Publication date",
   "blog.form.save": "Save",
   "blog.form.slug": "Slug",

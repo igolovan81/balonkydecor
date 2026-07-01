@@ -11,6 +11,8 @@
   "blog.form.back": "← Назад",
   "blog.form.body_label": "Содержание — разрешён HTML",
   "blog.form.cancel": "Отмена",
+  "blog.form.meta_desc_label": "SEO-описание (meta description)",
+  "blog.form.meta_title_label": "SEO-заголовок",
   "blog.form.published_at": "Дата публикации",
   "blog.form.save": "Сохранить",
   "blog.form.slug": "Slug",

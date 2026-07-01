@@ -39,4 +39,16 @@ class BlogModelTest extends TestCase
         $pdo->exec("INSERT IGNORE INTO blog_posts (slug, status) VALUES ('draft-post', 'draft')");
         $this->assertNull(BlogModel::findBySlug('draft-post', 'en'));
     }
+
+    public function test_set_translations_stores_meta_fields(): void
+    {
+        $pdo = Database::getConnection();
+        $id  = $pdo->query("SELECT id FROM blog_posts WHERE slug='test-post'")->fetch()['id'];
+        BlogModel::setTranslations($id, [
+            'en' => ['title' => 'Test Post', 'meta_title' => 'Test Post Title', 'meta_desc' => 'A short excerpt.'],
+        ]);
+        $translations = BlogModel::getTranslations($id);
+        $this->assertSame('Test Post Title', $translations['en']['meta_title']);
+        $this->assertSame('A short excerpt.', $translations['en']['meta_desc']);
+    }
 }

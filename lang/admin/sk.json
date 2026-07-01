@@ -11,6 +11,8 @@
   "blog.form.back": "← Späť",
   "blog.form.body_label": "Obsah — HTML povolený",
   "blog.form.cancel": "Zrušiť",
+  "blog.form.meta_desc_label": "SEO popis (meta description)",
+  "blog.form.meta_title_label": "SEO titulok",
   "blog.form.published_at": "Dátum publikácie",
   "blog.form.save": "Uložiť",
   "blog.form.slug": "Slug",
