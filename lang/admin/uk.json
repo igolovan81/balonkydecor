@@ -140,6 +140,7 @@
   "products.col.image": "Зображення",
   "products.col.price": "Ціна",
   "products.col.sku": "SKU",
+  "products.col.stock": "На складі",
   "products.confirm_delete": "Видалити товар?",
   "products.delete": "Видалити",
   "products.edit": "Редагувати",

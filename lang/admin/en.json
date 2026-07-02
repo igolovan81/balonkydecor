@@ -140,6 +140,7 @@
   "products.col.image": "Image",
   "products.col.price": "Price",
   "products.col.sku": "SKU",
+  "products.col.stock": "Stock",
   "products.confirm_delete": "Delete product?",
   "products.delete": "Delete",
   "products.edit": "Edit",
