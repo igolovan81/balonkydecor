@@ -77,31 +77,40 @@ class ProductModel
 
     public static function create(array $data): int
     {
-        $pdo  = Database::getConnection();
+        $pdo       = Database::getConnection();
+        $stockType = ($data['stock_type'] ?? '') === 'limited' ? 'limited' : 'unlimited';
+        $stockQty  = $stockType === 'limited' ? max(0, (int) ($data['stock_qty'] ?? 0)) : 0;
         $stmt = $pdo->prepare(
-            'INSERT INTO products (sku, price, category_id, is_active, sort_order)
-             VALUES (:sku, :price, :category_id, :is_active, 0)'
+            'INSERT INTO products (sku, price, category_id, is_active, stock_type, stock_qty, sort_order)
+             VALUES (:sku, :price, :category_id, :is_active, :stock_type, :stock_qty, 0)'
         );
         $stmt->execute([
             'sku'         => $data['sku'],
             'price'       => $data['price'],
             'category_id' => $data['category_id'] ?: 1,
             'is_active'   => (int) ($data['is_active'] ?? 1),
+            'stock_type'  => $stockType,
+            'stock_qty'   => $stockQty,
         ]);
         return (int) $pdo->lastInsertId();
     }
 
     public static function update(int $id, array $data): void
     {
-        $pdo  = Database::getConnection();
+        $pdo       = Database::getConnection();
+        $stockType = ($data['stock_type'] ?? '') === 'limited' ? 'limited' : 'unlimited';
+        $stockQty  = $stockType === 'limited' ? max(0, (int) ($data['stock_qty'] ?? 0)) : 0;
         $stmt = $pdo->prepare(
-            'UPDATE products SET sku = :sku, price = :price, category_id = :category_id, is_active = :is_active WHERE id = :id'
+            'UPDATE products SET sku = :sku, price = :price, category_id = :category_id, is_active = :is_active,
+                                  stock_type = :stock_type, stock_qty = :stock_qty WHERE id = :id'
         );
         $stmt->execute([
             'sku'         => $data['sku'],
             'price'       => $data['price'],
             'category_id' => $data['category_id'] ?: 1,
             'is_active'   => (int) ($data['is_active'] ?? 1),
+            'stock_type'  => $stockType,
+            'stock_qty'   => $stockQty,
             'id'          => $id,
         ]);
     }

@@ -61,4 +61,76 @@ class ProductModelTest extends TestCase
         $this->assertSame('Buy Test Product', $translations['en']['meta_title']);
         $this->assertSame('Best test product in town.', $translations['en']['meta_desc']);
     }
+
+    public function test_create_persists_limited_stock(): void
+    {
+        $id = ProductModel::create([
+            'sku'         => 'TEST-STOCK-' . uniqid(),
+            'price'       => 19.99,
+            'category_id' => self::$categoryId,
+            'stock_type'  => 'limited',
+            'stock_qty'   => 5,
+        ]);
+        $product = ProductModel::findById($id);
+        $this->assertSame('limited', $product['stock_type']);
+        $this->assertSame(5, (int) $product['stock_qty']);
+    }
+
+    public function test_create_defaults_to_unlimited_when_stock_fields_omitted(): void
+    {
+        $id = ProductModel::create([
+            'sku'         => 'TEST-STOCK-' . uniqid(),
+            'price'       => 19.99,
+            'category_id' => self::$categoryId,
+        ]);
+        $product = ProductModel::findById($id);
+        $this->assertSame('unlimited', $product['stock_type']);
+        $this->assertSame(0, (int) $product['stock_qty']);
+    }
+
+    public function test_create_clamps_negative_stock_qty_to_zero(): void
+    {
+        $id = ProductModel::create([
+            'sku'         => 'TEST-STOCK-' . uniqid(),
+            'price'       => 19.99,
+            'category_id' => self::$categoryId,
+            'stock_type'  => 'limited',
+            'stock_qty'   => -5,
+        ]);
+        $product = ProductModel::findById($id);
+        $this->assertSame(0, (int) $product['stock_qty']);
+    }
+
+    public function test_create_forces_zero_qty_when_unlimited(): void
+    {
+        $id = ProductModel::create([
+            'sku'         => 'TEST-STOCK-' . uniqid(),
+            'price'       => 19.99,
+            'category_id' => self::$categoryId,
+            'stock_type'  => 'unlimited',
+            'stock_qty'   => 42,
+        ]);
+        $product = ProductModel::findById($id);
+        $this->assertSame('unlimited', $product['stock_type']);
+        $this->assertSame(0, (int) $product['stock_qty']);
+    }
+
+    public function test_update_persists_limited_stock(): void
+    {
+        $id = ProductModel::create([
+            'sku'         => 'TEST-STOCK-' . uniqid(),
+            'price'       => 9.99,
+            'category_id' => self::$categoryId,
+        ]);
+        ProductModel::update($id, [
+            'sku'         => 'TEST-STOCK-UPDATED-' . uniqid(),
+            'price'       => 9.99,
+            'category_id' => self::$categoryId,
+            'stock_type'  => 'limited',
+            'stock_qty'   => 3,
+        ]);
+        $product = ProductModel::findById($id);
+        $this->assertSame('limited', $product['stock_type']);
+        $this->assertSame(3, (int) $product['stock_qty']);
+    }
 }
