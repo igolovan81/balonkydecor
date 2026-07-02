@@ -20,8 +20,12 @@
             <nav class="main-nav">
                 <a href="/{{ lang }}/">{{ t('nav.home') }}</a>
                 <a href="/{{ lang }}/shop">{{ t('nav.shop') }}</a>
-                <a href="/{{ lang }}/services">{{ t('nav.services') }}</a>
-                <a href="/{{ lang }}/gallery">{{ t('nav.gallery') }}</a>
+                <div class="nav-item-dropdown">
+                    <a href="/{{ lang }}/services">{{ t('nav.services') }}</a>
+                    <div class="nav-dropdown-menu">
+                        <a href="/{{ lang }}/services/archive">{{ t('nav.gallery') }}</a>
+                    </div>
+                </div>
                 <a href="/{{ lang }}/blog">{{ t('nav.blog') }}</a>
                 <a href="/{{ lang }}/contact">{{ t('nav.contact') }}</a>
             </nav>
