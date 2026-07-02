@@ -44,6 +44,7 @@
         <a href="/admin/categories" class="btn btn-secondary">{{ t('categories.form.cancel') }}</a>
     </div>
 </form>
+{% endblock %}
 {% block scripts %}
 <script>
 const PREFERRED_LANG = "{{ admin_lang }}";
@@ -135,5 +136,4 @@ document.querySelectorAll('.translate-btn').forEach(btn => {
     });
 });
 </script>
-{% endblock %}
 {% endblock %}
