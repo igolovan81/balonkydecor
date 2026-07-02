@@ -7,3 +7,4 @@
 /tmp/twig_cache/
 www/assets/uploads/*
 !www/assets/uploads/.gitkeep
+.superpowers/
