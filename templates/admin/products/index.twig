@@ -32,7 +32,7 @@
         <td>{{ p.is_active ? '✓' : '—' }}</td>
         <td>
             <a href="/admin/products/{{ p.id }}/edit">{{ t('products.edit') }}</a> |
-            <form method="POST" action="/admin/products/{{ p.id }}/delete" style="display:inline" onsubmit="return confirm('Smazat produkt?')">
+            <form method="POST" action="/admin/products/{{ p.id }}/delete" style="display:inline" onsubmit="return confirm('{{ t('products.confirm_delete') }}')">
                 <button class="btn-link">{{ t('products.delete') }}</button>
             </form>
         </td>

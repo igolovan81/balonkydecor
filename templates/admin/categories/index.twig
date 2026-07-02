@@ -24,7 +24,7 @@
         <td>{{ cat.sort_order }}</td>
         <td>
             <a href="/admin/categories/{{ cat.id }}/edit">{{ t('categories.edit') }}</a> |
-            <form method="POST" action="/admin/categories/{{ cat.id }}/delete" style="display:inline" onsubmit="return confirm('Smazat?')">
+            <form method="POST" action="/admin/categories/{{ cat.id }}/delete" style="display:inline" onsubmit="return confirm('{{ t('categories.confirm_delete') }}')">
                 <button class="btn-link">{{ t('categories.delete') }}</button>
             </form>
         </td>

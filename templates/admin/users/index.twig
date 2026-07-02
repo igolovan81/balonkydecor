@@ -28,7 +28,7 @@
                 <button type="submit" class="btn btn-secondary" style="padding:0.3rem 0.6rem;font-size:0.85rem;">{{ t('users.change_password') }}</button>
             </form>
             |
-            <form method="POST" action="/admin/users/{{ u.id }}/delete" style="display:inline" onsubmit="return confirm('Smazat uživatele?')">
+            <form method="POST" action="/admin/users/{{ u.id }}/delete" style="display:inline" onsubmit="return confirm('{{ t('users.confirm_delete') }}')">
                 <button class="btn-link">{{ t('users.delete') }}</button>
             </form>
         </td>

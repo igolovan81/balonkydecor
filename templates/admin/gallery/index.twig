@@ -15,7 +15,7 @@
         <td>{{ a.sort_order }}</td>
         <td>
             <a href="/admin/gallery/{{ a.id }}/edit">{{ t('gallery.edit') }}</a> |
-            <form method="POST" action="/admin/gallery/{{ a.id }}/delete" style="display:inline" onsubmit="return confirm('Smazat album i se všemi fotkami?')">
+            <form method="POST" action="/admin/gallery/{{ a.id }}/delete" style="display:inline" onsubmit="return confirm('{{ t('gallery.confirm_delete') }}')">
                 <button class="btn-link">{{ t('gallery.delete') }}</button>
             </form>
         </td>

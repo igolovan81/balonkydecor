@@ -24,7 +24,7 @@
         <td>{{ p.published_at ?? '—' }}</td>
         <td>
             <a href="/admin/blog/{{ p.id }}/edit">{{ t('blog.edit') }}</a> |
-            <form method="POST" action="/admin/blog/{{ p.id }}/delete" style="display:inline" onsubmit="return confirm('Smazat příspěvek?')">
+            <form method="POST" action="/admin/blog/{{ p.id }}/delete" style="display:inline" onsubmit="return confirm('{{ t('blog.confirm_delete') }}')">
                 <button class="btn-link">{{ t('blog.delete') }}</button>
             </form>
         </td>
