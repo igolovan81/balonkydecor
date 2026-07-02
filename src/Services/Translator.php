@@ -5,24 +5,34 @@ use RuntimeException;
 
 class Translator
 {
-    private const ENDPOINT     = 'https://api.mymemory.translated.net/get';
-    private const VALID_TARGETS = ['CS', 'SK', 'EN', 'UK', 'RU'];
-    private const LANG_MAP      = ['CS' => 'cs', 'SK' => 'sk', 'EN' => 'en', 'UK' => 'uk', 'RU' => 'ru'];
+    private const ENDPOINT    = 'https://api.mymemory.translated.net/get';
+    private const VALID_LANGS = ['CS', 'SK', 'EN', 'UK', 'RU'];
+    private const LANG_MAP    = ['CS' => 'cs', 'SK' => 'sk', 'EN' => 'en', 'UK' => 'uk', 'RU' => 'ru'];
 
-    public static function translate(array $texts, string $targetLang, ?callable $transport = null): array
+    public static function translate(array $texts, string $sourceLang, string $targetLang, ?callable $transport = null): array
     {
+        $sourceLang = strtoupper($sourceLang);
         $targetLang = strtoupper($targetLang);
 
-        if (!in_array($targetLang, self::VALID_TARGETS, true)) {
+        if (!in_array($sourceLang, self::VALID_LANGS, true)) {
+            throw new RuntimeException('Invalid source language: ' . $sourceLang);
+        }
+
+        if (!in_array($targetLang, self::VALID_LANGS, true)) {
             throw new RuntimeException('Invalid target language: ' . $targetLang);
         }
 
+        if ($sourceLang === $targetLang) {
+            throw new RuntimeException('Source and target language are the same: ' . $targetLang);
+        }
+
+        $sourceCode = self::LANG_MAP[$sourceLang];
         $targetCode = self::LANG_MAP[$targetLang];
         $transport  = $transport ?? self::curlTransport();
         $results    = [];
 
         foreach ($texts as $text) {
-            $url  = self::ENDPOINT . '?q=' . rawurlencode((string) $text) . '&langpair=cs|' . $targetCode;
+            $url  = self::ENDPOINT . '?q=' . rawurlencode((string) $text) . '&langpair=' . $sourceCode . '|' . $targetCode;
             $raw  = $transport($url);
             $data = json_decode($raw, true);
 
