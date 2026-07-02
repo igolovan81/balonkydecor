@@ -28,6 +28,7 @@ class GalleryModelTest extends TestCase
         $this->assertNotNull($album);
         $this->assertSame('Test Album', $album['name']);
         $this->assertArrayHasKey('images', $album);
+        $this->assertIsArray($album['images']);
     }
 
     public function test_album_returns_null_for_unknown(): void
@@ -57,5 +58,38 @@ class GalleryModelTest extends TestCase
         $album = GalleryModel::album('test-album', 'en');
         $this->assertSame('Our Test Album', $album['meta_title']);
         $this->assertSame('Photos from our test album.', $album['meta_desc']);
+    }
+
+    public function test_add_image_defaults_to_image_media_type(): void
+    {
+        $pdo = Database::getConnection();
+        $id  = $pdo->query("SELECT id FROM gallery_albums WHERE slug='test-album'")->fetch()['id'];
+        GalleryModel::addImage($id, 'default-type-test.jpg');
+        $row = $pdo->query("SELECT media_type FROM gallery_images WHERE album_id={$id} AND filename='default-type-test.jpg'")->fetch();
+        $this->assertSame('image', $row['media_type']);
+    }
+
+    public function test_add_image_stores_video_media_type(): void
+    {
+        $pdo = Database::getConnection();
+        $id  = $pdo->query("SELECT id FROM gallery_albums WHERE slug='test-album'")->fetch()['id'];
+        GalleryModel::addImage($id, 'clip-test.mp4', 'video');
+        $row = $pdo->query("SELECT media_type FROM gallery_images WHERE album_id={$id} AND filename='clip-test.mp4'")->fetch();
+        $this->assertSame('video', $row['media_type']);
+    }
+
+    public function test_delete_image_returns_media_type(): void
+    {
+        $pdo = Database::getConnection();
+        $id  = $pdo->query("SELECT id FROM gallery_albums WHERE slug='test-album'")->fetch()['id'];
+        GalleryModel::addImage($id, 'delete-me-test.mp4', 'video');
+        $imageId = $pdo->query("SELECT id FROM gallery_images WHERE album_id={$id} AND filename='delete-me-test.mp4'")->fetch()['id'];
+
+        $result = GalleryModel::deleteImage($imageId);
+
+        $this->assertSame('delete-me-test.mp4', $result['filename']);
+        $this->assertSame('video', $result['media_type']);
+        $row = $pdo->query("SELECT id FROM gallery_images WHERE id={$imageId}")->fetch();
+        $this->assertFalse($row);
     }
 }

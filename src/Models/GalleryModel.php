@@ -32,9 +32,9 @@ class GalleryModel
         if (!$album) {
             return null;
         }
-        $imgs = $pdo->prepare('SELECT filename FROM gallery_images WHERE album_id = ? ORDER BY sort_order, id');
+        $imgs = $pdo->prepare('SELECT id, filename, media_type FROM gallery_images WHERE album_id = ? ORDER BY sort_order, id');
         $imgs->execute([$album['id']]);
-        $album['images'] = $imgs->fetchAll(\PDO::FETCH_COLUMN);
+        $album['images'] = $imgs->fetchAll();
         return $album;
     }
 
@@ -105,20 +105,21 @@ class GalleryModel
         }
     }
 
-    public static function addImage(int $albumId, string $filename): void
+    public static function addImage(int $albumId, string $filename, string $mediaType = 'image'): void
     {
         $pdo = Database::getConnection();
-        $pdo->prepare('INSERT INTO gallery_images (album_id, filename, sort_order) VALUES (?, ?, 0)')->execute([$albumId, $filename]);
+        $pdo->prepare('INSERT INTO gallery_images (album_id, filename, media_type, sort_order) VALUES (?, ?, ?, 0)')
+            ->execute([$albumId, $filename, $mediaType]);
     }
 
-    public static function deleteImage(int $imageId): ?string
+    public static function deleteImage(int $imageId): ?array
     {
         $pdo  = Database::getConnection();
-        $stmt = $pdo->prepare('SELECT filename FROM gallery_images WHERE id = ?');
+        $stmt = $pdo->prepare('SELECT filename, media_type FROM gallery_images WHERE id = ?');
         $stmt->execute([$imageId]);
         $row  = $stmt->fetch();
         if (!$row) return null;
         $pdo->prepare('DELETE FROM gallery_images WHERE id = ?')->execute([$imageId]);
-        return $row['filename'];
+        return $row;
     }
 }
