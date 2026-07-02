@@ -83,13 +83,16 @@ document.querySelectorAll('.lang-tab').forEach(tab => {
 // Translate buttons — JS runtime strings remain hardcoded Czech per spec
 document.querySelectorAll('.translate-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
-        const targetLang  = btn.dataset.lang;
+        const targetLang = btn.dataset.lang;
         const panel       = document.getElementById('panel-' + targetLang);
         const msgSpan     = panel.querySelector('.translate-msg');
-        const prefNameEl  = document.querySelector('input[name="t[' + PREFERRED_LANG + '][name]"]');
-        const prefDescEl  = document.querySelector('textarea[name="t[' + PREFERRED_LANG + '][description]"]');
+        const fields      = [
+            { name: 'name',        el: document.querySelector('input[name="t[' + PREFERRED_LANG + '][name]"]') },
+            { name: 'description', el: document.querySelector('textarea[name="t[' + PREFERRED_LANG + '][description]"]') },
+        ];
+        const filled = fields.filter(f => f.el.value.trim() !== '');
 
-        if (!prefNameEl.value.trim() && !prefDescEl.value.trim()) {
+        if (filled.length === 0) {
             msgSpan.textContent = 'Nejprve vyplňte texty ve výchozím jazyce.';
             msgSpan.style.color = '#c00';
             msgSpan.style.display = 'inline';
@@ -107,7 +110,7 @@ document.querySelectorAll('.translate-btn').forEach(btn => {
                 method:  'POST',
                 headers: {'Content-Type': 'application/json'},
                 body:    JSON.stringify({
-                    texts:  [prefNameEl.value, prefDescEl.value],
+                    texts:  filled.map(f => f.el.value),
                     target: targetLang.toUpperCase(),
                 }),
             });
@@ -121,8 +124,9 @@ document.querySelectorAll('.translate-btn').forEach(btn => {
                 return;
             }
 
-            panel.querySelector('input[name="t[' + targetLang + '][name]"]').value           = data.texts[0] ?? '';
-            panel.querySelector('textarea[name="t[' + targetLang + '][description]"]').value = data.texts[1] ?? '';
+            filled.forEach((f, i) => {
+                panel.querySelector('[name="t[' + targetLang + '][' + f.name + ']"]').value = data.texts[i] ?? '';
+            });
             msgSpan.style.display = 'none';
             msgSpan.textContent   = '';
         } catch (e) {
