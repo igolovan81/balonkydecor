@@ -24,7 +24,7 @@ class SitemapTest extends TestCase
     public function test_paths_includes_static_pages(): void
     {
         $paths = Sitemap::paths();
-        foreach (['/', '/shop', '/services', '/gallery', '/blog', '/contact'] as $expected) {
+        foreach (['/', '/shop', '/services', '/services/archive', '/blog', '/contact'] as $expected) {
             $this->assertContains($expected, $paths);
         }
     }
@@ -41,7 +41,7 @@ class SitemapTest extends TestCase
 
     public function test_paths_includes_gallery_album(): void
     {
-        $this->assertContains('/gallery/sitemap-test-album', Sitemap::paths());
+        $this->assertContains('/services/archive/sitemap-test-album', Sitemap::paths());
     }
 
     public function test_paths_includes_published_blog_post(): void

@@ -9,13 +9,13 @@ class Sitemap
 {
     public static function paths(): array
     {
-        $paths = ['/', '/shop', '/services', '/gallery', '/blog', '/contact'];
+        $paths = ['/', '/shop', '/services', '/services/archive', '/blog', '/contact'];
 
         foreach (ProductModel::allActive(Seo::DEFAULT_LANG) as $product) {
             $paths[] = '/shop/' . $product['sku'];
         }
         foreach (GalleryModel::albums(Seo::DEFAULT_LANG) as $album) {
-            $paths[] = '/gallery/' . $album['slug'];
+            $paths[] = '/services/archive/' . $album['slug'];
         }
         $blog = BlogModel::published(Seo::DEFAULT_LANG, 1, 1000);
         foreach ($blog['posts'] as $post) {

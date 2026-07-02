@@ -10,7 +10,7 @@
     {% if albums %}
     <div class="gallery-grid">
         {% for album in albums %}
-        <a href="/{{ lang }}/gallery/{{ album.slug }}" class="gallery-album-card">
+        <a href="/{{ lang }}/services/archive/{{ album.slug }}" class="gallery-album-card">
             <div class="gallery-cover">
                 {% if album.cover_image %}
                     <img src="/assets/uploads/gallery/{{ album.cover_image }}" alt="{{ album.name }}">
