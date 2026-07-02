@@ -86,4 +86,78 @@ class TranslatorTest extends TestCase
 
         $this->assertStringContainsString('langpair=en|sk', $capturedUrl);
     }
+
+    public function test_autofill_fills_empty_target_fields_from_source(): void
+    {
+        $transport = function (string $url): string {
+            if (str_contains($url, rawurlencode('Balónky'))) {
+                return json_encode(['responseStatus' => 200, 'responseData' => ['translatedText' => 'Balloons']]);
+            }
+            return json_encode(['responseStatus' => 200, 'responseData' => ['translatedText' => 'Description here']]);
+        };
+
+        $translations = [
+            'cs' => ['name' => 'Balónky', 'description' => 'Popis'],
+            'en' => ['name' => '', 'description' => ''],
+        ];
+
+        $result = Translator::autoFill($translations, 'cs', ['cs', 'en'], ['name', 'description'], $transport);
+
+        $this->assertSame('Balloons', $result['en']['name']);
+        $this->assertSame('Description here', $result['en']['description']);
+    }
+
+    public function test_autofill_skips_language_with_nothing_to_fill(): void
+    {
+        $calls = 0;
+        $transport = function (string $url) use (&$calls): string {
+            $calls++;
+            return json_encode(['responseStatus' => 200, 'responseData' => ['translatedText' => 'x']]);
+        };
+
+        $translations = [
+            'cs' => ['name' => 'Balónky', 'description' => 'Popis'],
+            'en' => ['name' => 'Balloons', 'description' => 'Description'],
+        ];
+
+        $result = Translator::autoFill($translations, 'cs', ['cs', 'en'], ['name', 'description'], $transport);
+
+        $this->assertSame(0, $calls);
+        $this->assertSame('Balloons', $result['en']['name']);
+        $this->assertSame('Description', $result['en']['description']);
+    }
+
+    public function test_autofill_leaves_language_blank_when_translation_fails(): void
+    {
+        $transport = function (string $url): string {
+            return 'not-json';
+        };
+
+        $translations = [
+            'cs' => ['name' => 'Balónky', 'description' => 'Popis'],
+            'en' => ['name' => '', 'description' => ''],
+        ];
+
+        $result = Translator::autoFill($translations, 'cs', ['cs', 'en'], ['name', 'description'], $transport);
+
+        $this->assertSame('', $result['en']['name']);
+        $this->assertSame('', $result['en']['description']);
+    }
+
+    public function test_autofill_does_not_overwrite_existing_partial_value(): void
+    {
+        $transport = function (string $url): string {
+            return json_encode(['responseStatus' => 200, 'responseData' => ['translatedText' => 'Description here']]);
+        };
+
+        $translations = [
+            'cs' => ['name' => 'Balónky', 'description' => 'Popis'],
+            'en' => ['name' => 'Custom Name', 'description' => ''],
+        ];
+
+        $result = Translator::autoFill($translations, 'cs', ['cs', 'en'], ['name', 'description'], $transport);
+
+        $this->assertSame('Custom Name', $result['en']['name']);
+        $this->assertSame('Description here', $result['en']['description']);
+    }
 }

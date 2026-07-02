@@ -50,6 +50,44 @@ class Translator
         return $results;
     }
 
+    public static function autoFill(array $translations, string $sourceLang, array $allLangs, array $fields, ?callable $transport = null): array
+    {
+        $source = $translations[$sourceLang] ?? [];
+
+        foreach ($allLangs as $lang) {
+            if ($lang === $sourceLang) {
+                continue;
+            }
+
+            $missingFields = [];
+            foreach ($fields as $field) {
+                $targetValue = trim((string) ($translations[$lang][$field] ?? ''));
+                $sourceValue = trim((string) ($source[$field] ?? ''));
+                if ($targetValue === '' && $sourceValue !== '') {
+                    $missingFields[] = $field;
+                }
+            }
+
+            if (!$missingFields) {
+                continue;
+            }
+
+            $texts = array_map(static fn (string $field) => $source[$field], $missingFields);
+
+            try {
+                $translated = self::translate($texts, $sourceLang, $lang, $transport);
+            } catch (\Throwable $e) {
+                continue;
+            }
+
+            foreach ($missingFields as $i => $field) {
+                $translations[$lang][$field] = $translated[$i] ?? '';
+            }
+        }
+
+        return $translations;
+    }
+
     private static function curlTransport(): callable
     {
         return function (string $url): string {
