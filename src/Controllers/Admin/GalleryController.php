@@ -3,6 +3,7 @@ namespace App\Controllers\Admin;
 
 use App\Models\GalleryModel;
 use App\Services\ImageUploader;
+use App\Services\VideoUploader;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -32,6 +33,7 @@ class GalleryController extends AdminBaseController
         $id   = GalleryModel::createAlbum(['slug' => trim($body['slug'] ?? ''), 'sort_order' => (int) ($body['sort_order'] ?? 0)]);
         GalleryModel::setAlbumTranslations($id, $body['t'] ?? []);
         $this->handleImageUploads($request, $id);
+        $this->handleVideoUploads($request, $id);
         $this->flash('success', 'gallery.flash.created');
         return $this->redirect($response, '/admin/gallery');
     }
@@ -55,16 +57,19 @@ class GalleryController extends AdminBaseController
         GalleryModel::updateAlbum($id, ['slug' => trim($body['slug'] ?? ''), 'sort_order' => (int) ($body['sort_order'] ?? 0)]);
         GalleryModel::setAlbumTranslations($id, $body['t'] ?? []);
         $this->handleImageUploads($request, $id);
+        $this->handleVideoUploads($request, $id);
         $this->flash('success', 'gallery.flash.updated');
         return $this->redirect($response, '/admin/gallery');
     }
 
     public function deleteImage(Request $request, Response $response, array $args): Response
     {
-        $filename = GalleryModel::deleteImage((int) $args['image_id']);
-        if ($filename) {
-            @unlink(self::UPLOAD_DIR . '/' . $filename);
-            @unlink(self::UPLOAD_DIR . '/thumb_' . $filename);
+        $deleted = GalleryModel::deleteImage((int) $args['image_id']);
+        if ($deleted) {
+            @unlink(self::UPLOAD_DIR . '/' . $deleted['filename']);
+            if ($deleted['media_type'] === 'image') {
+                @unlink(self::UPLOAD_DIR . '/thumb_' . $deleted['filename']);
+            }
         }
         $this->flash('success', 'gallery.flash.image_deleted');
         return $this->redirect($response, '/admin/gallery/' . $args['id'] . '/edit');
@@ -76,7 +81,9 @@ class GalleryController extends AdminBaseController
         if ($album) {
             foreach ($album['images'] as $img) {
                 @unlink(self::UPLOAD_DIR . '/' . $img['filename']);
-                @unlink(self::UPLOAD_DIR . '/thumb_' . $img['filename']);
+                if ($img['media_type'] === 'image') {
+                    @unlink(self::UPLOAD_DIR . '/thumb_' . $img['filename']);
+                }
             }
             GalleryModel::deleteAlbum((int) $args['id']);
         }
@@ -87,13 +94,26 @@ class GalleryController extends AdminBaseController
     private function handleImageUploads(Request $request, int $albumId): void
     {
         $files  = $request->getUploadedFiles();
-        $images = $files['images'] ?? [];
-        if (!is_array($images)) $images = [$images];
-        foreach ($images as $file) {
+        $photos = $files['photos'] ?? [];
+        if (!is_array($photos)) $photos = [$photos];
+        foreach ($photos as $file) {
             if ($file->getError() === UPLOAD_ERR_NO_FILE) continue;
             $tmp      = ['tmp_name' => $file->getStream()->getMetadata('uri'), 'error' => $file->getError()];
             $filename = ImageUploader::upload($tmp, self::UPLOAD_DIR);
-            GalleryModel::addImage($albumId, $filename);
+            GalleryModel::addImage($albumId, $filename, 'image');
+        }
+    }
+
+    private function handleVideoUploads(Request $request, int $albumId): void
+    {
+        $files  = $request->getUploadedFiles();
+        $videos = $files['videos'] ?? [];
+        if (!is_array($videos)) $videos = [$videos];
+        foreach ($videos as $file) {
+            if ($file->getError() === UPLOAD_ERR_NO_FILE) continue;
+            $tmp      = ['tmp_name' => $file->getStream()->getMetadata('uri'), 'error' => $file->getError()];
+            $filename = VideoUploader::upload($tmp, self::UPLOAD_DIR);
+            GalleryModel::addImage($albumId, $filename, 'video');
         }
     }
 }
