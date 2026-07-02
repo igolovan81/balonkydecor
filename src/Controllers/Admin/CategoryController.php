@@ -7,7 +7,8 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class CategoryController extends AdminBaseController
 {
-    private const LANGS = ['cs', 'sk', 'en', 'uk', 'ru'];
+    private const LANGS               = ['cs', 'sk', 'en', 'uk', 'ru'];
+    private const TRANSLATABLE_FIELDS = ['name', 'description'];
 
     public function index(Request $request, Response $response, array $args): Response
     {
@@ -28,7 +29,13 @@ class CategoryController extends AdminBaseController
     {
         $body = (array) $request->getParsedBody();
         $id   = CategoryModel::create(['slug' => trim($body['slug'] ?? ''), 'sort_order' => (int) ($body['sort_order'] ?? 0)]);
-        CategoryModel::setTranslations($id, $body['t'] ?? []);
+        $translations = \App\Services\Translator::autoFill(
+            $body['t'] ?? [],
+            $request->getAttribute('admin_lang', 'cs'),
+            self::LANGS,
+            self::TRANSLATABLE_FIELDS
+        );
+        CategoryModel::setTranslations($id, $translations);
         $this->flash('success', 'Kategorie vytvořena.');
         return $this->redirect($response, '/admin/categories');
     }
@@ -50,7 +57,13 @@ class CategoryController extends AdminBaseController
         $id   = (int) $args['id'];
         $body = (array) $request->getParsedBody();
         CategoryModel::update($id, ['slug' => trim($body['slug'] ?? ''), 'sort_order' => (int) ($body['sort_order'] ?? 0)]);
-        CategoryModel::setTranslations($id, $body['t'] ?? []);
+        $translations = \App\Services\Translator::autoFill(
+            $body['t'] ?? [],
+            $request->getAttribute('admin_lang', 'cs'),
+            self::LANGS,
+            self::TRANSLATABLE_FIELDS
+        );
+        CategoryModel::setTranslations($id, $translations);
         $this->flash('success', 'Kategorie uložena.');
         return $this->redirect($response, '/admin/categories');
     }

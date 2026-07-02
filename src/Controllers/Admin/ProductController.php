@@ -9,8 +9,9 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class ProductController extends AdminBaseController
 {
-    private const LANGS      = ['cs', 'en', 'ru', 'uk', 'sk'];
-    private const UPLOAD_DIR = __DIR__ . '/../../../www/assets/uploads/products';
+    private const LANGS                = ['cs', 'en', 'ru', 'uk', 'sk'];
+    private const TRANSLATABLE_FIELDS  = ['name', 'description', 'meta_title', 'meta_desc'];
+    private const UPLOAD_DIR           = __DIR__ . '/../../../www/assets/uploads/products';
 
     public function index(Request $request, Response $response, array $args): Response
     {
@@ -38,7 +39,13 @@ class ProductController extends AdminBaseController
             'category_id' => $body['category_id'] ?? 1,
             'is_active'   => isset($body['is_active']) ? 1 : 0,
         ]);
-        ProductModel::setTranslations($id, $body['t'] ?? []);
+        $translations = \App\Services\Translator::autoFill(
+            $body['t'] ?? [],
+            $request->getAttribute('admin_lang', 'cs'),
+            self::LANGS,
+            self::TRANSLATABLE_FIELDS
+        );
+        ProductModel::setTranslations($id, $translations);
         $this->handleImageUpload($request, $id, true);
         $this->flash('success', 'Produkt vytvořen.');
         return $this->redirect($response, '/admin/products');
@@ -68,7 +75,13 @@ class ProductController extends AdminBaseController
             'category_id' => $body['category_id'] ?? 1,
             'is_active'   => isset($body['is_active']) ? 1 : 0,
         ]);
-        ProductModel::setTranslations($id, $body['t'] ?? []);
+        $translations = \App\Services\Translator::autoFill(
+            $body['t'] ?? [],
+            $request->getAttribute('admin_lang', 'cs'),
+            self::LANGS,
+            self::TRANSLATABLE_FIELDS
+        );
+        ProductModel::setTranslations($id, $translations);
         $this->handleImageUpload($request, $id, false);
         $this->flash('success', 'Produkt uložen.');
         return $this->redirect($response, '/admin/products');
