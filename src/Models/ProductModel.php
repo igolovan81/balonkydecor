@@ -151,6 +151,11 @@ class ProductModel
     public static function addImage(int $productId, string $filename, bool $isPrimary = false): void
     {
         $pdo = Database::getConnection();
+        if (!$isPrimary) {
+            $stmt = $pdo->prepare('SELECT COUNT(*) FROM product_images WHERE product_id = ?');
+            $stmt->execute([$productId]);
+            $isPrimary = ((int) $stmt->fetchColumn()) === 0;
+        }
         if ($isPrimary) {
             $pdo->prepare('UPDATE product_images SET is_primary = 0 WHERE product_id = ?')->execute([$productId]);
         }

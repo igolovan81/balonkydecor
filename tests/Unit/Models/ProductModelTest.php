@@ -133,4 +133,39 @@ class ProductModelTest extends TestCase
         $this->assertSame('limited', $product['stock_type']);
         $this->assertSame(3, (int) $product['stock_qty']);
     }
+
+    public function test_add_image_becomes_primary_when_product_has_no_images(): void
+    {
+        $id = ProductModel::create([
+            'sku'         => 'TEST-IMG-' . uniqid(),
+            'price'       => 9.99,
+            'category_id' => self::$categoryId,
+        ]);
+
+        ProductModel::addImage($id, 'first-upload.jpg', false);
+
+        $product = ProductModel::findById($id);
+        $this->assertCount(1, $product['images']);
+        $this->assertSame(1, (int) $product['images'][0]['is_primary']);
+    }
+
+    public function test_add_image_does_not_displace_existing_primary(): void
+    {
+        $id = ProductModel::create([
+            'sku'         => 'TEST-IMG-' . uniqid(),
+            'price'       => 9.99,
+            'category_id' => self::$categoryId,
+        ]);
+
+        ProductModel::addImage($id, 'main.jpg', true);
+        ProductModel::addImage($id, 'second.jpg', false);
+
+        $product = ProductModel::findById($id);
+        $byFilename = [];
+        foreach ($product['images'] as $img) {
+            $byFilename[$img['filename']] = (int) $img['is_primary'];
+        }
+        $this->assertSame(1, $byFilename['main.jpg']);
+        $this->assertSame(0, $byFilename['second.jpg']);
+    }
 }
