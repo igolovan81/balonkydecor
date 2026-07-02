@@ -90,20 +90,21 @@ $app->group('/admin', function (\Slim\Routing\RouteCollectorProxy $group) {
     // Language switcher
     $group->get('/set-lang', AdminLangController::class . ':setLang');
 
-    // Auto-translate (MyMemory)
+    // Auto-translate (MyMemory) — source is always the requesting admin's preferred language
     $group->post('/translate', function ($request, $response) {
         $body       = json_decode((string) $request->getBody(), true) ?? [];
         $texts      = $body['texts'] ?? null;
         $targetLang = strtoupper(trim(is_string($body['target'] ?? '') ? ($body['target'] ?? '') : ''));
+        $sourceLang = strtoupper((string) $request->getAttribute('admin_lang', 'cs'));
         $allowed    = ['CS', 'SK', 'EN', 'UK', 'RU'];
 
-        if (!is_array($texts) || count($texts) === 0 || !in_array($targetLang, $allowed, true)) {
+        if (!is_array($texts) || count($texts) === 0 || !in_array($targetLang, $allowed, true) || $targetLang === $sourceLang) {
             $response->getBody()->write(json_encode(['error' => 'Invalid parameters.']));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
         try {
-            $translated = \App\Services\Translator::translate($texts, $targetLang);
+            $translated = \App\Services\Translator::translate($texts, $sourceLang, $targetLang);
             $response->getBody()->write(json_encode(['texts' => $translated]));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
         } catch (\Throwable $e) {
