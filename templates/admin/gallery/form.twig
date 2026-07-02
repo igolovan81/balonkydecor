@@ -21,9 +21,7 @@
         {% for img in album.images %}
         <div style="text-align:center;">
             <img src="/assets/uploads/gallery/thumb_{{ img.filename }}" class="img-thumb"><br>
-            <form method="POST" action="/admin/gallery/{{ album.id }}/image/{{ img.id }}/delete">
-                <button class="btn-link" style="font-size:0.8rem">{{ t('gallery.form.delete_photo') }}</button>
-            </form>
+            <button type="button" class="btn-link delete-image-btn" style="font-size:0.8rem" data-url="/admin/gallery/{{ album.id }}/image/{{ img.id }}/delete">{{ t('gallery.form.delete_photo') }}</button>
         </div>
         {% endfor %}
         </div>
@@ -64,8 +62,17 @@
         <a href="/admin/gallery" class="btn btn-secondary">{{ t('gallery.form.cancel') }}</a>
     </div>
 </form>
+{% endblock %}
 {% block scripts %}
 <script>
+// Delete-image buttons — plain fetch(), not a nested <form> (forms can't nest in valid HTML)
+document.querySelectorAll('.delete-image-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+        await fetch(btn.dataset.url, { method: 'POST' });
+        location.reload();
+    });
+});
+
 document.querySelectorAll('.lang-tab').forEach(tab => {
     tab.addEventListener('click', () => {
         document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
@@ -75,5 +82,4 @@ document.querySelectorAll('.lang-tab').forEach(tab => {
     });
 });
 </script>
-{% endblock %}
 {% endblock %}

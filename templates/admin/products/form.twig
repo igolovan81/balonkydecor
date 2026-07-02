@@ -50,9 +50,7 @@
         {% for img in product.images %}
         <div style="text-align:center;">
             <img src="/assets/uploads/products/thumb_{{ img.filename }}" class="img-thumb"><br>
-            <form method="POST" action="/admin/products/{{ product.id }}/image/{{ img.id }}/delete">
-                <button class="btn-link" style="font-size:0.8rem">{{ t('products.form.delete_image') }}</button>
-            </form>
+            <button type="button" class="btn-link delete-image-btn" style="font-size:0.8rem" data-url="/admin/products/{{ product.id }}/image/{{ img.id }}/delete">{{ t('products.form.delete_image') }}</button>
         </div>
         {% endfor %}
         </div>
@@ -99,6 +97,14 @@
 {% block scripts %}
 <script>
 const PREFERRED_LANG = "{{ admin_lang }}";
+
+// Delete-image buttons — plain fetch(), not a nested <form> (forms can't nest in valid HTML)
+document.querySelectorAll('.delete-image-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+        await fetch(btn.dataset.url, { method: 'POST' });
+        location.reload();
+    });
+});
 
 document.querySelectorAll('.lang-tab').forEach(tab => {
     tab.addEventListener('click', () => {
