@@ -5,89 +5,95 @@
     <h1>{{ product ? t('products.form.title_edit') : t('products.form.title_new') }}</h1>
     <a href="/admin/products" class="btn btn-secondary">{{ t('products.form.back') }}</a>
 </div>
-<form method="POST" action="{{ product ? '/admin/products/' ~ product.id ~ '/edit' : '/admin/products/new' }}" enctype="multipart/form-data" class="admin-form">
-    <div class="form-group">
-        <label>{{ t('products.form.sku') }}</label>
-        <input type="text" name="sku" value="{{ product.sku ?? '' }}" required>
-    </div>
-    <div class="form-group">
-        <label>{{ t('products.form.price') }}</label>
-        <input type="number" name="price" step="0.01" min="0" value="{{ product.price ?? '0.00' }}" required>
-    </div>
-    <div class="form-group">
-        <label>{{ t('products.form.category') }}</label>
-        <select name="category_id">
-            {% for cat in categories %}
-            <option value="{{ cat.id }}" {% if product.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+<form method="POST" action="{{ product ? '/admin/products/' ~ product.id ~ '/edit' : '/admin/products/new' }}" enctype="multipart/form-data" class="admin-form admin-form--wide">
+    <div class="product-form-columns">
+        <div class="product-form-main">
+            <div class="form-group">
+                <label>{{ t('products.form.sku') }}</label>
+                <input type="text" name="sku" value="{{ product.sku ?? '' }}" required>
+            </div>
+            <div class="form-group">
+                <label>{{ t('products.form.price') }}</label>
+                <input type="number" name="price" step="0.01" min="0" value="{{ product.price ?? '0.00' }}" required>
+            </div>
+            <div class="form-group">
+                <label>{{ t('products.form.category') }}</label>
+                <select name="category_id">
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if product.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <h3>{{ t('products.form.translations') }}</h3>
+            <div class="lang-tabs">
+                {% for lang in langs %}
+                <button type="button" class="lang-tab {% if lang == admin_lang %}active preferred{% endif %}" data-lang="{{ lang }}">{% if lang == admin_lang %}★ {% endif %}{{ lang|upper }}</button>
+                {% endfor %}
+            </div>
+            {% for lang in langs %}
+            <div class="lang-panel {% if lang == admin_lang %}active{% endif %}" id="panel-{{ lang }}">
+                <div class="form-group">
+                    <label>{{ t('products.form.name_label') }} ({{ lang|upper }})</label>
+                    <input type="text" name="t[{{ lang }}][name]" value="{{ translations[lang].name ?? '' }}">
+                </div>
+                <div class="form-group">
+                    <label>{{ t('products.form.desc_label') }} ({{ lang|upper }})</label>
+                    <textarea name="t[{{ lang }}][description]">{{ translations[lang].description ?? '' }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>{{ t('products.form.meta_title_label') }} ({{ lang|upper }})</label>
+                    <input type="text" name="t[{{ lang }}][meta_title]" value="{{ translations[lang].meta_title ?? '' }}" maxlength="255">
+                </div>
+                <div class="form-group">
+                    <label>{{ t('products.form.meta_desc_label') }} ({{ lang|upper }})</label>
+                    <textarea name="t[{{ lang }}][meta_desc]" maxlength="500">{{ translations[lang].meta_desc ?? '' }}</textarea>
+                </div>
+                {% if lang != admin_lang %}
+                <div class="form-group">
+                    <button type="button" class="btn btn-secondary translate-btn" data-lang="{{ lang }}">{{ t('products.form.translate_btn') }}</button>
+                    <span class="translate-msg" style="display:none;margin-left:0.5rem;font-size:0.85rem;"></span>
+                </div>
+                {% endif %}
+            </div>
             {% endfor %}
-        </select>
-    </div>
-    <div class="form-group">
-        <label>{{ t('products.form.stock_label') }}</label>
-        <select name="stock_type" id="stock-type-select">
-            <option value="unlimited" {% if (product.stock_type ?? 'unlimited') == 'unlimited' %}selected{% endif %}>{{ t('products.form.stock_unlimited') }}</option>
-            <option value="limited" {% if (product.stock_type ?? '') == 'limited' %}selected{% endif %}>{{ t('products.form.stock_limited') }}</option>
-        </select>
-    </div>
-    <div class="form-group" id="stock-qty-group" style="{% if (product.stock_type ?? 'unlimited') != 'limited' %}display:none;{% endif %}">
-        <label>{{ t('products.form.stock_qty_label') }}</label>
-        <input type="number" name="stock_qty" min="0" step="1" value="{{ product.stock_qty ?? 0 }}">
-    </div>
-    <div class="form-group">
-        <label>
-            <input type="checkbox" name="is_active" value="1" {% if product is null or product.is_active %}checked{% endif %}>
-            {{ t('products.form.active') }}
-        </label>
-    </div>
-    <div class="form-group">
-        <label>{{ t('products.form.add_image') }}</label>
-        <input type="file" name="image" accept="image/*">
-    </div>
-    {% if product and product.images %}
-    <div class="form-group">
-        <label>{{ t('products.form.existing_images') }}</label>
-        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
-        {% for img in product.images %}
-        <div style="text-align:center;">
-            <img src="/assets/uploads/products/thumb_{{ img.filename }}" class="img-thumb"><br>
-            <button type="button" class="btn-link delete-image-btn" style="font-size:0.8rem" data-url="/admin/products/{{ product.id }}/image/{{ img.id }}/delete">{{ t('products.form.delete_image') }}</button>
         </div>
-        {% endfor %}
+        <div class="product-form-side">
+            <div class="form-group">
+                <label>{{ t('products.form.stock_label') }}</label>
+                <select name="stock_type" id="stock-type-select">
+                    <option value="unlimited" {% if (product.stock_type ?? 'unlimited') == 'unlimited' %}selected{% endif %}>{{ t('products.form.stock_unlimited') }}</option>
+                    <option value="limited" {% if (product.stock_type ?? '') == 'limited' %}selected{% endif %}>{{ t('products.form.stock_limited') }}</option>
+                </select>
+            </div>
+            <div class="form-group" id="stock-qty-group" style="{% if (product.stock_type ?? 'unlimited') != 'limited' %}display:none;{% endif %}">
+                <label>{{ t('products.form.stock_qty_label') }}</label>
+                <input type="number" name="stock_qty" min="0" step="1" value="{{ product.stock_qty ?? 0 }}">
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="is_active" value="1" {% if product is null or product.is_active %}checked{% endif %}>
+                    {{ t('products.form.active') }}
+                </label>
+            </div>
+            <div class="form-group">
+                <label>{{ t('products.form.add_image') }}</label>
+                <input type="file" name="image" accept="image/*">
+            </div>
+            {% if product and product.images %}
+            <div class="form-group">
+                <label>{{ t('products.form.existing_images') }}</label>
+                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
+                {% for img in product.images %}
+                <div style="text-align:center;">
+                    <img src="/assets/uploads/products/thumb_{{ img.filename }}" class="img-thumb"><br>
+                    <button type="button" class="btn-link delete-image-btn" style="font-size:0.8rem" data-url="/admin/products/{{ product.id }}/image/{{ img.id }}/delete">{{ t('products.form.delete_image') }}</button>
+                </div>
+                {% endfor %}
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
-    {% endif %}
-    <h3>{{ t('products.form.translations') }}</h3>
-    <div class="lang-tabs">
-        {% for lang in langs %}
-        <button type="button" class="lang-tab {% if lang == admin_lang %}active preferred{% endif %}" data-lang="{{ lang }}">{% if lang == admin_lang %}★ {% endif %}{{ lang|upper }}</button>
-        {% endfor %}
-    </div>
-    {% for lang in langs %}
-    <div class="lang-panel {% if lang == admin_lang %}active{% endif %}" id="panel-{{ lang }}">
-        <div class="form-group">
-            <label>{{ t('products.form.name_label') }} ({{ lang|upper }})</label>
-            <input type="text" name="t[{{ lang }}][name]" value="{{ translations[lang].name ?? '' }}">
-        </div>
-        <div class="form-group">
-            <label>{{ t('products.form.desc_label') }} ({{ lang|upper }})</label>
-            <textarea name="t[{{ lang }}][description]">{{ translations[lang].description ?? '' }}</textarea>
-        </div>
-        <div class="form-group">
-            <label>{{ t('products.form.meta_title_label') }} ({{ lang|upper }})</label>
-            <input type="text" name="t[{{ lang }}][meta_title]" value="{{ translations[lang].meta_title ?? '' }}" maxlength="255">
-        </div>
-        <div class="form-group">
-            <label>{{ t('products.form.meta_desc_label') }} ({{ lang|upper }})</label>
-            <textarea name="t[{{ lang }}][meta_desc]" maxlength="500">{{ translations[lang].meta_desc ?? '' }}</textarea>
-        </div>
-        {% if lang != admin_lang %}
-        <div class="form-group">
-            <button type="button" class="btn btn-secondary translate-btn" data-lang="{{ lang }}">{{ t('products.form.translate_btn') }}</button>
-            <span class="translate-msg" style="display:none;margin-left:0.5rem;font-size:0.85rem;"></span>
-        </div>
-        {% endif %}
-    </div>
-    {% endfor %}
     <div class="form-actions">
         <button type="submit" class="btn btn-primary">{{ t('products.form.save') }}</button>
         <a href="/admin/products" class="btn btn-secondary">{{ t('products.form.cancel') }}</a>
