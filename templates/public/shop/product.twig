@@ -19,7 +19,7 @@
     }
 } %}
 {% if product.images %}
-    {% set product_schema = product_schema|merge({'image': base_url ~ '/assets/uploads/' ~ product.images[0]}) %}
+    {% set product_schema = product_schema|merge({'image': base_url ~ '/assets/uploads/products/' ~ product.images[0]}) %}
 {% endif %}
 <script type="application/ld+json">{{ product_schema|json_encode|raw }}</script>
 <script type="application/ld+json">{{ {
@@ -37,11 +37,11 @@
 <div class="container product-detail">
     <div class="product-gallery">
         {% if product.images %}
-            <img class="product-main-img" src="/assets/uploads/{{ product.images[0] }}" alt="{{ product.name }}">
+            <img class="product-main-img" src="/assets/uploads/products/{{ product.images[0] }}" alt="{{ product.name }}">
             {% if product.images|length > 1 %}
             <div class="product-thumbs">
                 {% for img in product.images %}
-                <img src="/assets/uploads/{{ img }}" alt="{{ product.name }}" class="product-thumb">
+                <img src="/assets/uploads/products/{{ img }}" alt="{{ product.name }}" class="product-thumb">
                 {% endfor %}
             </div>
             {% endif %}

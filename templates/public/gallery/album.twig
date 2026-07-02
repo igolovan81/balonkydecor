@@ -26,8 +26,8 @@
     {% if album.images %}
     <div class="photo-grid">
         {% for img in album.images %}
-        <a href="/assets/uploads/{{ img }}" class="photo-item" target="_blank">
-            <img src="/assets/uploads/{{ img }}" alt="{{ album.name }}">
+        <a href="/assets/uploads/gallery/{{ img }}" class="photo-item" target="_blank">
+            <img src="/assets/uploads/gallery/{{ img }}" alt="{{ album.name }}">
         </a>
         {% endfor %}
     </div>
