@@ -9,8 +9,9 @@
     '@type': 'BreadcrumbList',
     'itemListElement': [
         {'@type': 'ListItem', 'position': 1, 'name': t('nav.home'), 'item': base_url ~ '/' ~ lang ~ '/'},
-        {'@type': 'ListItem', 'position': 2, 'name': t('nav.gallery'), 'item': base_url ~ '/' ~ lang ~ '/gallery'},
-        {'@type': 'ListItem', 'position': 3, 'name': album.name, 'item': canonical_url}
+        {'@type': 'ListItem', 'position': 2, 'name': t('nav.services'), 'item': base_url ~ '/' ~ lang ~ '/services'},
+        {'@type': 'ListItem', 'position': 3, 'name': t('nav.gallery'), 'item': base_url ~ '/' ~ lang ~ '/services/archive'},
+        {'@type': 'ListItem', 'position': 4, 'name': album.name, 'item': canonical_url}
     ]
 }|json_encode|raw }}</script>
 {% endblock %}
@@ -18,7 +19,7 @@
 {% block content %}
 <section class="page-hero">
     <div class="container">
-        <a href="/{{ lang }}/gallery" class="back-link">{{ t('gallery.back') }}</a>
+        <a href="/{{ lang }}/services/archive" class="back-link">{{ t('gallery.back') }}</a>
         <h1>{{ album.name }}</h1>
     </div>
 </section>
@@ -26,9 +27,17 @@
     {% if album.images %}
     <div class="photo-grid">
         {% for img in album.images %}
-        <a href="/assets/uploads/gallery/{{ img }}" class="photo-item" target="_blank">
-            <img src="/assets/uploads/gallery/{{ img }}" alt="{{ album.name }}">
+        {% if img.media_type == 'video' %}
+        <div class="photo-item">
+            <video controls preload="metadata">
+                <source src="/assets/uploads/gallery/{{ img.filename }}" type="video/mp4">
+            </video>
+        </div>
+        {% else %}
+        <a href="/assets/uploads/gallery/{{ img.filename }}" class="photo-item" target="_blank">
+            <img src="/assets/uploads/gallery/{{ img.filename }}" alt="{{ album.name }}">
         </a>
+        {% endif %}
         {% endfor %}
     </div>
     {% else %}
