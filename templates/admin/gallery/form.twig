@@ -15,10 +15,13 @@
         <input type="number" name="sort_order" value="{{ album.sort_order ?? 0 }}">
     </div>
     {% if album and album.images %}
+    {% set photos = album.images|filter(img => img.media_type == 'image') %}
+    {% set videos = album.images|filter(img => img.media_type == 'video') %}
+    {% if photos %}
     <div class="form-group">
         <label>{{ t('gallery.form.existing_photos') }}</label>
         <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
-        {% for img in album.images %}
+        {% for img in photos %}
         <div style="text-align:center;">
             <img src="/assets/uploads/gallery/thumb_{{ img.filename }}" class="img-thumb"><br>
             <button type="button" class="btn-link delete-image-btn" style="font-size:0.8rem" data-url="/admin/gallery/{{ album.id }}/image/{{ img.id }}/delete">{{ t('gallery.form.delete_photo') }}</button>
@@ -27,9 +30,27 @@
         </div>
     </div>
     {% endif %}
+    {% if videos %}
+    <div class="form-group">
+        <label>{{ t('gallery.form.existing_videos') }}</label>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
+        {% for vid in videos %}
+        <div style="text-align:center;">
+            <video src="/assets/uploads/gallery/{{ vid.filename }}" controls preload="metadata" style="width:160px;"></video><br>
+            <button type="button" class="btn-link delete-image-btn" style="font-size:0.8rem" data-url="/admin/gallery/{{ album.id }}/image/{{ vid.id }}/delete">{{ t('gallery.form.delete_video') }}</button>
+        </div>
+        {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    {% endif %}
     <div class="form-group">
         <label>{{ t('gallery.form.add_photos') }}</label>
-        <input type="file" name="images[]" accept="image/*" multiple>
+        <input type="file" name="photos[]" accept="image/*" multiple>
+    </div>
+    <div class="form-group">
+        <label>{{ t('gallery.form.add_videos') }}</label>
+        <input type="file" name="videos[]" accept="video/mp4" multiple>
     </div>
     <h3>{{ t('gallery.form.translations') }}</h3>
     <div class="lang-tabs">
