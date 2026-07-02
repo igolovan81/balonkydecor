@@ -49,7 +49,7 @@ class ProductController extends AdminBaseController
         );
         ProductModel::setTranslations($id, $translations);
         $this->handleImageUpload($request, $id, true);
-        $this->flash('success', 'Produkt vytvořen.');
+        $this->flash('success', 'products.flash.created');
         return $this->redirect($response, '/admin/products');
     }
 
@@ -81,7 +81,7 @@ class ProductController extends AdminBaseController
         ]);
         ProductModel::setTranslations($id, $body['t'] ?? []);
         $this->handleImageUpload($request, $id, false);
-        $this->flash('success', 'Produkt uložen.');
+        $this->flash('success', 'products.flash.updated');
         return $this->redirect($response, '/admin/products');
     }
 
@@ -92,7 +92,7 @@ class ProductController extends AdminBaseController
             @unlink(self::UPLOAD_DIR . '/' . $filename);
             @unlink(self::UPLOAD_DIR . '/thumb_' . $filename);
         }
-        $this->flash('success', 'Obrázek smazán.');
+        $this->flash('success', 'products.flash.image_deleted');
         return $this->redirect($response, '/admin/products/' . $args['id'] . '/edit');
     }
 
@@ -106,7 +106,7 @@ class ProductController extends AdminBaseController
             }
             ProductModel::delete((int) $args['id']);
         }
-        $this->flash('success', 'Produkt smazán.');
+        $this->flash('success', 'products.flash.deleted');
         return $this->redirect($response, '/admin/products');
     }
 

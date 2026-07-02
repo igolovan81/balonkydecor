@@ -28,11 +28,11 @@ class UserController extends AdminBaseController
         $pass  = $body['password'] ?? '';
         $role  = in_array($body['role'] ?? '', ['admin', 'editor']) ? $body['role'] : 'admin';
         if (!$email || strlen($pass) < 8) {
-            $this->flash('error', 'Vyplňte e-mail a heslo (min. 8 znaků).');
+            $this->flash('error', 'users.flash.validation_required');
             return $this->redirect($response, '/admin/users/new');
         }
         AdminUserModel::create($email, password_hash($pass, PASSWORD_BCRYPT), $role);
-        $this->flash('success', 'Uživatel vytvořen.');
+        $this->flash('success', 'users.flash.created');
         return $this->redirect($response, '/admin/users');
     }
 
@@ -42,11 +42,11 @@ class UserController extends AdminBaseController
         $body = (array) $request->getParsedBody();
         $pass = $body['password'] ?? '';
         if (strlen($pass) < 8) {
-            $this->flash('error', 'Heslo musí mít alespoň 8 znaků.');
+            $this->flash('error', 'users.flash.password_too_short');
             return $this->redirect($response, '/admin/users');
         }
         AdminUserModel::updatePassword((int) $args['id'], password_hash($pass, PASSWORD_BCRYPT));
-        $this->flash('success', 'Heslo změněno.');
+        $this->flash('success', 'users.flash.password_changed');
         return $this->redirect($response, '/admin/users');
     }
 
@@ -56,11 +56,11 @@ class UserController extends AdminBaseController
         if (session_status() === PHP_SESSION_NONE) session_start();
         $currentId = (int) ($_SESSION['admin_user']['id'] ?? 0);
         if ((int) $args['id'] === $currentId) {
-            $this->flash('error', 'Nemůžete smazat vlastní účet.');
+            $this->flash('error', 'users.flash.cannot_delete_self');
             return $this->redirect($response, '/admin/users');
         }
         AdminUserModel::delete((int) $args['id']);
-        $this->flash('success', 'Uživatel smazán.');
+        $this->flash('success', 'users.flash.deleted');
         return $this->redirect($response, '/admin/users');
     }
 }

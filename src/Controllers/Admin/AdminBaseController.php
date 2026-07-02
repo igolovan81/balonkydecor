@@ -54,7 +54,7 @@ abstract class AdminBaseController
             session_start();
         }
         if (($_SESSION['admin_user']['role'] ?? '') !== $role) {
-            $this->flash('error', 'Nemáte oprávnění k této akci.');
+            $this->flash('error', 'common.flash.forbidden');
             return $this->redirect($response, '/admin');
         }
         return null;

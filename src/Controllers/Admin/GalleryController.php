@@ -32,7 +32,7 @@ class GalleryController extends AdminBaseController
         $id   = GalleryModel::createAlbum(['slug' => trim($body['slug'] ?? ''), 'sort_order' => (int) ($body['sort_order'] ?? 0)]);
         GalleryModel::setAlbumTranslations($id, $body['t'] ?? []);
         $this->handleImageUploads($request, $id);
-        $this->flash('success', 'Album vytvořeno.');
+        $this->flash('success', 'gallery.flash.created');
         return $this->redirect($response, '/admin/gallery');
     }
 
@@ -55,7 +55,7 @@ class GalleryController extends AdminBaseController
         GalleryModel::updateAlbum($id, ['slug' => trim($body['slug'] ?? ''), 'sort_order' => (int) ($body['sort_order'] ?? 0)]);
         GalleryModel::setAlbumTranslations($id, $body['t'] ?? []);
         $this->handleImageUploads($request, $id);
-        $this->flash('success', 'Album uloženo.');
+        $this->flash('success', 'gallery.flash.updated');
         return $this->redirect($response, '/admin/gallery');
     }
 
@@ -66,7 +66,7 @@ class GalleryController extends AdminBaseController
             @unlink(self::UPLOAD_DIR . '/' . $filename);
             @unlink(self::UPLOAD_DIR . '/thumb_' . $filename);
         }
-        $this->flash('success', 'Obrázek smazán.');
+        $this->flash('success', 'gallery.flash.image_deleted');
         return $this->redirect($response, '/admin/gallery/' . $args['id'] . '/edit');
     }
 
@@ -80,7 +80,7 @@ class GalleryController extends AdminBaseController
             }
             GalleryModel::deleteAlbum((int) $args['id']);
         }
-        $this->flash('success', 'Album smazáno.');
+        $this->flash('success', 'gallery.flash.deleted');
         return $this->redirect($response, '/admin/gallery');
     }
 

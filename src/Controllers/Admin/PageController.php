@@ -36,7 +36,7 @@ class PageController extends AdminBaseController
             $t = $body['t'][$lang] ?? [];
             PageModel::upsert($slug, $lang, $t['title'] ?? '', $t['body'] ?? '', $t['meta_title'] ?? null, $t['meta_desc'] ?? null);
         }
-        $this->flash('success', 'Stránka uložena.');
+        $this->flash('success', 'pages.flash.updated');
         return $this->redirect($response, '/admin/pages');
     }
 }

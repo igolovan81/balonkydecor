@@ -41,7 +41,7 @@ class OrderController extends AdminBaseController
         $status = $body['status'] ?? '';
         if (in_array($status, self::STATUSES, true)) {
             OrderModel::updateStatus($args['number'], $status);
-            $this->flash('success', 'Status objednávky změněn.');
+            $this->flash('success', 'orders.flash.status_changed');
         }
         return $this->redirect($response, '/admin/orders/' . $args['number']);
     }

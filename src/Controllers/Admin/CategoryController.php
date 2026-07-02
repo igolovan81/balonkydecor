@@ -36,7 +36,7 @@ class CategoryController extends AdminBaseController
             self::TRANSLATABLE_FIELDS
         );
         CategoryModel::setTranslations($id, $translations);
-        $this->flash('success', 'Kategorie vytvořena.');
+        $this->flash('success', 'categories.flash.created');
         return $this->redirect($response, '/admin/categories');
     }
 
@@ -58,7 +58,7 @@ class CategoryController extends AdminBaseController
         $body = (array) $request->getParsedBody();
         CategoryModel::update($id, ['slug' => trim($body['slug'] ?? ''), 'sort_order' => (int) ($body['sort_order'] ?? 0)]);
         CategoryModel::setTranslations($id, $body['t'] ?? []);
-        $this->flash('success', 'Kategorie uložena.');
+        $this->flash('success', 'categories.flash.updated');
         return $this->redirect($response, '/admin/categories');
     }
 
@@ -66,11 +66,11 @@ class CategoryController extends AdminBaseController
     {
         $id = (int) $args['id'];
         if (CategoryModel::hasProducts($id)) {
-            $this->flash('error', 'Kategorii nelze smazat — obsahuje produkty. Nejprve přesuňte nebo smažte produkty.');
+            $this->flash('error', 'categories.flash.delete_blocked');
             return $this->redirect($response, '/admin/categories');
         }
         CategoryModel::delete($id);
-        $this->flash('success', 'Kategorie smazána.');
+        $this->flash('success', 'categories.flash.deleted');
         return $this->redirect($response, '/admin/categories');
     }
 }

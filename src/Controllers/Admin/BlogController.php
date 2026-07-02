@@ -39,7 +39,7 @@ class BlogController extends AdminBaseController
             'published_at' => $body['published_at'] ?? null,
         ]);
         BlogModel::setTranslations($id, $body['t'] ?? []);
-        $this->flash('success', 'Příspěvek vytvořen.');
+        $this->flash('success', 'blog.flash.created');
         return $this->redirect($response, '/admin/blog');
     }
 
@@ -65,14 +65,14 @@ class BlogController extends AdminBaseController
             'published_at' => $body['published_at'] ?? null,
         ]);
         BlogModel::setTranslations($id, $body['t'] ?? []);
-        $this->flash('success', 'Příspěvek uložen.');
+        $this->flash('success', 'blog.flash.updated');
         return $this->redirect($response, '/admin/blog');
     }
 
     public function delete(Request $request, Response $response, array $args): Response
     {
         BlogModel::delete((int) $args['id']);
-        $this->flash('success', 'Příspěvek smazán.');
+        $this->flash('success', 'blog.flash.deleted');
         return $this->redirect($response, '/admin/blog');
     }
 }

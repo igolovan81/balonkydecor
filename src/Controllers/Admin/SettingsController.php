@@ -35,7 +35,7 @@ class SettingsController extends AdminBaseController
         foreach (self::KEYS as $key) {
             $stmt->execute([$key, $body[$key] ?? '']);
         }
-        $this->flash('success', 'Nastavení uloženo.');
+        $this->flash('success', 'settings.flash.updated');
         return $this->redirect($response, '/admin/settings');
     }
 }
