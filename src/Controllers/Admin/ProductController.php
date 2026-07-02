@@ -79,13 +79,7 @@ class ProductController extends AdminBaseController
             'stock_type'  => $body['stock_type'] ?? 'unlimited',
             'stock_qty'   => $body['stock_qty'] ?? 0,
         ]);
-        $translations = \App\Services\Translator::autoFill(
-            $body['t'] ?? [],
-            $request->getAttribute('admin_lang', 'cs'),
-            self::LANGS,
-            self::TRANSLATABLE_FIELDS
-        );
-        ProductModel::setTranslations($id, $translations);
+        ProductModel::setTranslations($id, $body['t'] ?? []);
         $this->handleImageUpload($request, $id, false);
         $this->flash('success', 'Produkt uložen.');
         return $this->redirect($response, '/admin/products');

@@ -57,13 +57,7 @@ class CategoryController extends AdminBaseController
         $id   = (int) $args['id'];
         $body = (array) $request->getParsedBody();
         CategoryModel::update($id, ['slug' => trim($body['slug'] ?? ''), 'sort_order' => (int) ($body['sort_order'] ?? 0)]);
-        $translations = \App\Services\Translator::autoFill(
-            $body['t'] ?? [],
-            $request->getAttribute('admin_lang', 'cs'),
-            self::LANGS,
-            self::TRANSLATABLE_FIELDS
-        );
-        CategoryModel::setTranslations($id, $translations);
+        CategoryModel::setTranslations($id, $body['t'] ?? []);
         $this->flash('success', 'Kategorie uložena.');
         return $this->redirect($response, '/admin/categories');
     }
