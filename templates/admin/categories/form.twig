@@ -18,11 +18,11 @@
     {% set lang_labels = {cs: 'CZ', sk: 'SK', en: 'EN', uk: 'UA', ru: 'RU'} %}
     <div class="lang-tabs">
         {% for lang in langs %}
-        <button type="button" class="lang-tab {% if loop.first %}active{% endif %}" data-lang="{{ lang }}">{{ lang_labels[lang] ?? lang|upper }}</button>
+        <button type="button" class="lang-tab {% if lang == admin_lang %}active preferred{% endif %}" data-lang="{{ lang }}">{% if lang == admin_lang %}★ {% endif %}{{ lang_labels[lang] ?? lang|upper }}</button>
         {% endfor %}
     </div>
     {% for lang in langs %}
-    <div class="lang-panel {% if loop.first %}active{% endif %}" id="panel-{{ lang }}">
+    <div class="lang-panel {% if lang == admin_lang %}active{% endif %}" id="panel-{{ lang }}">
         <div class="form-group">
             <label>{{ t('categories.form.name_label') }} ({{ lang_labels[lang] ?? lang|upper }})</label>
             <input type="text" name="t[{{ lang }}][name]" value="{{ translations[lang].name ?? '' }}">
@@ -31,7 +31,7 @@
             <label>{{ t('categories.form.desc_label') }} ({{ lang_labels[lang] ?? lang|upper }})</label>
             <textarea name="t[{{ lang }}][description]">{{ translations[lang].description ?? '' }}</textarea>
         </div>
-        {% if lang != 'cs' %}
+        {% if lang != admin_lang %}
         <div class="form-group">
             <button type="button" class="btn btn-secondary translate-btn" data-lang="{{ lang }}">{{ t('categories.form.translate_btn') }}</button>
             <span class="translate-msg" style="display:none;margin-left:0.5rem;font-size:0.85rem;"></span>
@@ -46,6 +46,8 @@
 </form>
 {% block scripts %}
 <script>
+const PREFERRED_LANG = "{{ admin_lang }}";
+
 // Tab switching
 document.querySelectorAll('.lang-tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -56,11 +58,11 @@ document.querySelectorAll('.lang-tab').forEach(tab => {
     });
 });
 
-// Slug auto-generation from CZ name
+// Slug auto-generation from preferred-language name
 (function () {
     const slugInput = document.querySelector('input[name="slug"]');
-    const csName    = document.querySelector('input[name="t[cs][name]"]');
-    if (!slugInput || !csName) return;
+    const prefName  = document.querySelector('input[name="t[' + PREFERRED_LANG + '][name]"]');
+    if (!slugInput || !prefName) return;
 
     function toSlug(s) {
         return s.toLowerCase()
@@ -74,26 +76,27 @@ document.querySelectorAll('.lang-tab').forEach(tab => {
 
     let locked = slugInput.value !== '';
     slugInput.addEventListener('input', () => { locked = slugInput.value !== ''; });
-    csName.addEventListener('input', () => { if (!locked) slugInput.value = toSlug(csName.value); });
+    prefName.addEventListener('input', () => { if (!locked) slugInput.value = toSlug(prefName.value); });
 })();
 
 // Translate buttons — JS runtime strings remain hardcoded Czech per spec
 document.querySelectorAll('.translate-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
-        const targetLang = btn.dataset.lang;
-        const panel      = document.getElementById('panel-' + targetLang);
-        const msgSpan    = panel.querySelector('.translate-msg');
-        const csName     = document.querySelector('input[name="t[cs][name]"]');
-        const csDesc     = document.querySelector('textarea[name="t[cs][description]"]');
+        const targetLang  = btn.dataset.lang;
+        const panel       = document.getElementById('panel-' + targetLang);
+        const msgSpan     = panel.querySelector('.translate-msg');
+        const prefNameEl  = document.querySelector('input[name="t[' + PREFERRED_LANG + '][name]"]');
+        const prefDescEl  = document.querySelector('textarea[name="t[' + PREFERRED_LANG + '][description]"]');
 
-        if (!csName.value.trim() && !csDesc.value.trim()) {
-            msgSpan.textContent = 'Nejprve vyplňte český název.';
+        if (!prefNameEl.value.trim() && !prefDescEl.value.trim()) {
+            msgSpan.textContent = 'Nejprve vyplňte texty ve výchozím jazyce.';
             msgSpan.style.color = '#c00';
             msgSpan.style.display = 'inline';
             return;
         }
 
-        btn.disabled    = true;
+        btn.disabled = true;
+        const originalLabel = btn.textContent;
         btn.textContent = 'Překládám…';
         msgSpan.style.display = 'none';
         msgSpan.textContent   = '';
@@ -103,7 +106,7 @@ document.querySelectorAll('.translate-btn').forEach(btn => {
                 method:  'POST',
                 headers: {'Content-Type': 'application/json'},
                 body:    JSON.stringify({
-                    texts:  [csName.value, csDesc.value],
+                    texts:  [prefNameEl.value, prefDescEl.value],
                     target: targetLang.toUpperCase(),
                 }),
             });
@@ -127,7 +130,7 @@ document.querySelectorAll('.translate-btn').forEach(btn => {
             msgSpan.style.display = 'inline';
         } finally {
             btn.disabled    = false;
-            btn.textContent = 'Přeložit z češtiny';
+            btn.textContent = originalLabel;
         }
     });
 });

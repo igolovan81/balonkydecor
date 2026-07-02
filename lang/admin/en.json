@@ -43,7 +43,7 @@
   "categories.form.slug": "Slug (URL)",
   "categories.form.title_edit": "Edit category",
   "categories.form.title_new": "New category",
-  "categories.form.translate_btn": "Translate from Czech",
+  "categories.form.translate_btn": "Translate from default language",
   "categories.form.translations": "Translations",
   "categories.no_categories": "No categories.",
   "categories.title": "Categories",

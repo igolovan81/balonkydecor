@@ -43,7 +43,7 @@
   "categories.form.slug": "Slug (URL)",
   "categories.form.title_edit": "Upraviť kategóriu",
   "categories.form.title_new": "Nová kategória",
-  "categories.form.translate_btn": "Preložiť z češtiny",
+  "categories.form.translate_btn": "Preložiť z predvoleného jazyka",
   "categories.form.translations": "Preklady",
   "categories.no_categories": "Žiadne kategórie.",
   "categories.title": "Kategórie",

@@ -43,7 +43,7 @@
   "categories.form.slug": "Slug (URL)",
   "categories.form.title_edit": "Редагувати категорію",
   "categories.form.title_new": "Нова категорія",
-  "categories.form.translate_btn": "Перекласти з чеської",
+  "categories.form.translate_btn": "Перекласти з мови за замовчуванням",
   "categories.form.translations": "Переклади",
   "categories.no_categories": "Немає категорій.",
   "categories.title": "Категорії",
