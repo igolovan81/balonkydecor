@@ -23,6 +23,17 @@
         </select>
     </div>
     <div class="form-group">
+        <label>{{ t('products.form.stock_label') }}</label>
+        <select name="stock_type" id="stock-type-select">
+            <option value="unlimited" {% if (product.stock_type ?? 'unlimited') == 'unlimited' %}selected{% endif %}>{{ t('products.form.stock_unlimited') }}</option>
+            <option value="limited" {% if (product.stock_type ?? '') == 'limited' %}selected{% endif %}>{{ t('products.form.stock_limited') }}</option>
+        </select>
+    </div>
+    <div class="form-group" id="stock-qty-group" style="{% if (product.stock_type ?? 'unlimited') != 'limited' %}display:none;{% endif %}">
+        <label>{{ t('products.form.stock_qty_label') }}</label>
+        <input type="number" name="stock_qty" min="0" step="1" value="{{ product.stock_qty ?? 0 }}">
+    </div>
+    <div class="form-group">
         <label>
             <input type="checkbox" name="is_active" value="1" {% if product is null or product.is_active %}checked{% endif %}>
             {{ t('products.form.active') }}
@@ -97,6 +108,20 @@ document.querySelectorAll('.lang-tab').forEach(tab => {
         document.getElementById('panel-' + tab.dataset.lang).classList.add('active');
     });
 });
+
+// Stock quantity field toggle
+(function () {
+    const stockTypeSelect = document.getElementById('stock-type-select');
+    const stockQtyGroup   = document.getElementById('stock-qty-group');
+    if (!stockTypeSelect || !stockQtyGroup) return;
+
+    function syncStockQtyVisibility() {
+        stockQtyGroup.style.display = stockTypeSelect.value === 'limited' ? '' : 'none';
+    }
+
+    stockTypeSelect.addEventListener('change', syncStockQtyVisibility);
+    syncStockQtyVisibility();
+})();
 
 // Translate buttons — JS runtime strings remain hardcoded Czech per spec
 document.querySelectorAll('.translate-btn').forEach(btn => {

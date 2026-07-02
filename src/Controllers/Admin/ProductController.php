@@ -38,6 +38,8 @@ class ProductController extends AdminBaseController
             'price'       => $body['price'] ?? '0.00',
             'category_id' => $body['category_id'] ?? 1,
             'is_active'   => isset($body['is_active']) ? 1 : 0,
+            'stock_type'  => $body['stock_type'] ?? 'unlimited',
+            'stock_qty'   => $body['stock_qty'] ?? 0,
         ]);
         $translations = \App\Services\Translator::autoFill(
             $body['t'] ?? [],
@@ -74,6 +76,8 @@ class ProductController extends AdminBaseController
             'price'       => $body['price'] ?? '0.00',
             'category_id' => $body['category_id'] ?? 1,
             'is_active'   => isset($body['is_active']) ? 1 : 0,
+            'stock_type'  => $body['stock_type'] ?? 'unlimited',
+            'stock_qty'   => $body['stock_qty'] ?? 0,
         ]);
         $translations = \App\Services\Translator::autoFill(
             $body['t'] ?? [],
