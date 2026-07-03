@@ -32,7 +32,7 @@ abstract class BaseController
         $path = preg_replace('#^/' . preg_quote($lang, '#') . '#', '', $uri) ?: '/';
 
         $pdo          = Database::getConnection();
-        $settingsStmt = $pdo->prepare("SELECT `key`, `value` FROM settings WHERE `key` IN ('contact_phone','contact_email')");
+        $settingsStmt = $pdo->prepare("SELECT `key`, `value` FROM settings WHERE `key` IN ('contact_phone','contact_email','facebook_url')");
         $settingsStmt->execute();
         $settingsMap = array_column($settingsStmt->fetchAll(), 'value', 'key');
 
@@ -47,6 +47,7 @@ abstract class BaseController
                 $settingsMap['contact_phone'] ?? '',
                 $settingsMap['contact_email'] ?? ''
             ),
+            'facebook_url'         => $settingsMap['facebook_url'] ?? '',
         ], $data));
     }
 }
