@@ -11,5 +11,12 @@
 </section>
 <div class="container content-page">
     <p>{{ t('shipping.body') }}</p>
+    {% if shipping_address %}
+    <p>{{ shipping_address }}
+        {% if shipping_map_url %}
+        <br><a href="{{ shipping_map_url }}" target="_blank" rel="noopener">{{ t('shipping.map_link') }}</a>
+        {% endif %}
+    </p>
+    {% endif %}
 </div>
 {% endblock %}
