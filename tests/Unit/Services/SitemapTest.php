@@ -24,7 +24,7 @@ class SitemapTest extends TestCase
     public function test_paths_includes_static_pages(): void
     {
         $paths = Sitemap::paths();
-        foreach (['/', '/shop', '/services', '/services/archive', '/blog', '/contact'] as $expected) {
+        foreach (['/', '/shop', '/services', '/services/archive', '/blog', '/contact', '/shipping-payment'] as $expected) {
             $this->assertContains($expected, $paths);
         }
     }

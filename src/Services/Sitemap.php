@@ -9,7 +9,7 @@ class Sitemap
 {
     public static function paths(): array
     {
-        $paths = ['/', '/shop', '/services', '/services/archive', '/blog', '/contact'];
+        $paths = ['/', '/shop', '/services', '/services/archive', '/blog', '/contact', '/shipping-payment'];
 
         foreach (ProductModel::allActive(Seo::DEFAULT_LANG) as $product) {
             $paths[] = '/shop/' . $product['sku'];
