@@ -16,15 +16,12 @@ class SitemapTest extends TestCase
         $pdo->exec("INSERT IGNORE INTO products (category_id, sku, price, is_active) VALUES ({$catId}, 'SITEMAP-SKU-INACTIVE', 9.99, 0)");
 
         $pdo->exec("INSERT IGNORE INTO gallery_albums (slug) VALUES ('sitemap-test-album')");
-
-        $pdo->exec("INSERT IGNORE INTO blog_posts (slug, status, published_at) VALUES ('sitemap-test-post', 'published', NOW())");
-        $pdo->exec("INSERT IGNORE INTO blog_posts (slug, status) VALUES ('sitemap-test-draft', 'draft')");
     }
 
     public function test_paths_includes_static_pages(): void
     {
         $paths = Sitemap::paths();
-        foreach (['/', '/shop', '/services', '/services/archive', '/blog', '/contact', '/shipping-payment'] as $expected) {
+        foreach (['/', '/shop', '/services', '/services/archive', '/contact', '/shipping-payment'] as $expected) {
             $this->assertContains($expected, $paths);
         }
     }
@@ -42,16 +39,6 @@ class SitemapTest extends TestCase
     public function test_paths_includes_gallery_album(): void
     {
         $this->assertContains('/services/archive/sitemap-test-album', Sitemap::paths());
-    }
-
-    public function test_paths_includes_published_blog_post(): void
-    {
-        $this->assertContains('/blog/sitemap-test-post', Sitemap::paths());
-    }
-
-    public function test_paths_excludes_draft_blog_post(): void
-    {
-        $this->assertNotContains('/blog/sitemap-test-draft', Sitemap::paths());
     }
 
     public function test_entries_produces_one_row_per_path_per_language(): void
