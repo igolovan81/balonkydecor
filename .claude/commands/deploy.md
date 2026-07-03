@@ -6,7 +6,11 @@ Deploy the BalonkyDecor application to WEDOS shared hosting via FTP.
 
 1. Check that `config/settings.prod.php` does NOT exist locally (it must stay gitignored and server-only).
 
-2. Ask the user to confirm they have `FTP_PASS` set in their environment, or offer to run:
+2. Get `FTP_PASS`: read it from the `FTP_PASS` key in `.env` at the project root (gitignored, safe to read directly) and export it — no need to prompt the user:
+   ```bash
+   export FTP_PASS=$(grep '^FTP_PASS=' .env | cut -d= -f2-)
+   ```
+   If `.env` doesn't exist or has no `FTP_PASS` key, fall back to asking the user to confirm they have `FTP_PASS` set in their environment, or offer to run:
    ```
    read -s -p "FTP password: " FTP_PASS && export FTP_PASS
    ```
