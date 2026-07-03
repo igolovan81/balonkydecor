@@ -9,6 +9,7 @@ class SettingsController extends AdminBaseController
 {
     private const KEYS = [
         'site_name', 'contact_email', 'contact_phone',
+        'shipping_address', 'shipping_map_url',
         'smtp_host', 'smtp_port', 'smtp_user', 'smtp_pass', 'smtp_from',
         'gopay_go_id', 'gopay_client_id', 'gopay_client_secret', 'gopay_test_mode',
     ];

@@ -17,6 +17,16 @@
         <input type="text" name="contact_phone" value="{{ settings.contact_phone ?? '' }}">
     </div>
 
+    <h3>{{ t('settings.shipping') }}</h3>
+    <div class="form-group">
+        <label>{{ t('settings.shipping_address') }}</label>
+        <input type="text" name="shipping_address" value="{{ settings.shipping_address ?? '' }}">
+    </div>
+    <div class="form-group">
+        <label>{{ t('settings.shipping_map_url') }}</label>
+        <input type="text" name="shipping_map_url" value="{{ settings.shipping_map_url ?? '' }}">
+    </div>
+
     <h3>{{ t('settings.smtp') }}</h3>
     <div class="form-group">
         <label>{{ t('settings.smtp_host') }}</label>
