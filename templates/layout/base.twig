@@ -53,8 +53,22 @@
     <footer class="site-footer">
         <div class="container">
             <p>&copy; {{ "now"|date("Y") }} {{ t('site.name') }}</p>
-            {% if facebook_url %}
-            <p class="footer-social">{{ t('footer.follow_us') }}: <a href="{{ facebook_url }}" target="_blank" rel="noopener">Facebook</a></p>
+            {% if facebook_url or instagram_url %}
+            <div class="footer-social">
+                <span class="footer-social-label">{{ t('footer.follow_us') }}</span>
+                <div class="footer-social-icons">
+                    {% if facebook_url %}
+                    <a href="{{ facebook_url }}" target="_blank" rel="noopener" class="social-icon social-icon-facebook" aria-label="Facebook">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12.06C22 6.48 17.52 2 11.94 2 6.36 2 1.88 6.48 1.88 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.42V9.87c0-2.39 1.42-3.71 3.6-3.71 1.04 0 2.13.19 2.13.19v2.34h-1.2c-1.18 0-1.55.73-1.55 1.48v1.78h2.64l-.42 2.91h-2.22V22c4.78-.76 8.44-4.92 8.44-9.94z"/></svg>
+                    </a>
+                    {% endif %}
+                    {% if instagram_url %}
+                    <a href="{{ instagram_url }}" target="_blank" rel="noopener" class="social-icon social-icon-instagram" aria-label="Instagram">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
             {% endif %}
         </div>
     </footer>

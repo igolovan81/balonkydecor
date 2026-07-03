@@ -72,6 +72,14 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 
 /* Footer */
 .site-footer { border-top: 1px solid var(--border); padding: 2rem 0; text-align: center; color: var(--muted); font-family: var(--ui-font); font-size: .85rem; margin-top: 4rem; }
+.footer-social { margin-top: 1rem; }
+.footer-social-label { display: block; margin-bottom: .5rem; font-family: var(--ui-font); font-size: .8rem; }
+.footer-social-icons { display: flex; justify-content: center; gap: .75rem; }
+.social-icon { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; color: #fff; fill: #fff; transition: opacity .2s; }
+.social-icon:hover { opacity: .85; }
+.social-icon svg { width: 18px; height: 18px; }
+.social-icon-facebook { background: #1877F2; }
+.social-icon-instagram { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285aeb 90%); }
 
 /* Page hero */
 .page-hero { padding: 3rem 0 2rem; background: #fff; border-bottom: 1px solid var(--border); }
