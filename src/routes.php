@@ -135,6 +135,7 @@ $app->get('/{lang}/',                 HomeController::class    . ':index');
 $app->get('/{lang}/shop',             ShopController::class    . ':index');
 $app->get('/{lang}/shop/{slug}',      ShopController::class    . ':product');
 $app->get('/{lang}/services',                 PageController::class    . ':services');
+$app->get('/{lang}/shipping-payment',         PageController::class    . ':shippingPayment');
 $app->get('/{lang}/services/archive',         GalleryController::class . ':index');
 $app->get('/{lang}/services/archive/{slug}',  GalleryController::class . ':album');
 $app->get('/{lang}/blog',             BlogController::class    . ':index');

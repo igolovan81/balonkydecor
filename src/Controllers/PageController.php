@@ -15,4 +15,9 @@ class PageController extends BaseController
             'page' => $page,
         ]);
     }
+
+    public function shippingPayment(Request $request, Response $response, array $args): Response
+    {
+        return $this->render($request, $response, 'public/shipping.twig');
+    }
 }

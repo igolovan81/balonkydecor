@@ -1,0 +1,15 @@
+{% extends "layout/base.twig" %}
+
+{% block title %}{{ t('shipping.title') }} — {{ t('site.name') }}{% endblock %}
+{% block meta_desc %}{{ t('shipping.body') }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container">
+        <h1>{{ t('shipping.title') }}</h1>
+    </div>
+</section>
+<div class="container content-page">
+    <p>{{ t('shipping.body') }}</p>
+</div>
+{% endblock %}
