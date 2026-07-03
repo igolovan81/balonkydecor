@@ -43,6 +43,7 @@ mirror --reverse --delete --verbose \
   --exclude '^tests/' \
   --exclude '^scripts/' \
   --exclude '^docs/' \
+  --exclude '^backups/' \
   $LOCAL_DIR $REMOTE_DIR
 quit
 EOF
