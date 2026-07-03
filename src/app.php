@@ -26,7 +26,6 @@ $container = $builder->build();
 AppFactory::setContainer($container);
 $app = AppFactory::create();
 
-$app->addErrorMiddleware($settings['displayErrorDetails'], true, true);
 $app->add(TwigMiddleware::createFromContainer($app, Twig::class));
 $app->add(new LangMiddleware(
     $settings['languages'],
@@ -34,6 +33,7 @@ $app->add(new LangMiddleware(
     __DIR__ . '/../lang'
 ));
 $app->addRoutingMiddleware();
+$app->addErrorMiddleware($settings['displayErrorDetails'], true, true);
 
 require __DIR__ . '/routes.php';
 
