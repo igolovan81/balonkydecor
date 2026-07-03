@@ -167,6 +167,7 @@
   "settings.gopay": "GoPay",
   "settings.gopay_go_id": "GoPay GoID",
   "settings.gopay_hint": "Nechajte GoID prázdne pre vývojový bypass (objednávka sa ihneď označí ako zaplatená).",
+  "settings.instagram_url": "Odkaz na Instagram",
   "settings.phone": "Telefón",
   "settings.save": "Uložiť nastavenie",
   "settings.shipping": "Doprava",

@@ -167,6 +167,7 @@
   "settings.gopay": "GoPay",
   "settings.gopay_go_id": "GoPay GoID",
   "settings.gopay_hint": "Оставьте GoID пустым для dev bypass (заказ сразу помечается как оплаченный).",
+  "settings.instagram_url": "Ссылка на Instagram",
   "settings.phone": "Телефон",
   "settings.save": "Сохранить настройки",
   "settings.shipping": "Доставка",
