@@ -1,8 +1,4 @@
 {
-  "blog.back": "← Späť na blog",
-  "blog.no_posts": "Zatiaľ žiadne príspevky.",
-  "blog.read_more": "Čítať viac →",
-  "blog.title": "Blog",
   "cart.checkout": "Prejsť k pokladni",
   "cart.continue": "Pokračovať v nákupe",
   "cart.empty": "Košík je prázdny",
@@ -41,7 +37,6 @@
   "home.cta": "Prezrieť ponuku",
   "home.hero_subtitle": "Hélium, balóny a dekorácie na mieru",
   "home.hero_title": "Krásne balóny pre každú príležitosť",
-  "nav.blog": "Blog",
   "nav.cart": "Košík",
   "nav.contact": "Kontakt",
   "nav.gallery": "Naše realizácie",

@@ -1,8 +1,4 @@
 {
-  "blog.back": "← Назад в блог",
-  "blog.no_posts": "Пока нет публикаций.",
-  "blog.read_more": "Читать далее →",
-  "blog.title": "Блог",
   "cart.checkout": "Оформить заказ",
   "cart.continue": "Продолжить покупки",
   "cart.empty": "Корзина пуста",
@@ -41,7 +37,6 @@
   "home.cta": "Смотреть каталог",
   "home.hero_subtitle": "Гелий, шары и украшения на заказ",
   "home.hero_title": "Красивые шары для любого праздника",
-  "nav.blog": "Блог",
   "nav.cart": "Корзина",
   "nav.contact": "Контакты",
   "nav.gallery": "Архив оказанных услуг",

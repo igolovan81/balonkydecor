@@ -1,8 +1,4 @@
 {
-  "blog.back": "← Zpět na blog",
-  "blog.no_posts": "Zatím žádné příspěvky.",
-  "blog.read_more": "Číst dále →",
-  "blog.title": "Blog",
   "cart.checkout": "Přejít k pokladně",
   "cart.continue": "Pokračovat v nákupu",
   "cart.empty": "Košík je prázdný",
@@ -41,7 +37,6 @@
   "home.cta": "Prohlédnout nabídku",
   "home.hero_subtitle": "Hélium, balónky a dekorace na míru",
   "home.hero_title": "Krásné balónky pro každou příležitost",
-  "nav.blog": "Blog",
   "nav.cart": "Košík",
   "nav.contact": "Kontakt",
   "nav.gallery": "Naše realizace",
