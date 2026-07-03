@@ -17,7 +17,7 @@ Multilingual e-commerce website for a Czech helium balloon decoration business. 
 - Shopping cart (session-based)
 - Checkout with customer details and pickup date
 - Online payment via GoPay (with dev bypass when no credentials configured)
-- Gallery, Blog, Services page, Contact form
+- Gallery, Services page, Contact form
 
 **Admin panel** (`/admin`)
 - Session-based authentication with bcrypt passwords
@@ -27,7 +27,6 @@ Multilingual e-commerce website for a Czech helium balloon decoration business. 
 - Categories — CRUD with translations
 - Orders — list with status filter, detail view, status updates
 - Gallery — album and photo management
-- Blog — posts with draft/published workflow
 - Pages — edit content for Services, Home, Contact in all 5 languages
 - Settings — GoPay credentials, SMTP, site info
 - User management

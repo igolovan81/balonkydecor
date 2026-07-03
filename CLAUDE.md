@@ -98,14 +98,11 @@ All static methods. `Database::getConnection()` returns a PDO singleton (`FETCH_
 | `ProductModel` | `allActive(lang, ?catId)`, `findBySku(sku, lang)` | `all()`, `findById()`, `create()`, `update()`, `delete()`, `getTranslations()`, `setTranslations()`, `addImage()`, `deleteImage()` |
 | `CategoryModel` | `allWithTranslation(lang)` | `all()`, `findById()`, `create()`, `update()`, `delete()`, `getTranslations()`, `setTranslations()` |
 | `OrderModel` | `create(customer, cartItems, total)`, `findByNumber()`, `updateStatus()`, `findByGopayId()` | `adminList(page, perPage, status)` |
-| `BlogModel` | `published(lang, page, perPage)`, `findBySlug(slug, lang)` | `adminList()`, `findById()`, `create()`, `update()`, `delete()`, `getTranslations()`, `setTranslations()` |
 | `GalleryModel` | `albums(lang)`, `album(slug, lang)` | `allAlbums()`, `findAlbumById()`, `createAlbum()`, `updateAlbum()`, `deleteAlbum()`, `getAlbumTranslations()`, `setAlbumTranslations()`, `addImage()`, `deleteImage()` |
 | `PageModel` | `find(slug, lang)` | `allSlugs()`, `allTranslations(slug)`, `upsert(slug, lang, title, body)` |
 | `AdminUserModel` | — | wraps `users` table: `findByEmail()`, `findById()`, `count()`, `create()`, `all()`, `updatePassword()`, `delete()`, `setLang(id, lang)` |
 
 **`users` table columns:** `id`, `email`, `password_hash`, `role` enum(`admin`,`editor`), `lang` VARCHAR(5) DEFAULT `cs`, `created_at`. No `name` column.
-
-**`blog_posts.status`** is `enum('draft','published')` — not a boolean. Use `status = 'published'` in queries.
 
 **`products.category_id`** is NOT NULL — always supply a valid category ID (default to 1 if none selected).
 
@@ -131,15 +128,15 @@ POST /{lang}/checkout → validate → OrderModel::create() → $_SESSION['pendi
 ### Image uploads
 `ImageUploader::upload(['tmp_name' => ..., 'error' => ...], $destDir)` — resizes to 1600px, saves `{uuid}.ext`; also saves `thumb_{uuid}.ext` at 400px. Returns the base filename (without `thumb_` prefix). Directories are created automatically.
 
-## Database Schema (17 tables)
+## Database Schema (15 tables)
 
-`languages`, `categories` + `category_t`, `products` + `product_t` + `product_images`, `orders` + `order_items`, `gallery_albums` + `gallery_album_t` + `gallery_images`, `blog_posts` + `blog_post_t`, `pages` + `page_t`, `users`, `settings`
+`languages`, `categories` + `category_t`, `products` + `product_t` + `product_images`, `orders` + `order_items`, `gallery_albums` + `gallery_album_t` + `gallery_images`, `pages` + `page_t`, `users`, `settings`
 
 `settings` table: key/value pairs read by `GoPay::fromSettings()`, `Mailer`, and `SettingsController`. Keys: `site_name`, `contact_email`, `contact_phone`, `smtp_host`, `smtp_port`, `smtp_user`, `smtp_pass`, `smtp_from`, `gopay_go_id`, `gopay_client_id`, `gopay_client_secret`, `gopay_test_mode`.
 
 ## Translations
 
-Files: `lang/cs.json`, `lang/en.json`, `lang/ru.json`, `lang/uk.json`, `lang/sk.json` — all must have identical keys (65 keys total). Use `t('key')` in public Twig templates. Key groups: `nav.*`, `site.*`, `home.*`, `cart.*`, `checkout.*`, `order.*`, `order.status.*`, `shop.*`, `services.*`, `gallery.*`, `blog.*`, `contact.*`.
+Files: `lang/cs.json`, `lang/en.json`, `lang/ru.json`, `lang/uk.json`, `lang/sk.json` — all must have identical keys (68 keys total). Use `t('key')` in public Twig templates. Key groups: `nav.*`, `site.*`, `home.*`, `cart.*`, `checkout.*`, `order.*`, `order.status.*`, `shop.*`, `services.*`, `gallery.*`, `contact.*`.
 
 Admin templates use `t('key')` via the `admin_i18n` instance injected by `AdminLangMiddleware`. Admin translation files live in `lang/admin/` — all 5 files must have identical keys.
 
