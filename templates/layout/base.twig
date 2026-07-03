@@ -21,13 +21,20 @@
                 <a href="/{{ lang }}/">{{ t('nav.home') }}</a>
                 <a href="/{{ lang }}/shop">{{ t('nav.shop') }}</a>
                 <div class="nav-item-dropdown">
-                    <a href="/{{ lang }}/services">{{ t('nav.services') }}</a>
+                    <span class="nav-dropdown-trigger">{{ t('nav.services') }}</span>
                     <div class="nav-dropdown-menu">
+                        <a href="/{{ lang }}/services">{{ t('nav.services_our') }}</a>
                         <a href="/{{ lang }}/services/archive">{{ t('nav.gallery') }}</a>
                     </div>
                 </div>
                 <a href="/{{ lang }}/blog">{{ t('nav.blog') }}</a>
-                <a href="/{{ lang }}/contact">{{ t('nav.contact') }}</a>
+                <div class="nav-item-dropdown">
+                    <span class="nav-dropdown-trigger">{{ t('nav.info') }}</span>
+                    <div class="nav-dropdown-menu">
+                        <a href="/{{ lang }}/contact">{{ t('nav.contact') }}</a>
+                        <a href="/{{ lang }}/shipping-payment">{{ t('nav.shipping') }}</a>
+                    </div>
+                </div>
             </nav>
             <a href="/{{ lang }}/cart" class="cart-link">{{ t('nav.cart') }}</a>
             <div class="lang-switcher">
