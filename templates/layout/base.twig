@@ -53,6 +53,9 @@
     <footer class="site-footer">
         <div class="container">
             <p>&copy; {{ "now"|date("Y") }} {{ t('site.name') }}</p>
+            {% if facebook_url %}
+            <p class="footer-social">{{ t('footer.follow_us') }}: <a href="{{ facebook_url }}" target="_blank" rel="noopener">Facebook</a></p>
+            {% endif %}
         </div>
     </footer>
 
