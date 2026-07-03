@@ -44,6 +44,7 @@ mirror --reverse --delete --verbose \
   --exclude '^scripts/' \
   --exclude '^docs/' \
   --exclude '^backups/' \
+  --exclude '^www/assets/uploads/' \
   $LOCAL_DIR $REMOTE_DIR
 quit
 EOF
