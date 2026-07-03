@@ -17,6 +17,12 @@
         <input type="text" name="contact_phone" value="{{ settings.contact_phone ?? '' }}">
     </div>
 
+    <h3>{{ t('settings.social') }}</h3>
+    <div class="form-group">
+        <label>{{ t('settings.facebook_url') }}</label>
+        <input type="text" name="facebook_url" value="{{ settings.facebook_url ?? '' }}">
+    </div>
+
     <h3>{{ t('settings.shipping') }}</h3>
     <div class="form-group">
         <label>{{ t('settings.shipping_address') }}</label>
