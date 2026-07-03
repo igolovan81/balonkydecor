@@ -1,5 +1,4 @@
 <?php
-use App\Controllers\BlogController;
 use App\Controllers\CartController;
 use App\Controllers\CheckoutController;
 use App\Controllers\ContactController;
@@ -11,7 +10,6 @@ use App\Controllers\PaymentController;
 use App\Controllers\SeoController;
 use App\Controllers\ShopController;
 use App\Controllers\Admin\AuthController;
-use App\Controllers\Admin\BlogController as AdminBlogController;
 use App\Controllers\Admin\CategoryController;
 use App\Controllers\Admin\DashboardController;
 use App\Controllers\Admin\GalleryController as AdminGalleryController;
@@ -69,14 +67,6 @@ $app->group('/admin', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->post('/gallery/{id:[0-9]+}/edit',                             AdminGalleryController::class . ':editSubmit');
     $group->post('/gallery/{id:[0-9]+}/delete',                           AdminGalleryController::class . ':delete');
     $group->post('/gallery/{id:[0-9]+}/image/{image_id:[0-9]+}/delete',   AdminGalleryController::class . ':deleteImage');
-
-    // Blog
-    $group->get('/blog',                     AdminBlogController::class . ':index');
-    $group->get('/blog/new',                 AdminBlogController::class . ':createForm');
-    $group->post('/blog/new',                AdminBlogController::class . ':createSubmit');
-    $group->get('/blog/{id:[0-9]+}/edit',    AdminBlogController::class . ':editForm');
-    $group->post('/blog/{id:[0-9]+}/edit',   AdminBlogController::class . ':editSubmit');
-    $group->post('/blog/{id:[0-9]+}/delete', AdminBlogController::class . ':delete');
 
     // Pages
     $group->get('/pages',              AdminPageController::class . ':index');
@@ -138,8 +128,6 @@ $app->get('/{lang}/services',                 PageController::class    . ':servi
 $app->get('/{lang}/shipping-payment',         PageController::class    . ':shippingPayment');
 $app->get('/{lang}/services/archive',         GalleryController::class . ':index');
 $app->get('/{lang}/services/archive/{slug}',  GalleryController::class . ':album');
-$app->get('/{lang}/blog',             BlogController::class    . ':index');
-$app->get('/{lang}/blog/{slug}',      BlogController::class    . ':post');
 $app->get('/{lang}/contact',          ContactController::class . ':index');
 $app->post('/{lang}/contact',         ContactController::class . ':send');
 $app->get('/{lang}/cart',             CartController::class    . ':index');
