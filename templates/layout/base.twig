@@ -21,14 +21,14 @@
                 <a href="/{{ lang }}/">{{ t('nav.home') }}</a>
                 <a href="/{{ lang }}/shop">{{ t('nav.shop') }}</a>
                 <div class="nav-item-dropdown">
-                    <span class="nav-dropdown-trigger">{{ t('nav.services') }}</span>
+                    <button type="button" class="nav-dropdown-trigger" aria-haspopup="true">{{ t('nav.services') }}</button>
                     <div class="nav-dropdown-menu">
                         <a href="/{{ lang }}/services">{{ t('nav.services_our') }}</a>
                         <a href="/{{ lang }}/services/archive">{{ t('nav.gallery') }}</a>
                     </div>
                 </div>
                 <div class="nav-item-dropdown">
-                    <span class="nav-dropdown-trigger">{{ t('nav.info') }}</span>
+                    <button type="button" class="nav-dropdown-trigger" aria-haspopup="true">{{ t('nav.info') }}</button>
                     <div class="nav-dropdown-menu">
                         <a href="/{{ lang }}/contact">{{ t('nav.contact') }}</a>
                         <a href="/{{ lang }}/shipping-payment">{{ t('nav.shipping') }}</a>

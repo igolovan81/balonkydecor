@@ -24,6 +24,8 @@ php -S localhost:8080 -t www
 
 Schema: `database/migrations/V001__schema.sql`. Config: `config/settings.php`.
 
+**When editing CSS or templates' styling, follow `.claude/rules/css-styling.md`** (design tokens, breakpoints, naming, accessibility).
+
 ## Directory Structure
 
 ```
