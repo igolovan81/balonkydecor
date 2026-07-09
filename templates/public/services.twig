@@ -9,9 +9,26 @@
         <h1>{{ page ? page.title : t('services.title') }}</h1>
     </div>
 </section>
-<div class="container content-page">
-    {% if page and page.body %}
-        <div class="rich-content">{{ page.body|raw }}</div>
+<div class="container services-page">
+    {% if services %}
+    <div class="services-grid">
+        {% for service in services %}
+        <div class="service-card">
+            <h2>{{ service.name }}</h2>
+            {% if service.description %}<p>{{ service.description }}</p>{% endif %}
+            {% if service.features %}
+            <ul class="service-features">
+                {% for feature in service.features|split("\n")|filter(f => f|trim) %}
+                <li>{{ feature|trim }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% if service.price_from %}
+            <div class="service-price">{{ t('services.from') }} {{ service.price_from|number_format(0, ',', ' ') }} Kč</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
     {% else %}
         <p class="empty-state">{{ t('services.no_content') }}</p>
     {% endif %}

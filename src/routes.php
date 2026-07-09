@@ -16,6 +16,7 @@ use App\Controllers\Admin\GalleryController as AdminGalleryController;
 use App\Controllers\Admin\OrderController as AdminOrderController;
 use App\Controllers\Admin\PageController as AdminPageController;
 use App\Controllers\Admin\ProductController;
+use App\Controllers\Admin\ServiceController as AdminServiceController;
 use App\Controllers\Admin\SettingsController;
 use App\Controllers\Admin\AdminLangController;
 use App\Controllers\Admin\UserController;
@@ -67,6 +68,14 @@ $app->group('/admin', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->post('/gallery/{id:[0-9]+}/edit',                             AdminGalleryController::class . ':editSubmit');
     $group->post('/gallery/{id:[0-9]+}/delete',                           AdminGalleryController::class . ':delete');
     $group->post('/gallery/{id:[0-9]+}/image/{image_id:[0-9]+}/delete',   AdminGalleryController::class . ':deleteImage');
+
+    // Services
+    $group->get('/services',                       AdminServiceController::class . ':index');
+    $group->get('/services/new',                   AdminServiceController::class . ':createForm');
+    $group->post('/services/new',                  AdminServiceController::class . ':createSubmit');
+    $group->get('/services/{id:[0-9]+}/edit',      AdminServiceController::class . ':editForm');
+    $group->post('/services/{id:[0-9]+}/edit',     AdminServiceController::class . ':editSubmit');
+    $group->post('/services/{id:[0-9]+}/delete',   AdminServiceController::class . ':delete');
 
     // Pages
     $group->get('/pages',              AdminPageController::class . ':index');

@@ -13,7 +13,8 @@ class PageController extends BaseController
         $lang = $request->getAttribute('lang');
         $page = PageModel::find('services', $lang);
         return $this->render($request, $response, 'public/services.twig', [
-            'page' => $page,
+            'page'     => $page,
+            'services' => \App\Models\ServiceModel::allWithTranslation($lang),
         ]);
     }
 

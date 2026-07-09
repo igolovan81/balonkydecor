@@ -61,6 +61,7 @@
   "order.title": "Order",
   "order.total": "Total",
   "order.unit_price": "Unit price",
+  "services.from": "from",
   "services.no_content": "Service descriptions coming soon.",
   "services.title": "Our Services",
   "shipping.body": "Details about shipping and payment will be available soon.",
