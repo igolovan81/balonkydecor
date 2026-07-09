@@ -1,3 +1,9 @@
+---
+description: SEO conventions — title/meta_desc template blocks with DB overrides, canonical/hreflang via Seo service, sitemap registration for new routes, 404 rules, JSON-LD escaping.
+globs: ["templates/public/**/*.twig", "templates/layout/base.twig", "src/routes.php", "src/Services/Seo.php", "src/Services/Sitemap.php", "src/Controllers/SeoController.php"]
+alwaysApply: false
+---
+
 # SEO Implementation Conventions
 
 Central service: `src/Services/Seo.php` (`BASE_URL`, `LANGUAGES`, `DEFAULT_LANG = cs`).

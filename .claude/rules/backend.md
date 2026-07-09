@@ -1,3 +1,9 @@
+---
+description: Backend conventions — Slim 4 route registration order, controller render/flash/redirect patterns, static PDO models, services with dev fallbacks, sessions, config.
+globs: ["src/**/*.php", "config/**/*.php"]
+alwaysApply: false
+---
+
 # Backend Implementation Conventions
 
 Applies to `src/` (Slim 4, PHP 8, PSR-7). Bootstrap is `src/app.php`; all routes live

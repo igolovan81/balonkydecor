@@ -1,3 +1,9 @@
+---
+description: Unit testing conventions — TDD, real Docker MySQL instead of mocks, uniqid()/INSERT IGNORE fixture patterns for the shared dev DB, test naming and assertion style.
+globs: ["tests/**/*.php", "phpunit.xml"]
+alwaysApply: false
+---
+
 # Unit Testing Conventions
 
 PHPUnit 11, tests in `tests/Unit/`, mirroring `src/` (`Models/`, `Services/`,

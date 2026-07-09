@@ -1,3 +1,9 @@
+---
+description: Frontend conventions — Twig layout inheritance, t() translations across all 5 language files, lang-prefixed links, no-build vanilla JS, accessibility requirements.
+globs: ["templates/**/*.twig", "www/assets/js/**/*.js", "lang/**/*.json"]
+alwaysApply: false
+---
+
 # Frontend Implementation Conventions
 
 Applies to `templates/`, `www/assets/js/`, and public-facing markup.

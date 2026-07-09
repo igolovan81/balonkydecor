@@ -1,3 +1,9 @@
+---
+description: Database conventions — V0NN__ migration workflow (never edit applied ones), *_t/lang_code translation tables, idempotent seeds, prepared statements, WEDOS privilege caveats.
+globs: ["database/migrations/*.sql", "src/Models/**/*.php", "www/migrate.php"]
+alwaysApply: false
+---
+
 # Database Implementation Conventions
 
 MySQL 8 via PDO. Local dev DB runs in Docker (`docker compose up -d`); prod is WEDOS

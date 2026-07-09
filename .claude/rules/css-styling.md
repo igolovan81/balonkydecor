@@ -1,3 +1,9 @@
+---
+description: CSS/styling conventions — design tokens in :root, 768px/480px breakpoints, flat kebab-case naming with --modifier variants, focus/keyboard accessibility, inline SVG assets.
+globs: ["www/assets/css/**/*.css", "templates/**/*.twig"]
+alwaysApply: false
+---
+
 # CSS / Styling Conventions
 
 Applies to `www/assets/css/style.css` (public) and `www/assets/css/admin.css` (admin).
