@@ -53,6 +53,59 @@ class GalleryModel
         return $album;
     }
 
+    /**
+     * Find gallery DB rows whose files no longer exist in $uploadsDir:
+     * ['images' => gallery_images rows, 'covers' => albums with a stale explicit cover_image].
+     */
+    public static function orphanedMedia(string $uploadsDir): array
+    {
+        $pdo     = Database::getConnection();
+        $orphans = ['images' => [], 'covers' => []];
+
+        $rows = $pdo->query('SELECT id, album_id, filename, media_type FROM gallery_images ORDER BY album_id, id')->fetchAll();
+        foreach ($rows as $row) {
+            if (!is_file($uploadsDir . '/' . $row['filename'])) {
+                $orphans['images'][] = $row;
+            }
+        }
+
+        $albums = $pdo->query("SELECT id, slug, cover_image FROM gallery_albums WHERE cover_image IS NOT NULL AND cover_image <> ''")->fetchAll();
+        foreach ($albums as $album) {
+            if (!is_file($uploadsDir . '/' . $album['cover_image'])) {
+                $orphans['covers'][] = $album;
+            }
+        }
+        return $orphans;
+    }
+
+    /**
+     * Delete orphaned gallery_images rows (plus leftover thumb_ files) and clear
+     * stale explicit covers. Returns ['deleted_images' => filenames, 'cleared_covers' => slugs].
+     */
+    public static function cleanupOrphans(string $uploadsDir): array
+    {
+        $pdo     = Database::getConnection();
+        $orphans = self::orphanedMedia($uploadsDir);
+        $report  = ['deleted_images' => [], 'cleared_covers' => []];
+
+        $deleteRow = $pdo->prepare('DELETE FROM gallery_images WHERE id = ?');
+        foreach ($orphans['images'] as $row) {
+            $deleteRow->execute([$row['id']]);
+            $thumb = $uploadsDir . '/thumb_' . $row['filename'];
+            if ($row['media_type'] === 'image' && is_file($thumb)) {
+                unlink($thumb);
+            }
+            $report['deleted_images'][] = $row['filename'];
+        }
+
+        $clearCover = $pdo->prepare('UPDATE gallery_albums SET cover_image = NULL WHERE id = ?');
+        foreach ($orphans['covers'] as $album) {
+            $clearCover->execute([$album['id']]);
+            $report['cleared_covers'][] = $album['slug'];
+        }
+        return $report;
+    }
+
     public static function album(string $slug, string $lang): ?array
     {
         $pdo  = Database::getConnection();

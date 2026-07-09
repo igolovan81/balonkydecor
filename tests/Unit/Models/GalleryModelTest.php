@@ -193,6 +193,74 @@ class GalleryModelTest extends TestCase
         $this->assertNull($album['cover_file']);
     }
 
+    public function test_orphaned_media_finds_rows_with_missing_files(): void
+    {
+        $slug = $this->makeAlbum();
+        $id   = $this->albumId($slug);
+        GalleryModel::addImage($id, "{$slug}-present.jpg");
+        GalleryModel::addImage($id, "{$slug}-gone.jpg");
+        GalleryModel::addImage($id, "{$slug}-gone.mp4", 'video');
+        $dir = $this->makeUploadsDir(["{$slug}-present.jpg"]);
+
+        $orphans   = GalleryModel::orphanedMedia($dir);
+        $filenames = array_column(
+            array_filter($orphans['images'], fn ($r) => (int) $r['album_id'] === $id),
+            'filename'
+        );
+        $this->assertEqualsCanonicalizing(["{$slug}-gone.jpg", "{$slug}-gone.mp4"], $filenames);
+    }
+
+    public function test_orphaned_media_flags_stale_explicit_cover(): void
+    {
+        $slug = $this->makeAlbum();
+        $id   = $this->albumId($slug);
+        Database::getConnection()
+            ->prepare('UPDATE gallery_albums SET cover_image = ? WHERE id = ?')
+            ->execute(["{$slug}-cover-gone.jpg", $id]);
+        $dir = $this->makeUploadsDir([]);
+
+        $orphans = GalleryModel::orphanedMedia($dir);
+        $this->assertContains($slug, array_column($orphans['covers'], 'slug'));
+    }
+
+    public function test_orphaned_media_ignores_existing_files_and_empty_covers(): void
+    {
+        $slug = $this->makeAlbum();
+        $id   = $this->albumId($slug);
+        GalleryModel::addImage($id, "{$slug}-present.jpg");
+        $dir = $this->makeUploadsDir(["{$slug}-present.jpg"]);
+
+        $orphans = GalleryModel::orphanedMedia($dir);
+        $this->assertSame([], array_filter($orphans['images'], fn ($r) => (int) $r['album_id'] === $id));
+        $this->assertNotContains($slug, array_column($orphans['covers'], 'slug'));
+    }
+
+    // NB: cleanupOrphans() is global — in the shared dev DB it also removes other
+    // fixture rows whose files don't exist on disk (they're broken anyway).
+    public function test_cleanup_orphans_deletes_rows_and_clears_stale_covers(): void
+    {
+        $slug = $this->makeAlbum();
+        $id   = $this->albumId($slug);
+        $pdo  = Database::getConnection();
+        GalleryModel::addImage($id, "{$slug}-present.jpg");
+        GalleryModel::addImage($id, "{$slug}-gone.jpg");
+        $pdo->prepare('UPDATE gallery_albums SET cover_image = ? WHERE id = ?')
+            ->execute(["{$slug}-cover-gone.jpg", $id]);
+        $dir = $this->makeUploadsDir(["{$slug}-present.jpg", "thumb_{$slug}-gone.jpg"]);
+
+        $report = GalleryModel::cleanupOrphans($dir);
+
+        $this->assertContains("{$slug}-gone.jpg", $report['deleted_images']);
+        $this->assertContains($slug, $report['cleared_covers']);
+        $left = $pdo->prepare('SELECT filename FROM gallery_images WHERE album_id = ?');
+        $left->execute([$id]);
+        $this->assertSame(["{$slug}-present.jpg"], array_column($left->fetchAll(), 'filename'));
+        $cover = $pdo->prepare('SELECT cover_image FROM gallery_albums WHERE id = ?');
+        $cover->execute([$id]);
+        $this->assertNull($cover->fetch()['cover_image']);
+        $this->assertFileDoesNotExist($dir . "/thumb_{$slug}-gone.jpg");
+    }
+
     private function makeUploadsDir(array $files): string
     {
         $dir = sys_get_temp_dir() . '/gallery-cover-test-' . uniqid();
