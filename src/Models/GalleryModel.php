@@ -6,13 +6,20 @@ class GalleryModel
     public static function albums(string $lang): array
     {
         $pdo  = Database::getConnection();
-        $stmt = $pdo->prepare('
+        $stmt = $pdo->prepare("
             SELECT a.id, a.slug, a.cover_image, a.sort_order,
-                   COALESCE(t.name, a.slug) AS name, t.description
+                   COALESCE(t.name, a.slug) AS name, t.description,
+                   COALESCE(NULLIF(a.cover_image, ''),
+                            (SELECT gi.filename FROM gallery_images gi WHERE gi.album_id = a.id
+                             ORDER BY (gi.media_type = 'video'), gi.sort_order, gi.id LIMIT 1)) AS cover_file,
+                   CASE WHEN NULLIF(a.cover_image, '') IS NULL
+                             AND (SELECT gi.media_type FROM gallery_images gi WHERE gi.album_id = a.id
+                                  ORDER BY (gi.media_type = 'video'), gi.sort_order, gi.id LIMIT 1) = 'video'
+                        THEN 1 ELSE 0 END AS cover_is_video
             FROM gallery_albums a
             LEFT JOIN gallery_album_t t ON t.album_id = a.id AND t.lang_code = :lang
             ORDER BY a.sort_order, a.id
-        ');
+        ");
         $stmt->execute(['lang' => $lang]);
         return $stmt->fetchAll();
     }

@@ -78,6 +78,87 @@ class GalleryModelTest extends TestCase
         $this->assertSame('video', $row['media_type']);
     }
 
+    public function test_albums_cover_falls_back_to_first_image(): void
+    {
+        $slug = $this->makeAlbum();
+        $id   = $this->albumId($slug);
+        GalleryModel::addImage($id, "{$slug}-a.jpg");
+        GalleryModel::addImage($id, "{$slug}-b.jpg");
+
+        $album = $this->findAlbum($slug);
+        $this->assertSame("{$slug}-a.jpg", $album['cover_file']);
+        $this->assertSame(0, (int) $album['cover_is_video']);
+    }
+
+    public function test_albums_cover_prefers_image_over_video(): void
+    {
+        $slug = $this->makeAlbum();
+        $id   = $this->albumId($slug);
+        GalleryModel::addImage($id, "{$slug}.mp4", 'video');
+        GalleryModel::addImage($id, "{$slug}.jpg");
+
+        $album = $this->findAlbum($slug);
+        $this->assertSame("{$slug}.jpg", $album['cover_file']);
+        $this->assertSame(0, (int) $album['cover_is_video']);
+    }
+
+    public function test_albums_video_only_album_uses_video_cover(): void
+    {
+        $slug = $this->makeAlbum();
+        GalleryModel::addImage($this->albumId($slug), "{$slug}.mp4", 'video');
+
+        $album = $this->findAlbum($slug);
+        $this->assertSame("{$slug}.mp4", $album['cover_file']);
+        $this->assertSame(1, (int) $album['cover_is_video']);
+    }
+
+    public function test_albums_explicit_cover_wins(): void
+    {
+        $slug = $this->makeAlbum();
+        $id   = $this->albumId($slug);
+        Database::getConnection()
+            ->prepare('UPDATE gallery_albums SET cover_image = ? WHERE id = ?')
+            ->execute(["{$slug}-cover.jpg", $id]);
+        GalleryModel::addImage($id, "{$slug}-other.jpg");
+
+        $album = $this->findAlbum($slug);
+        $this->assertSame("{$slug}-cover.jpg", $album['cover_file']);
+        $this->assertSame(0, (int) $album['cover_is_video']);
+    }
+
+    public function test_albums_empty_album_has_null_cover(): void
+    {
+        $slug  = $this->makeAlbum();
+        $album = $this->findAlbum($slug);
+        $this->assertNull($album['cover_file']);
+    }
+
+    private function makeAlbum(): string
+    {
+        $slug = 'cover-test-' . uniqid();
+        Database::getConnection()
+            ->prepare('INSERT INTO gallery_albums (slug) VALUES (?)')
+            ->execute([$slug]);
+        return $slug;
+    }
+
+    private function albumId(string $slug): int
+    {
+        $stmt = Database::getConnection()->prepare('SELECT id FROM gallery_albums WHERE slug = ?');
+        $stmt->execute([$slug]);
+        return (int) $stmt->fetch()['id'];
+    }
+
+    private function findAlbum(string $slug): array
+    {
+        foreach (GalleryModel::albums('en') as $album) {
+            if ($album['slug'] === $slug) {
+                return $album;
+            }
+        }
+        $this->fail("Album {$slug} not returned by albums()");
+    }
+
     public function test_delete_image_returns_media_type(): void
     {
         $pdo = Database::getConnection();

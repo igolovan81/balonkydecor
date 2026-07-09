@@ -12,8 +12,12 @@
         {% for album in albums %}
         <a href="/{{ lang }}/services/archive/{{ album.slug }}" class="gallery-album-card">
             <div class="gallery-cover">
-                {% if album.cover_image %}
-                    <img src="/assets/uploads/gallery/{{ album.cover_image }}" alt="{{ album.name }}">
+                {% if album.cover_file %}
+                    {% if album.cover_is_video %}
+                        <video src="/assets/uploads/gallery/{{ album.cover_file }}" preload="metadata" muted playsinline></video>
+                    {% else %}
+                        <img src="/assets/uploads/gallery/{{ album.cover_file }}" alt="{{ album.name }}">
+                    {% endif %}
                 {% else %}
                     <div class="gallery-cover-placeholder"></div>
                 {% endif %}
