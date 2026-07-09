@@ -133,6 +133,76 @@ class GalleryModelTest extends TestCase
         $this->assertNull($album['cover_file']);
     }
 
+    public function test_albums_returns_photo_and_video_counts(): void
+    {
+        $slug = $this->makeAlbum();
+        $id   = $this->albumId($slug);
+        GalleryModel::addImage($id, "{$slug}-a.jpg");
+        GalleryModel::addImage($id, "{$slug}-b.jpg");
+        GalleryModel::addImage($id, "{$slug}.mp4", 'video');
+
+        $album = $this->findAlbum($slug);
+        $this->assertSame(2, (int) $album['photo_count']);
+        $this->assertSame(1, (int) $album['video_count']);
+    }
+
+    public function test_resolve_cover_keeps_cover_whose_file_exists(): void
+    {
+        $slug = $this->makeAlbum();
+        GalleryModel::addImage($this->albumId($slug), "{$slug}-a.jpg");
+        $dir = $this->makeUploadsDir(["{$slug}-a.jpg"]);
+
+        $album = GalleryModel::resolveCover($this->findAlbum($slug), $dir);
+        $this->assertSame("{$slug}-a.jpg", $album['cover_file']);
+        $this->assertSame(0, (int) $album['cover_is_video']);
+    }
+
+    public function test_resolve_cover_falls_back_to_existing_image_file(): void
+    {
+        $slug = $this->makeAlbum();
+        $id   = $this->albumId($slug);
+        GalleryModel::addImage($id, "{$slug}-missing.jpg");
+        GalleryModel::addImage($id, "{$slug}-present.jpg");
+        $dir = $this->makeUploadsDir(["{$slug}-present.jpg"]);
+
+        $album = GalleryModel::resolveCover($this->findAlbum($slug), $dir);
+        $this->assertSame("{$slug}-present.jpg", $album['cover_file']);
+        $this->assertSame(0, (int) $album['cover_is_video']);
+    }
+
+    public function test_resolve_cover_falls_back_to_existing_video_file(): void
+    {
+        $slug = $this->makeAlbum();
+        $id   = $this->albumId($slug);
+        GalleryModel::addImage($id, "{$slug}-missing.jpg");
+        GalleryModel::addImage($id, "{$slug}.mp4", 'video');
+        $dir = $this->makeUploadsDir(["{$slug}.mp4"]);
+
+        $album = GalleryModel::resolveCover($this->findAlbum($slug), $dir);
+        $this->assertSame("{$slug}.mp4", $album['cover_file']);
+        $this->assertSame(1, (int) $album['cover_is_video']);
+    }
+
+    public function test_resolve_cover_nulls_cover_when_no_file_exists(): void
+    {
+        $slug = $this->makeAlbum();
+        GalleryModel::addImage($this->albumId($slug), "{$slug}-missing.jpg");
+        $dir = $this->makeUploadsDir([]);
+
+        $album = GalleryModel::resolveCover($this->findAlbum($slug), $dir);
+        $this->assertNull($album['cover_file']);
+    }
+
+    private function makeUploadsDir(array $files): string
+    {
+        $dir = sys_get_temp_dir() . '/gallery-cover-test-' . uniqid();
+        mkdir($dir, 0777, true);
+        foreach ($files as $file) {
+            file_put_contents($dir . '/' . $file, 'x');
+        }
+        return $dir;
+    }
+
     private function makeAlbum(): string
     {
         $slug = 'cover-test-' . uniqid();

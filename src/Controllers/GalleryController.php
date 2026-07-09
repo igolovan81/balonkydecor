@@ -9,9 +9,14 @@ class GalleryController extends BaseController
 {
     public function index(Request $request, Response $response, array $args): Response
     {
-        $lang = $request->getAttribute('lang');
+        $lang       = $request->getAttribute('lang');
+        $uploadsDir = __DIR__ . '/../../www/assets/uploads/gallery';
+        $albums     = array_map(
+            fn (array $a) => GalleryModel::resolveCover($a, $uploadsDir),
+            GalleryModel::albums($lang)
+        );
         return $this->render($request, $response, 'public/gallery/index.twig', [
-            'albums' => GalleryModel::albums($lang),
+            'albums' => $albums,
         ]);
     }
 

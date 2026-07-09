@@ -15,6 +15,7 @@
                 {% if album.cover_file %}
                     {% if album.cover_is_video %}
                         <video src="/assets/uploads/gallery/{{ album.cover_file }}" preload="metadata" muted playsinline></video>
+                        <span class="gallery-cover-play" aria-hidden="true"></span>
                     {% else %}
                         <img src="/assets/uploads/gallery/{{ album.cover_file }}" alt="{{ album.name }}">
                     {% endif %}
@@ -23,6 +24,20 @@
                 {% endif %}
             </div>
             <div class="gallery-album-name">{{ album.name }}</div>
+            {% if album.photo_count > 0 or album.video_count > 0 %}
+            <div class="gallery-album-meta">
+                {% if album.photo_count > 0 %}
+                <span class="gallery-meta-item" title="{{ t('gallery.photos') }}" aria-label="{{ t('gallery.photos') }}: {{ album.photo_count }}">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3.5L9 6h6l1.5 2H20v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>{{ album.photo_count }}
+                </span>
+                {% endif %}
+                {% if album.video_count > 0 %}
+                <span class="gallery-meta-item" title="{{ t('gallery.videos') }}" aria-label="{{ t('gallery.videos') }}: {{ album.video_count }}">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="13" height="10" rx="2"/><path d="M16 11l5-3v8l-5-3z"/></svg>{{ album.video_count }}
+                </span>
+                {% endif %}
+            </div>
+            {% endif %}
         </a>
         {% endfor %}
     </div>

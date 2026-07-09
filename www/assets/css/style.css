@@ -148,11 +148,23 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 /* Gallery */
 .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.5rem; }
 .gallery-album-card { text-decoration: none; color: var(--text); }
-.gallery-cover { aspect-ratio: 4/3; overflow: hidden; border-radius: 2px; background: var(--border); }
+.gallery-cover { position: relative; aspect-ratio: 4/3; overflow: hidden; border-radius: 2px; background: var(--border); }
+.gallery-cover-play {
+    position: absolute; top: 50%; left: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px;
+    border-radius: 50%; background: rgba(44,44,44,.55); pointer-events: none;
+}
+.gallery-cover-play::after {
+    content: ''; position: absolute; left: 17px; top: 13px;
+    border-left: 14px solid var(--text-inverse);
+    border-top: 9px solid transparent; border-bottom: 9px solid transparent;
+}
 .gallery-cover img, .gallery-cover video { width: 100%; height: 100%; object-fit: cover; transition: transform .3s; }
 .gallery-album-card:hover .gallery-cover img, .gallery-album-card:hover .gallery-cover video { transform: scale(1.04); }
 .gallery-cover-placeholder { width: 100%; height: 100%; }
 .gallery-album-name { margin-top: .6rem; font-family: var(--ui-font); font-size: .9rem; }
+.gallery-album-meta { margin-top: .25rem; display: flex; gap: .9rem; color: var(--muted); font-family: var(--ui-font); font-size: .8rem; }
+.gallery-meta-item { display: inline-flex; align-items: center; gap: .35rem; }
+.gallery-meta-item svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; }
 .photo-grid { columns: 3; gap: 1rem; }
 .photo-item { display: block; margin-bottom: 1rem; break-inside: avoid; }
 .photo-item img, .photo-item video { width: 100%; display: block; border-radius: 2px; }

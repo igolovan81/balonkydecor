@@ -15,13 +15,42 @@ class GalleryModel
                    CASE WHEN NULLIF(a.cover_image, '') IS NULL
                              AND (SELECT gi.media_type FROM gallery_images gi WHERE gi.album_id = a.id
                                   ORDER BY (gi.media_type = 'video'), gi.sort_order, gi.id LIMIT 1) = 'video'
-                        THEN 1 ELSE 0 END AS cover_is_video
+                        THEN 1 ELSE 0 END AS cover_is_video,
+                   (SELECT COUNT(*) FROM gallery_images gi WHERE gi.album_id = a.id AND gi.media_type = 'image') AS photo_count,
+                   (SELECT COUNT(*) FROM gallery_images gi WHERE gi.album_id = a.id AND gi.media_type = 'video') AS video_count
             FROM gallery_albums a
             LEFT JOIN gallery_album_t t ON t.album_id = a.id AND t.lang_code = :lang
             ORDER BY a.sort_order, a.id
         ");
         $stmt->execute(['lang' => $lang]);
         return $stmt->fetchAll();
+    }
+
+    /**
+     * Ensure the album's cover points at a file that exists in $uploadsDir.
+     * Falls back to the album's first on-disk item (photos preferred), or null.
+     */
+    public static function resolveCover(array $album, string $uploadsDir): array
+    {
+        if ($album['cover_file'] !== null && is_file($uploadsDir . '/' . $album['cover_file'])) {
+            return $album;
+        }
+        $album['cover_file']     = null;
+        $album['cover_is_video'] = 0;
+
+        $stmt = Database::getConnection()->prepare(
+            "SELECT filename, media_type FROM gallery_images WHERE album_id = ?
+             ORDER BY (media_type = 'video'), sort_order, id"
+        );
+        $stmt->execute([$album['id']]);
+        foreach ($stmt->fetchAll() as $item) {
+            if (is_file($uploadsDir . '/' . $item['filename'])) {
+                $album['cover_file']     = $item['filename'];
+                $album['cover_is_video'] = $item['media_type'] === 'video' ? 1 : 0;
+                break;
+            }
+        }
+        return $album;
     }
 
     public static function album(string $slug, string $lang): ?array
