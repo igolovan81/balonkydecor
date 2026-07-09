@@ -51,8 +51,14 @@ src/
   Services/
     Cart.php                 # Session-backed cart
     GoPay.php                # GoPay REST API client
-    Mailer.php               # SMTP mailer, dev fallback logs to tmp/mail.log
+    I18n.php                 # Loads lang/{lang}.json, provides t()
     ImageUploader.php        # GD resize (1600px max / 400px thumb), UUID filenames
+    VideoUploader.php        # Gallery video upload, UUID filenames
+    Mailer.php               # SMTP mailer, dev fallback logs to tmp/mail.log
+    Migrator.php             # Applies database/migrations/, tracks schema_migrations
+    Seo.php                  # BASE_URL, canonical/hreflang URLs, Organization JSON-LD
+    Sitemap.php              # Sitemap paths: static pages + products + gallery albums
+    Translator.php           # Admin auto-translate via MyMemory API (POST /admin/translate)
   Twig/
     I18nExtension.php        # Registers t() function in Twig
 templates/
@@ -66,10 +72,12 @@ lang/
   admin/
     cs.json en.json ru.json uk.json sk.json # Admin UI translations (loaded by AdminLangMiddleware)
 www/                         # Apache web root
+  migrate.php                # Token-protected migration runner (used by /deploy)
   assets/css/style.css       # Public CSS
   assets/css/admin.css       # Admin CSS
+  assets/js/nav.js           # Mobile nav toggle (vanilla JS, no build step)
   assets/uploads/products/   # Product images (created on first upload)
-  assets/uploads/gallery/    # Gallery images (created on first upload)
+  assets/uploads/gallery/    # Gallery images & videos (created on first upload)
 database/migrations/         # Versioned SQL migrations (V001–V00N)
 config/settings.php          # DB creds, language list, upload settings
 session/                     # PHP session storage (outside web root)
@@ -82,9 +90,10 @@ tmp/                         # Twig cache, mail.log (outside web root)
 
 Current order in `routes.php`:
 1. `/admin/login`, `/admin/logout`, `/admin/setup` (public auth routes)
-2. `$app->group('/admin', ...)` protected admin routes with `AuthMiddleware`
+2. `$app->group('/admin', ...)` protected admin routes with `AuthMiddleware` (includes `POST /admin/translate` auto-translate endpoint)
 3. `$app->get('/', ...)` root redirect
-4. `/{lang}/*` all public routes
+4. Lang-less endpoints: `POST /payment/notify` (GoPay IPN), `/robots.txt`, `/sitemap.xml` (`SeoController`)
+5. `/{lang}/*` all public routes
 
 **Multilingual URLs:** `/{lang}/{path}` where lang ∈ `{cs, ru, en, uk, sk}`. `LangMiddleware` runs on every request, extracts lang from the first path segment, loads `lang/{lang}.json`, and attaches `I18n` + `lang` attributes to the PSR-7 request. Unknown/missing segments default to `cs`.
 
@@ -93,7 +102,7 @@ Current order in `routes.php`:
 ## Controllers
 
 ### Public — `BaseController`
-`$this->render($request, $response, 'template.twig', $data)` — registers `I18nExtension` if not already present, injects `lang` and `current_path` into every template. The `t('key')` Twig function is available on all public pages.
+`$this->render($request, $response, 'template.twig', $data)` — registers `I18nExtension` if not already present, injects `lang`, `current_path`, SEO variables (`canonical_url`, `alternate_urls`, `organization_json_ld`), and `facebook_url`/`instagram_url` settings into every template. The `t('key')` Twig function is available on all public pages. An `asset_v(path)` Twig function (registered in `app.php`, filemtime-based) cache-busts CSS/JS URLs.
 
 ### Admin — `AdminBaseController`
 `$this->renderAdmin($request, $response, 'admin/x.twig', $data)` — reads `admin_i18n` and `admin_lang` from the request (set by `AdminLangMiddleware`), reads `$_SESSION['flash']` and clears it, passes `flash`, `admin_lang`, and the `t()` Twig function to every admin template. `$this->flash('success'|'error', 'message')` sets the next flash. `$this->redirect($response, '/url')` returns a 302 response.
@@ -109,13 +118,15 @@ All static methods. `Database::getConnection()` returns a PDO singleton (`FETCH_
 | `ProductModel` | `allActive(lang, ?catId)`, `findBySku(sku, lang)` | `all()`, `findById()`, `create()`, `update()`, `delete()`, `getTranslations()`, `setTranslations()`, `addImage()`, `deleteImage()` |
 | `CategoryModel` | `allWithTranslation(lang)` | `all()`, `findById()`, `create()`, `update()`, `delete()`, `getTranslations()`, `setTranslations()` |
 | `OrderModel` | `create(customer, cartItems, total)`, `findByNumber()`, `updateStatus()`, `findByGopayId()` | `adminList(page, perPage, status)` |
-| `GalleryModel` | `albums(lang)`, `album(slug, lang)` | `allAlbums()`, `findAlbumById()`, `createAlbum()`, `updateAlbum()`, `deleteAlbum()`, `getAlbumTranslations()`, `setAlbumTranslations()`, `addImage()`, `deleteImage()` |
+| `GalleryModel` | `albums(lang)`, `album(slug, lang)` | `allAlbums()`, `findAlbumById()`, `createAlbum()`, `updateAlbum()`, `deleteAlbum()`, `getAlbumTranslations()`, `setAlbumTranslations()`, `addImage(albumId, filename, mediaType)`, `deleteImage()` |
 | `PageModel` | `find(slug, lang)` | `allSlugs()`, `allTranslations(slug)`, `upsert(slug, lang, title, body)` |
 | `AdminUserModel` | — | wraps `users` table: `findByEmail()`, `findById()`, `count()`, `create()`, `all()`, `updatePassword()`, `delete()`, `setLang(id, lang)` |
 
 **`users` table columns:** `id`, `email`, `password_hash`, `role` enum(`admin`,`editor`), `lang` VARCHAR(5) DEFAULT `cs`, `created_at`. No `name` column.
 
 **`products.category_id`** is NOT NULL — always supply a valid category ID (default to 1 if none selected).
+
+**`gallery_images.media_type`** is ENUM(`image`,`video`). `GalleryModel::albums()` also returns computed `cover_file`/`cover_is_video`: the explicit `cover_image` if set, otherwise the album's first item (photos preferred over videos); templates render video covers as `<video preload="metadata">`.
 
 ## Key Flows
 
@@ -137,23 +148,26 @@ POST /{lang}/checkout → validate → OrderModel::create() → $_SESSION['pendi
 `GoPay::fromSettings()` returns `null` when `gopay_go_id` setting is empty. `PaymentController::initiate()` checks for null and immediately marks the order `paid`, redirecting to the order status page. No GoPay credentials needed for local dev.
 
 ### Image uploads
-`ImageUploader::upload(['tmp_name' => ..., 'error' => ...], $destDir)` — resizes to 1600px, saves `{uuid}.ext`; also saves `thumb_{uuid}.ext` at 400px. Returns the base filename (without `thumb_` prefix). Directories are created automatically.
+`ImageUploader::upload(['tmp_name' => ..., 'error' => ...], $destDir)` — resizes to 1600px, saves `{uuid}.ext`; also saves `thumb_{uuid}.ext` at 400px. Returns the base filename (without `thumb_` prefix). Directories are created automatically. Gallery videos go through `VideoUploader::upload()` and are stored with `media_type = 'video'`.
+
+### Admin auto-translate
+Admin edit forms can call `POST /admin/translate` (route closure in `routes.php`), which uses `Translator::translate()` (MyMemory API) to fill the other languages from the admin's current language.
 
 ## Database Schema (15 tables)
 
 `languages`, `categories` + `category_t`, `products` + `product_t` + `product_images`, `orders` + `order_items`, `gallery_albums` + `gallery_album_t` + `gallery_images`, `pages` + `page_t`, `users`, `settings`
 
-`settings` table: key/value pairs read by `GoPay::fromSettings()`, `Mailer`, and `SettingsController`. Keys: `site_name`, `contact_email`, `contact_phone`, `smtp_host`, `smtp_port`, `smtp_user`, `smtp_pass`, `smtp_from`, `gopay_go_id`, `gopay_client_id`, `gopay_client_secret`, `gopay_test_mode`.
+`settings` table: key/value pairs read by `GoPay::fromSettings()`, `Mailer`, `BaseController`, and `SettingsController`. Admin-editable keys are whitelisted in `SettingsController::KEYS`: `site_name`, `contact_email`, `contact_phone`, `shipping_address`, `shipping_map_url`, `facebook_url`, `instagram_url`, `smtp_host`, `smtp_port`, `smtp_user`, `smtp_pass`, `smtp_from`, `gopay_go_id`, `gopay_client_id`, `gopay_client_secret`, `gopay_test_mode`. New keys need a seed migration **and** an entry in that whitelist.
 
 ## Translations
 
-Files: `lang/cs.json`, `lang/en.json`, `lang/ru.json`, `lang/uk.json`, `lang/sk.json` — all must have identical keys (68 keys total). Use `t('key')` in public Twig templates. Key groups: `nav.*`, `site.*`, `home.*`, `cart.*`, `checkout.*`, `order.*`, `order.status.*`, `shop.*`, `services.*`, `gallery.*`, `contact.*`.
+Files: `lang/cs.json`, `lang/en.json`, `lang/ru.json`, `lang/uk.json`, `lang/sk.json` — all five must have identical key sets. Use `t('key')` in public Twig templates. Key groups: `nav.*`, `site.*`, `home.*`, `cart.*`, `checkout.*`, `order.*`, `order.status.*`, `shop.*`, `services.*`, `gallery.*`, `contact.*`, `shipping.*`, `footer.*`.
 
 Admin templates use `t('key')` via the `admin_i18n` instance injected by `AdminLangMiddleware`. Admin translation files live in `lang/admin/` — all 5 files must have identical keys.
 
 ## Testing
 
-PHPUnit 11, tests in `tests/Unit/`. All model tests use a real MySQL DB (Docker). `OrderModelTest` uses `uniqid()` for gopay IDs to avoid collisions across runs. Currently 37 tests, 59 assertions.
+PHPUnit 11, tests in `tests/Unit/{Models,Services,Middleware}/`. Model tests (and some service tests) use the real Docker MySQL DB — no mocks; fixtures use `uniqid()` slugs/IDs or `INSERT IGNORE` to survive the shared, persistent dev DB. Full conventions in `.claude/rules/unit-testing.md`. Run the whole suite (`php vendor/bin/phpunit`) before committing.
 
 ## Deployment
 
