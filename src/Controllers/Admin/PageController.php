@@ -8,7 +8,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class PageController extends AdminBaseController
 {
     private const LANGS = ['cs', 'en', 'ru', 'uk', 'sk'];
-    private const SLUGS = ['home', 'services', 'contact'];
+    private const SLUGS = ['home', 'contact'];
 
     public function index(Request $request, Response $response, array $args): Response
     {
