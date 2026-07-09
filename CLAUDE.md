@@ -24,8 +24,16 @@ php -S localhost:8080 -t www
 
 Schema: `database/migrations/V001__schema.sql`. Config: `config/settings.php`.
 
-**Area-specific conventions live in `.claude/rules/` — read the relevant one before working in that area:**
-`frontend.md` (Twig, translations, JS, a11y) · `backend.md` (routing, controllers, services) · `css-styling.md` (tokens, breakpoints) · `unit-testing.md` (TDD, shared-DB fixtures) · `database.md` (migrations, schema patterns) · `seo.md` (meta blocks, sitemap, hreflang).
+## Coding Standards (`.claude/rules/`)
+
+Detailed coding conventions are in `.claude/rules/` — autoloaded by Claude Code when editing matching file paths (see each file's `globs` frontmatter):
+
+- `.claude/rules/backend.md` — Slim 4 route registration order, controller render/flash/redirect patterns, static PDO models, services with dev fallbacks, sessions, config handling
+- `.claude/rules/frontend.md` — Twig layout inheritance, `t()` translations across all 5 language files, lang-prefixed links, no-build vanilla JS, accessibility requirements
+- `.claude/rules/css-styling.md` — Design tokens in `:root`, 768px/480px breakpoints, flat kebab-case naming with `--modifier` variants, focus/keyboard accessibility, inline SVG assets
+- `.claude/rules/unit-testing.md` — TDD, real Docker MySQL instead of mocks, `uniqid()`/`INSERT IGNORE` fixture patterns for the shared dev DB, test naming and assertion style
+- `.claude/rules/database.md` — `V0NN__` migration workflow (never edit applied ones), `*_t`/`lang_code` translation tables, idempotent seeds, prepared statements, WEDOS privilege caveats
+- `.claude/rules/seo.md` — `title`/`meta_desc` template blocks with DB overrides, canonical/hreflang via `Seo` service, sitemap registration for new routes, 404 rules, JSON-LD escaping
 
 ## Directory Structure
 
