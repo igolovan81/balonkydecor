@@ -22,6 +22,8 @@ docker compose up -d          # MySQL on 127.0.0.1:3306, db=balonkydecor, user=b
 php -S localhost:8080 -t www
 ```
 
+The `/start` Claude command runs the full local startup (MySQL + server + local migrations + smoke check); `/deploy` and `/verify` handle production (see Deployment).
+
 Schema: `database/migrations/V001__schema.sql`. Config: `config/settings.php`.
 
 ## Coding Standards (`.claude/rules/`)
