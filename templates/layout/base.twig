@@ -10,7 +10,7 @@
     <link rel="alternate" hreflang="{{ alt.lang }}" href="{{ alt.url }}">
     {% endfor %}
     <script type="application/ld+json">{{ organization_json_ld|raw }}</script>
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/style.css?v={{ asset_v('assets/css/style.css') }}">
     {% block head %}{% endblock %}
 </head>
 <body>

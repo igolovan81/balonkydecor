@@ -16,10 +16,17 @@ if (file_exists($prodConfig)) {
 $builder = new ContainerBuilder();
 $builder->addDefinitions([
     'settings' => $settings,
-    Twig::class => fn() => Twig::create(
-        __DIR__ . '/../templates',
-        ['cache' => false]   // production: __DIR__ . '/../tmp/twig_cache'
-    ),
+    Twig::class => function () {
+        $twig = Twig::create(
+            __DIR__ . '/../templates',
+            ['cache' => false]   // production: __DIR__ . '/../tmp/twig_cache'
+        );
+        $twig->getEnvironment()->addFunction(new \Twig\TwigFunction('asset_v', function (string $path) {
+            $full = __DIR__ . '/../www/' . ltrim($path, '/');
+            return file_exists($full) ? filemtime($full) : time();
+        }));
+        return $twig;
+    },
 ]);
 $container = $builder->build();
 

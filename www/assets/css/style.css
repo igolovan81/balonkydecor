@@ -135,7 +135,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 .gallery-album-name { margin-top: .6rem; font-family: var(--ui-font); font-size: .9rem; }
 .photo-grid { columns: 3; gap: 1rem; }
 .photo-item { display: block; margin-bottom: 1rem; break-inside: avoid; }
-.photo-item img { width: 100%; display: block; border-radius: 2px; }
+.photo-item img, .photo-item video { width: 100%; display: block; border-radius: 2px; }
 
 .pagination { display: flex; gap: .5rem; margin-top: 2rem; font-family: var(--ui-font); }
 .pagination a { padding: .4rem .8rem; border: 1px solid var(--border); text-decoration: none; color: var(--text); font-size: .85rem; }

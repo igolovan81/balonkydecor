@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Admin{% endblock %} — BalonkyDecor</title>
-    <link rel="stylesheet" href="/assets/css/style.css">
-    <link rel="stylesheet" href="/assets/css/admin.css">
+    <link rel="stylesheet" href="/assets/css/style.css?v={{ asset_v('assets/css/style.css') }}">
+    <link rel="stylesheet" href="/assets/css/admin.css?v={{ asset_v('assets/css/admin.css') }}">
     {% block head %}{% endblock %}
 </head>
 <body class="admin-body">
