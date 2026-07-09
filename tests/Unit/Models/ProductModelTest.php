@@ -21,6 +21,63 @@ class ProductModelTest extends TestCase
         $pdo->exec("INSERT IGNORE INTO product_t (product_id, lang_code, name) VALUES ({$id}, 'en', 'Test Product')");
     }
 
+    public function test_orphaned_images_finds_rows_with_missing_files(): void
+    {
+        $productId = $this->makeProduct();
+        ProductModel::addImage($productId, 'orphan-present.jpg');
+        ProductModel::addImage($productId, 'orphan-gone.jpg');
+        $dir = $this->makeUploadsDir(['orphan-present.jpg']);
+
+        $orphans   = ProductModel::orphanedImages($dir);
+        $filenames = array_column(
+            array_filter($orphans, fn ($r) => (int) $r['product_id'] === $productId),
+            'filename'
+        );
+        $this->assertSame(['orphan-gone.jpg'], $filenames);
+    }
+
+    // NB: cleanupOrphans() is global — in the shared dev DB it also removes other
+    // fixture rows whose files don't exist on disk (they're broken anyway).
+    public function test_cleanup_orphans_deletes_rows_and_promotes_new_primary(): void
+    {
+        $productId = $this->makeProduct();
+        ProductModel::addImage($productId, 'primary-gone.jpg');          // first image → primary
+        ProductModel::addImage($productId, 'secondary-present.jpg');
+        $dir = $this->makeUploadsDir(['secondary-present.jpg', 'thumb_primary-gone.jpg']);
+
+        $report = ProductModel::cleanupOrphans($dir);
+
+        $this->assertContains('primary-gone.jpg', $report['deleted_images']);
+        $this->assertContains($productId, array_map('intval', $report['promoted_primaries']));
+        $pdo  = Database::getConnection();
+        $rows = $pdo->prepare('SELECT filename, is_primary FROM product_images WHERE product_id = ?');
+        $rows->execute([$productId]);
+        $left = $rows->fetchAll();
+        $this->assertCount(1, $left);
+        $this->assertSame('secondary-present.jpg', $left[0]['filename']);
+        $this->assertSame(1, (int) $left[0]['is_primary']);
+        $this->assertFileDoesNotExist($dir . '/thumb_primary-gone.jpg');
+    }
+
+    private function makeProduct(): int
+    {
+        $pdo = Database::getConnection();
+        $sku = 'ORPHAN-' . strtoupper(uniqid());
+        $pdo->prepare('INSERT INTO products (category_id, sku, price) VALUES (?, ?, 9.99)')
+            ->execute([self::$categoryId, $sku]);
+        return (int) $pdo->lastInsertId();
+    }
+
+    private function makeUploadsDir(array $files): string
+    {
+        $dir = sys_get_temp_dir() . '/product-cleanup-test-' . uniqid();
+        mkdir($dir, 0777, true);
+        foreach ($files as $file) {
+            file_put_contents($dir . '/' . $file, 'x');
+        }
+        return $dir;
+    }
+
     public function test_all_active_returns_array(): void
     {
         $result = ProductModel::allActive('en');

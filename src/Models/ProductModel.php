@@ -163,6 +163,57 @@ class ProductModel
             ->execute([$productId, $filename, $isPrimary ? 1 : 0]);
     }
 
+    /** Find product_images rows whose files no longer exist in $uploadsDir. */
+    public static function orphanedImages(string $uploadsDir): array
+    {
+        $rows = Database::getConnection()
+            ->query('SELECT id, product_id, filename, is_primary FROM product_images ORDER BY product_id, id')
+            ->fetchAll();
+        return array_values(array_filter(
+            $rows,
+            fn (array $row) => !is_file($uploadsDir . '/' . $row['filename'])
+        ));
+    }
+
+    /**
+     * Delete orphaned product_images rows (plus leftover thumb_ files). Products left
+     * without a primary image get their first remaining image promoted.
+     * Returns ['deleted_images' => filenames, 'promoted_primaries' => product ids].
+     */
+    public static function cleanupOrphans(string $uploadsDir): array
+    {
+        $pdo     = Database::getConnection();
+        $orphans = self::orphanedImages($uploadsDir);
+        $report  = ['deleted_images' => [], 'promoted_primaries' => []];
+
+        $deleteRow = $pdo->prepare('DELETE FROM product_images WHERE id = ?');
+        $affected  = [];
+        foreach ($orphans as $row) {
+            $deleteRow->execute([$row['id']]);
+            $thumb = $uploadsDir . '/thumb_' . $row['filename'];
+            if (is_file($thumb)) {
+                unlink($thumb);
+            }
+            $report['deleted_images'][] = $row['filename'];
+            $affected[(int) $row['product_id']] = true;
+        }
+
+        $hasPrimary = $pdo->prepare('SELECT COUNT(*) FROM product_images WHERE product_id = ? AND is_primary = 1');
+        $promote    = $pdo->prepare(
+            'UPDATE product_images SET is_primary = 1 WHERE product_id = ? ORDER BY sort_order, id LIMIT 1'
+        );
+        foreach (array_keys($affected) as $productId) {
+            $hasPrimary->execute([$productId]);
+            if ((int) $hasPrimary->fetchColumn() === 0) {
+                $promote->execute([$productId]);
+                if ($promote->rowCount() > 0) {
+                    $report['promoted_primaries'][] = $productId;
+                }
+            }
+        }
+        return $report;
+    }
+
     public static function deleteImage(int $imageId): ?string
     {
         $pdo  = Database::getConnection();
