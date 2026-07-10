@@ -55,9 +55,13 @@ class ProductModel
         return $pdo->query(
             'SELECT p.*,
                     (SELECT filename FROM product_images WHERE product_id = p.id AND is_primary = 1 LIMIT 1) AS primary_image,
-                    ct.name AS category_name
+                    ct.name AS category_name,
+                    creator.email AS created_by_email,
+                    updater.email AS updated_by_email
              FROM products p
              LEFT JOIN category_t ct ON ct.category_id = p.category_id AND ct.lang_code = \'cs\'
+             LEFT JOIN users creator ON creator.id = p.created_by
+             LEFT JOIN users updater ON updater.id = p.updated_by
              ORDER BY p.id DESC'
         )->fetchAll();
     }
@@ -65,7 +69,15 @@ class ProductModel
     public static function findById(int $id): ?array
     {
         $pdo  = Database::getConnection();
-        $stmt = $pdo->prepare('SELECT * FROM products WHERE id = ? LIMIT 1');
+        $stmt = $pdo->prepare(
+            'SELECT p.*,
+                    creator.email AS created_by_email,
+                    updater.email AS updated_by_email
+             FROM products p
+             LEFT JOIN users creator ON creator.id = p.created_by
+             LEFT JOIN users updater ON updater.id = p.updated_by
+             WHERE p.id = ? LIMIT 1'
+        );
         $stmt->execute([$id]);
         $product = $stmt->fetch();
         if (!$product) return null;
@@ -75,14 +87,14 @@ class ProductModel
         return $product;
     }
 
-    public static function create(array $data): int
+    public static function create(array $data, int $userId): int
     {
         $pdo       = Database::getConnection();
         $stockType = ($data['stock_type'] ?? '') === 'limited' ? 'limited' : 'unlimited';
         $stockQty  = $stockType === 'limited' ? max(0, (int) ($data['stock_qty'] ?? 0)) : 0;
         $stmt = $pdo->prepare(
-            'INSERT INTO products (sku, price, category_id, is_active, stock_type, stock_qty, sort_order)
-             VALUES (:sku, :price, :category_id, :is_active, :stock_type, :stock_qty, 0)'
+            'INSERT INTO products (sku, price, category_id, is_active, stock_type, stock_qty, sort_order, created_by, updated_by)
+             VALUES (:sku, :price, :category_id, :is_active, :stock_type, :stock_qty, 0, :created_by, :updated_by)'
         );
         $stmt->execute([
             'sku'         => $data['sku'],
@@ -91,18 +103,20 @@ class ProductModel
             'is_active'   => (int) ($data['is_active'] ?? 1),
             'stock_type'  => $stockType,
             'stock_qty'   => $stockQty,
+            'created_by'  => $userId,
+            'updated_by'  => $userId,
         ]);
         return (int) $pdo->lastInsertId();
     }
 
-    public static function update(int $id, array $data): void
+    public static function update(int $id, array $data, int $userId): void
     {
         $pdo       = Database::getConnection();
         $stockType = ($data['stock_type'] ?? '') === 'limited' ? 'limited' : 'unlimited';
         $stockQty  = $stockType === 'limited' ? max(0, (int) ($data['stock_qty'] ?? 0)) : 0;
         $stmt = $pdo->prepare(
             'UPDATE products SET sku = :sku, price = :price, category_id = :category_id, is_active = :is_active,
-                                  stock_type = :stock_type, stock_qty = :stock_qty WHERE id = :id'
+                                  stock_type = :stock_type, stock_qty = :stock_qty, updated_by = :updated_by WHERE id = :id'
         );
         $stmt->execute([
             'sku'         => $data['sku'],
@@ -111,6 +125,7 @@ class ProductModel
             'is_active'   => (int) ($data['is_active'] ?? 1),
             'stock_type'  => $stockType,
             'stock_qty'   => $stockQty,
+            'updated_by'  => $userId,
             'id'          => $id,
         ]);
     }

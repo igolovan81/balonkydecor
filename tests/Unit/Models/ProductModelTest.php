@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 class ProductModelTest extends TestCase
 {
     private static int $categoryId;
+    private static int $userId;
 
     public static function setUpBeforeClass(): void
     {
@@ -19,6 +20,12 @@ class ProductModelTest extends TestCase
         $pdo->exec("INSERT IGNORE INTO products (category_id, sku, price) VALUES (" . self::$categoryId . ", 'TEST-SKU-001', 9.99)");
         $id = $pdo->query("SELECT id FROM products WHERE sku='TEST-SKU-001'")->fetch()['id'];
         $pdo->exec("INSERT IGNORE INTO product_t (product_id, lang_code, name) VALUES ({$id}, 'en', 'Test Product')");
+
+        $pdo->exec("INSERT IGNORE INTO users (email, password_hash, role)
+                    VALUES ('product-audit-test@example.com', 'x', 'editor')");
+        self::$userId = (int) $pdo->query(
+            "SELECT id FROM users WHERE email='product-audit-test@example.com'"
+        )->fetch()['id'];
     }
 
     public function test_orphaned_images_finds_rows_with_missing_files(): void
@@ -127,7 +134,7 @@ class ProductModelTest extends TestCase
             'category_id' => self::$categoryId,
             'stock_type'  => 'limited',
             'stock_qty'   => 5,
-        ]);
+        ], self::$userId);
         $product = ProductModel::findById($id);
         $this->assertSame('limited', $product['stock_type']);
         $this->assertSame(5, (int) $product['stock_qty']);
@@ -139,7 +146,7 @@ class ProductModelTest extends TestCase
             'sku'         => 'TEST-STOCK-' . uniqid(),
             'price'       => 19.99,
             'category_id' => self::$categoryId,
-        ]);
+        ], self::$userId);
         $product = ProductModel::findById($id);
         $this->assertSame('unlimited', $product['stock_type']);
         $this->assertSame(0, (int) $product['stock_qty']);
@@ -153,7 +160,7 @@ class ProductModelTest extends TestCase
             'category_id' => self::$categoryId,
             'stock_type'  => 'limited',
             'stock_qty'   => -5,
-        ]);
+        ], self::$userId);
         $product = ProductModel::findById($id);
         $this->assertSame(0, (int) $product['stock_qty']);
     }
@@ -166,7 +173,7 @@ class ProductModelTest extends TestCase
             'category_id' => self::$categoryId,
             'stock_type'  => 'unlimited',
             'stock_qty'   => 42,
-        ]);
+        ], self::$userId);
         $product = ProductModel::findById($id);
         $this->assertSame('unlimited', $product['stock_type']);
         $this->assertSame(0, (int) $product['stock_qty']);
@@ -178,14 +185,14 @@ class ProductModelTest extends TestCase
             'sku'         => 'TEST-STOCK-' . uniqid(),
             'price'       => 9.99,
             'category_id' => self::$categoryId,
-        ]);
+        ], self::$userId);
         ProductModel::update($id, [
             'sku'         => 'TEST-STOCK-UPDATED-' . uniqid(),
             'price'       => 9.99,
             'category_id' => self::$categoryId,
             'stock_type'  => 'limited',
             'stock_qty'   => 3,
-        ]);
+        ], self::$userId);
         $product = ProductModel::findById($id);
         $this->assertSame('limited', $product['stock_type']);
         $this->assertSame(3, (int) $product['stock_qty']);
@@ -197,7 +204,7 @@ class ProductModelTest extends TestCase
             'sku'         => 'TEST-IMG-' . uniqid(),
             'price'       => 9.99,
             'category_id' => self::$categoryId,
-        ]);
+        ], self::$userId);
 
         ProductModel::addImage($id, 'first-upload.jpg', false);
 
@@ -212,7 +219,7 @@ class ProductModelTest extends TestCase
             'sku'         => 'TEST-IMG-' . uniqid(),
             'price'       => 9.99,
             'category_id' => self::$categoryId,
-        ]);
+        ], self::$userId);
 
         ProductModel::addImage($id, 'main.jpg', true);
         ProductModel::addImage($id, 'second.jpg', false);
@@ -224,5 +231,62 @@ class ProductModelTest extends TestCase
         }
         $this->assertSame(1, $byFilename['main.jpg']);
         $this->assertSame(0, $byFilename['second.jpg']);
+    }
+
+    public function test_create_records_creator_and_updater(): void
+    {
+        $id = ProductModel::create([
+            'sku'         => 'TEST-AUDIT-' . uniqid(),
+            'price'       => 9.99,
+            'category_id' => self::$categoryId,
+        ], self::$userId);
+
+        $product = ProductModel::findById($id);
+        $this->assertSame(self::$userId, (int) $product['created_by']);
+        $this->assertSame(self::$userId, (int) $product['updated_by']);
+        $this->assertSame('product-audit-test@example.com', $product['created_by_email']);
+        $this->assertSame('product-audit-test@example.com', $product['updated_by_email']);
+        $this->assertNotEmpty($product['updated_at']);
+    }
+
+    public function test_update_changes_updated_by_but_not_created_by(): void
+    {
+        $id = ProductModel::create([
+            'sku'         => 'TEST-AUDIT-' . uniqid(),
+            'price'       => 9.99,
+            'category_id' => self::$categoryId,
+        ], self::$userId);
+
+        $pdo = Database::getConnection();
+        $pdo->exec("INSERT IGNORE INTO users (email, password_hash, role)
+                    VALUES ('product-audit-editor2@example.com', 'x', 'editor')");
+        $secondUserId = (int) $pdo->query(
+            "SELECT id FROM users WHERE email='product-audit-editor2@example.com'"
+        )->fetch()['id'];
+
+        ProductModel::update($id, [
+            'sku'         => 'TEST-AUDIT-UPDATED-' . uniqid(),
+            'price'       => 9.99,
+            'category_id' => self::$categoryId,
+        ], $secondUserId);
+
+        $product = ProductModel::findById($id);
+        $this->assertSame(self::$userId, (int) $product['created_by']);
+        $this->assertSame($secondUserId, (int) $product['updated_by']);
+    }
+
+    public function test_all_includes_audit_columns(): void
+    {
+        ProductModel::create([
+            'sku'         => 'TEST-AUDIT-' . uniqid(),
+            'price'       => 9.99,
+            'category_id' => self::$categoryId,
+        ], self::$userId);
+
+        $rows = ProductModel::all();
+        $this->assertNotEmpty($rows);
+        foreach (['created_by_email', 'updated_by_email', 'updated_at'] as $key) {
+            $this->assertArrayHasKey($key, $rows[0]);
+        }
     }
 }
