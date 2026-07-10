@@ -27,11 +27,12 @@ class ServiceController extends AdminBaseController
 
     public function createSubmit(Request $request, Response $response, array $args): Response
     {
-        $body = (array) $request->getParsedBody();
-        $id   = ServiceModel::create([
+        $body   = (array) $request->getParsedBody();
+        $userId = (int) ($_SESSION['admin_user']['id'] ?? 0);
+        $id     = ServiceModel::create([
             'price_from' => trim($body['price_from'] ?? ''),
             'sort_order' => (int) ($body['sort_order'] ?? 0),
-        ]);
+        ], $userId);
         $translations = \App\Services\Translator::autoFill(
             $body['t'] ?? [],
             $request->getAttribute('admin_lang', 'cs'),
@@ -39,7 +40,6 @@ class ServiceController extends AdminBaseController
             self::TRANSLATABLE_FIELDS
         );
         ServiceModel::setTranslations($id, $translations);
-        $userId = (int) ($_SESSION['admin_user']['id'] ?? 0);
         \App\Services\Notifier::notify(
             'service', $id, $this->serviceLabel($translations, $id),
             'created', $userId, $_SESSION['admin_user']['email'] ?? ''
@@ -62,15 +62,15 @@ class ServiceController extends AdminBaseController
 
     public function editSubmit(Request $request, Response $response, array $args): Response
     {
-        $id   = (int) $args['id'];
-        $body = (array) $request->getParsedBody();
+        $id     = (int) $args['id'];
+        $body   = (array) $request->getParsedBody();
+        $userId = (int) ($_SESSION['admin_user']['id'] ?? 0);
         ServiceModel::update($id, [
             'price_from' => trim($body['price_from'] ?? ''),
             'sort_order' => (int) ($body['sort_order'] ?? 0),
-        ]);
+        ], $userId);
         $translations = $body['t'] ?? [];
         ServiceModel::setTranslations($id, $translations);
-        $userId = (int) ($_SESSION['admin_user']['id'] ?? 0);
         \App\Services\Notifier::notify(
             'service', $id, $this->serviceLabel($translations, $id),
             'updated', $userId, $_SESSION['admin_user']['email'] ?? ''
