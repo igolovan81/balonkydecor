@@ -35,7 +35,21 @@ class ProductController extends AdminBaseController
         $body   = (array) $request->getParsedBody();
         $userId = (int) ($_SESSION['admin_user']['id'] ?? 0);
         $sku    = trim($body['sku'] ?? '');
-        $id     = ProductModel::create([
+        if ($sku === '') {
+            $nameForSku = trim($body['t']['en']['name'] ?? '');
+            if ($nameForSku === '') {
+                foreach (self::LANGS as $lang) {
+                    $candidate = trim($body['t'][$lang]['name'] ?? '');
+                    if ($candidate !== '') {
+                        $nameForSku = $candidate;
+                        break;
+                    }
+                }
+            }
+            $sku = ProductModel::slugify($nameForSku);
+        }
+        $sku = ProductModel::uniqueSku($sku);
+        $id  = ProductModel::create([
             'sku'         => $sku,
             'price'       => $body['price'] ?? '0.00',
             'category_id' => $body['category_id'] ?? 1,
