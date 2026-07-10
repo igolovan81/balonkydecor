@@ -62,4 +62,42 @@ class OrderModelTest extends TestCase
     {
         $this->assertNull(OrderModel::findByNumber('BD-99999999-00000'));
     }
+
+    public function test_create_persists_subtype_id_and_name_snapshot(): void
+    {
+        $pdo = \App\Models\Database::getConnection();
+        $pdo->exec("INSERT IGNORE INTO categories (slug) VALUES ('test-order-subtype')");
+        $catId = $pdo->query("SELECT id FROM categories WHERE slug='test-order-subtype'")->fetch()['id'];
+
+        $sku = 'ORDER-SUB-' . uniqid();
+        $pdo->prepare('INSERT INTO products (category_id, sku, price) VALUES (?, ?, 9.99)')
+            ->execute([$catId, $sku]);
+        $productId = (int) $pdo->lastInsertId();
+
+        $pdo->prepare('INSERT INTO product_subtypes (product_id, price, sort_order) VALUES (?, ?, 0)')
+            ->execute([$productId, '1.90']);
+        $subtypeId = (int) $pdo->lastInsertId();
+
+        $orderNumber = OrderModel::create(
+            [
+                'customer_name'  => 'Subtype Buyer',
+                'customer_email' => 'sub@example.com',
+                'customer_phone' => '+420000000000',
+                'pickup_date'    => '2026-12-31',
+                'notes'          => '',
+            ],
+            [
+                $sku . ':' . $subtypeId => [
+                    'sku' => $sku, 'subtype_id' => $subtypeId, 'subtype_name' => 'Makarons',
+                    'qty' => 2, 'name' => 'Test — Makarons', 'price' => '1.90', 'subtotal' => '3.80',
+                ],
+            ],
+            '3.80'
+        );
+
+        $order = OrderModel::findByNumber($orderNumber);
+        $this->assertSame($subtypeId, (int) $order['items'][0]['subtype_id']);
+        $this->assertSame('Makarons', $order['items'][0]['subtype_name_snapshot']);
+        $this->assertSame($productId, (int) $order['items'][0]['product_id']);
+    }
 }

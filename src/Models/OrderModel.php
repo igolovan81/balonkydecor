@@ -30,11 +30,16 @@ class OrderModel
             ->execute([$orderNumber, $id]);
 
         $itemStmt = $pdo->prepare('
-            INSERT INTO order_items (order_id, product_id, quantity, unit_price, product_name_snapshot)
-            VALUES (?, (SELECT id FROM products WHERE sku = ? LIMIT 1), ?, ?, ?)
+            INSERT INTO order_items
+                (order_id, product_id, subtype_id, quantity, unit_price, product_name_snapshot, subtype_name_snapshot)
+            VALUES (?, (SELECT id FROM products WHERE sku = ? LIMIT 1), ?, ?, ?, ?, ?)
         ');
-        foreach ($cartItems as $sku => $item) {
-            $itemStmt->execute([$id, $sku, $item['qty'], $item['price'], $item['name']]);
+        foreach ($cartItems as $key => $item) {
+            $sku = $item['sku'] ?? $key;
+            $itemStmt->execute([
+                $id, $sku, $item['subtype_id'] ?? null,
+                $item['qty'], $item['price'], $item['name'], $item['subtype_name'] ?? null,
+            ]);
         }
 
         $pdo->commit();
