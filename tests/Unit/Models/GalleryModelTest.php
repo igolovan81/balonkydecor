@@ -7,6 +7,8 @@ use PHPUnit\Framework\TestCase;
 
 class GalleryModelTest extends TestCase
 {
+    private static int $userId;
+
     public static function setUpBeforeClass(): void
     {
         $pdo = Database::getConnection();
@@ -15,6 +17,12 @@ class GalleryModelTest extends TestCase
         $id  = $row['id'];
         $pdo->exec("INSERT IGNORE INTO gallery_album_t (album_id, lang_code, name)
                     VALUES ({$id}, 'en', 'Test Album')");
+
+        $pdo->exec("INSERT IGNORE INTO users (email, password_hash, role)
+                    VALUES ('gallery-audit-test@example.com', 'x', 'editor')");
+        self::$userId = (int) $pdo->query(
+            "SELECT id FROM users WHERE email='gallery-audit-test@example.com'"
+        )->fetch()['id'];
     }
 
     public function test_albums_returns_array(): void
@@ -34,6 +42,46 @@ class GalleryModelTest extends TestCase
     public function test_album_returns_null_for_unknown(): void
     {
         $this->assertNull(GalleryModel::album('no-such-album', 'en'));
+    }
+
+    public function test_create_album_records_creator_and_updater(): void
+    {
+        $id    = GalleryModel::createAlbum(['slug' => 'audit-album-' . uniqid(), 'sort_order' => 1], self::$userId);
+        $album = GalleryModel::findAlbumById($id);
+        $this->assertSame(self::$userId, (int) $album['created_by']);
+        $this->assertSame(self::$userId, (int) $album['updated_by']);
+        $this->assertSame('gallery-audit-test@example.com', $album['created_by_email']);
+        $this->assertSame('gallery-audit-test@example.com', $album['updated_by_email']);
+        $this->assertNotEmpty($album['created_at']);
+        $this->assertNotEmpty($album['updated_at']);
+    }
+
+    public function test_update_album_changes_updated_by_but_not_created_by(): void
+    {
+        $id = GalleryModel::createAlbum(['slug' => 'audit-album-' . uniqid(), 'sort_order' => 1], self::$userId);
+
+        $pdo = Database::getConnection();
+        $pdo->exec("INSERT IGNORE INTO users (email, password_hash, role)
+                    VALUES ('gallery-audit-editor2@example.com', 'x', 'editor')");
+        $secondUserId = (int) $pdo->query(
+            "SELECT id FROM users WHERE email='gallery-audit-editor2@example.com'"
+        )->fetch()['id'];
+
+        GalleryModel::updateAlbum($id, ['slug' => 'audit-album-updated-' . uniqid(), 'sort_order' => 2], $secondUserId);
+
+        $album = GalleryModel::findAlbumById($id);
+        $this->assertSame(self::$userId, (int) $album['created_by']);
+        $this->assertSame($secondUserId, (int) $album['updated_by']);
+    }
+
+    public function test_all_albums_includes_audit_columns(): void
+    {
+        GalleryModel::createAlbum(['slug' => 'audit-album-' . uniqid(), 'sort_order' => 1], self::$userId);
+        $rows = GalleryModel::allAlbums();
+        $this->assertNotEmpty($rows);
+        foreach (['created_by_email', 'created_at', 'updated_by_email', 'updated_at'] as $key) {
+            $this->assertArrayHasKey($key, $rows[0]);
+        }
     }
 
     public function test_set_album_translations_stores_meta_fields(): void

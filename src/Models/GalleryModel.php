@@ -130,13 +130,29 @@ class GalleryModel
     public static function allAlbums(): array
     {
         $pdo = Database::getConnection();
-        return $pdo->query('SELECT * FROM gallery_albums ORDER BY sort_order, id')->fetchAll();
+        return $pdo->query(
+            'SELECT a.*,
+                    creator.email AS created_by_email,
+                    updater.email AS updated_by_email
+             FROM gallery_albums a
+             LEFT JOIN users creator ON creator.id = a.created_by
+             LEFT JOIN users updater ON updater.id = a.updated_by
+             ORDER BY a.sort_order, a.id'
+        )->fetchAll();
     }
 
     public static function findAlbumById(int $id): ?array
     {
         $pdo  = Database::getConnection();
-        $stmt = $pdo->prepare('SELECT * FROM gallery_albums WHERE id = ? LIMIT 1');
+        $stmt = $pdo->prepare(
+            'SELECT a.*,
+                    creator.email AS created_by_email,
+                    updater.email AS updated_by_email
+             FROM gallery_albums a
+             LEFT JOIN users creator ON creator.id = a.created_by
+             LEFT JOIN users updater ON updater.id = a.updated_by
+             WHERE a.id = ? LIMIT 1'
+        );
         $stmt->execute([$id]);
         $album = $stmt->fetch();
         if (!$album) return null;
@@ -146,19 +162,19 @@ class GalleryModel
         return $album;
     }
 
-    public static function createAlbum(array $data): int
+    public static function createAlbum(array $data, int $userId): int
     {
         $pdo  = Database::getConnection();
-        $stmt = $pdo->prepare('INSERT INTO gallery_albums (slug, sort_order) VALUES (?, ?)');
-        $stmt->execute([$data['slug'], (int) ($data['sort_order'] ?? 0)]);
+        $stmt = $pdo->prepare('INSERT INTO gallery_albums (slug, sort_order, created_by, updated_by) VALUES (?, ?, ?, ?)');
+        $stmt->execute([$data['slug'], (int) ($data['sort_order'] ?? 0), $userId, $userId]);
         return (int) $pdo->lastInsertId();
     }
 
-    public static function updateAlbum(int $id, array $data): void
+    public static function updateAlbum(int $id, array $data, int $userId): void
     {
         $pdo  = Database::getConnection();
-        $stmt = $pdo->prepare('UPDATE gallery_albums SET slug = ?, sort_order = ? WHERE id = ?');
-        $stmt->execute([$data['slug'], (int) ($data['sort_order'] ?? 0), $id]);
+        $stmt = $pdo->prepare('UPDATE gallery_albums SET slug = ?, sort_order = ?, updated_by = ? WHERE id = ?');
+        $stmt->execute([$data['slug'], (int) ($data['sort_order'] ?? 0), $userId, $id]);
     }
 
     public static function deleteAlbum(int $id): void
