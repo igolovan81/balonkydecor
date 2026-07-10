@@ -232,11 +232,19 @@ class ProductModel
     public static function deleteImage(int $imageId): ?string
     {
         $pdo  = Database::getConnection();
-        $stmt = $pdo->prepare('SELECT filename FROM product_images WHERE id = ?');
+        $stmt = $pdo->prepare('SELECT product_id, filename, is_primary FROM product_images WHERE id = ?');
         $stmt->execute([$imageId]);
         $row  = $stmt->fetch();
         if (!$row) return null;
+
         $pdo->prepare('DELETE FROM product_images WHERE id = ?')->execute([$imageId]);
+
+        if ((int) $row['is_primary'] === 1) {
+            $pdo->prepare(
+                'UPDATE product_images SET is_primary = 1 WHERE product_id = ? ORDER BY sort_order, id LIMIT 1'
+            )->execute([$row['product_id']]);
+        }
+
         return $row['filename'];
     }
 }

@@ -233,6 +233,31 @@ class ProductModelTest extends TestCase
         $this->assertSame(0, $byFilename['second.jpg']);
     }
 
+    public function test_delete_image_promotes_new_primary_when_primary_is_deleted(): void
+    {
+        $id = ProductModel::create([
+            'sku'         => 'TEST-IMG-' . uniqid(),
+            'price'       => 9.99,
+            'category_id' => self::$categoryId,
+        ], self::$userId);
+
+        ProductModel::addImage($id, 'first.jpg', false);  // becomes primary
+        ProductModel::addImage($id, 'second.jpg', false);
+
+        $product   = ProductModel::findById($id);
+        $primaryId = array_values(array_filter(
+            $product['images'],
+            fn ($img) => (int) $img['is_primary'] === 1
+        ))[0]['id'];
+
+        ProductModel::deleteImage((int) $primaryId);
+
+        $remaining = ProductModel::findById($id)['images'];
+        $this->assertCount(1, $remaining);
+        $this->assertSame('second.jpg', $remaining[0]['filename']);
+        $this->assertSame(1, (int) $remaining[0]['is_primary']);
+    }
+
     public function test_create_records_creator_and_updater(): void
     {
         $id = ProductModel::create([
