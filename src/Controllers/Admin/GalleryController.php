@@ -29,8 +29,12 @@ class GalleryController extends AdminBaseController
 
     public function createSubmit(Request $request, Response $response, array $args): Response
     {
-        $body = (array) $request->getParsedBody();
-        $id   = GalleryModel::createAlbum(['slug' => trim($body['slug'] ?? ''), 'sort_order' => (int) ($body['sort_order'] ?? 0)]);
+        $body   = (array) $request->getParsedBody();
+        $userId = (int) ($_SESSION['admin_user']['id'] ?? 0);
+        $id     = GalleryModel::createAlbum(
+            ['slug' => trim($body['slug'] ?? ''), 'sort_order' => (int) ($body['sort_order'] ?? 0)],
+            $userId
+        );
         GalleryModel::setAlbumTranslations($id, $body['t'] ?? []);
         $this->handleImageUploads($request, $id);
         $this->handleVideoUploads($request, $id);
@@ -52,9 +56,14 @@ class GalleryController extends AdminBaseController
 
     public function editSubmit(Request $request, Response $response, array $args): Response
     {
-        $id   = (int) $args['id'];
-        $body = (array) $request->getParsedBody();
-        GalleryModel::updateAlbum($id, ['slug' => trim($body['slug'] ?? ''), 'sort_order' => (int) ($body['sort_order'] ?? 0)]);
+        $id     = (int) $args['id'];
+        $body   = (array) $request->getParsedBody();
+        $userId = (int) ($_SESSION['admin_user']['id'] ?? 0);
+        GalleryModel::updateAlbum(
+            $id,
+            ['slug' => trim($body['slug'] ?? ''), 'sort_order' => (int) ($body['sort_order'] ?? 0)],
+            $userId
+        );
         GalleryModel::setAlbumTranslations($id, $body['t'] ?? []);
         $this->handleImageUploads($request, $id);
         $this->handleVideoUploads($request, $id);
