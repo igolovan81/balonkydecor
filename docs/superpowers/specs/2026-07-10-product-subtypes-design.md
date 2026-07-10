@@ -164,16 +164,35 @@ taken from the POST body directly.
 
 ### `Admin\ProductController::createSubmit()` / `editSubmit()`
 
-Parse `$body['subtypes'] ?? []` (array of `{price, t: {lang: name}}`). For
-each row, run its `t` array through the existing
-`Translator::autoFill($row['t'], $adminLang, self::LANGS, ['name'])` (same
-helper `createSubmit` already applies to product-level translations) so the
-admin only has to type the subtype name once, in their own language — this
-avoids building a second set of per-row, per-language "Translate" buttons in
-the UI. Then call `ProductModel::setSubtypes($id, $subtypes)` after the
-existing `setTranslations()` call. Same handling in both `createSubmit` and
-`editSubmit` (subtypes always auto-fill, unlike product-level translations
-where `editSubmit` relies on the manual per-lang-tab translate buttons).
+The form posts `subtypes[{i}][name]` (single string, admin's current
+language) and `subtypes[{i}][price]` per row. A new private helper,
+`buildSubtypes(array $rows, string $adminLang): array`, converts that into
+the shape `ProductModel::setSubtypes()` expects:
+
+```php
+private function buildSubtypes(array $rows, string $adminLang): array
+{
+    $subtypes = [];
+    foreach ($rows as $row) {
+        $name = trim($row['name'] ?? '');
+        if ($name === '') continue;
+        $t = \App\Services\Translator::autoFill(
+            [$adminLang => ['name' => $name]],
+            $adminLang, self::LANGS, ['name']
+        );
+        $subtypes[] = ['price' => $row['price'] ?? '0.00', 't' => array_map(
+            fn ($fields) => $fields['name'] ?? '', $t
+        )];
+    }
+    return $subtypes;
+}
+```
+
+Both `createSubmit` and `editSubmit` call
+`ProductModel::setSubtypes($id, $this->buildSubtypes($body['subtypes'] ?? [], $adminLang))`
+after the existing `setTranslations()` call — subtypes always auto-fill in
+both actions (unlike product-level translations, where `editSubmit` relies
+on the manual per-lang-tab translate buttons instead).
 
 ## Public UI
 
@@ -208,18 +227,27 @@ via `Cart::add()`.
 
 ### `templates/admin/products/form.twig`
 
-New "Subtypes" section in `product-form-main`, after the translations block:
+New "Subtypes" section in `product-form-main`, after the translations block
+(**outside** the per-language `.lang-tabs`/`.lang-panel` block — see below
+for why one field is enough).
 
-- A table/list of subtype rows. Each row: a price input
-  (`subtypes[{i}][price]`) and, inside each existing `.lang-panel`, a name
-  input (`subtypes[{i}][t][{lang}][name]`) — reusing the current lang-tab
-  switcher so subtype names live in the same per-language panels as the
-  product name/description, not a separate tab system.
+- A list of subtype rows, each with exactly two inputs: a name text input
+  (`subtypes[{i}][name]`) and a price number input (`subtypes[{i}][price]`),
+  plus a "Remove" button. There is no per-language name field and no
+  translate button on a row — the name is typed once, in the admin's
+  current language (`admin_lang`), and the controller auto-fills the other
+  4 languages server-side on save (see Controller changes below). This is
+  simpler than reusing the product-level lang-tab UI, which would require
+  synchronizing one row across 5 separate panels for no benefit, since
+  subtypes never need manual per-language review the way product
+  descriptions do.
 - "+ Add subtype" button (JS) clones a hidden `<template>` row and appends it
-  with the next row index; each row has a "Remove" button that removes it
-  from the DOM (no server round-trip — the whole set is resubmitted on save).
-- Existing subtypes (`product.subtypes` from `findById`) are rendered as
-  pre-filled rows on the edit form.
+  with the next row index; each row's "Remove" button removes it from the
+  DOM (no server round-trip — the whole set is resubmitted on save).
+- Existing subtypes (`product.subtypes` from `findById`, each already
+  resolved to `{id, price, sort_order, t: {lang_code: name}}`) are rendered
+  server-side as pre-filled rows on the edit form, using
+  `subtype.t[admin_lang]` as the name field's value.
 
 ### `ProductController`
 
