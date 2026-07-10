@@ -127,6 +127,50 @@ class ProductModelTest extends TestCase
         $this->assertSame('Best test product in town.', $translations['en']['meta_desc']);
     }
 
+    public function test_set_subtypes_creates_and_returns_translated_rows(): void
+    {
+        $productId = $this->makeProduct();
+        ProductModel::setSubtypes($productId, [
+            ['price' => '1.90', 't' => ['cs' => 'Makarons', 'en' => 'Macarons']],
+            ['price' => '3.40', 't' => ['cs' => 'Chrom', 'en' => 'Chrome']],
+        ]);
+
+        $product = ProductModel::findById($productId);
+        $this->assertCount(2, $product['subtypes']);
+        $this->assertSame('1.90', $product['subtypes'][0]['price']);
+        $this->assertSame('Makarons', $product['subtypes'][0]['t']['cs']);
+        $this->assertSame('Chrome', $product['subtypes'][1]['t']['en']);
+    }
+
+    public function test_set_subtypes_replaces_existing_rows(): void
+    {
+        $productId = $this->makeProduct();
+        ProductModel::setSubtypes($productId, [
+            ['price' => '1.00', 't' => ['cs' => 'A']],
+            ['price' => '2.00', 't' => ['cs' => 'B']],
+        ]);
+        ProductModel::setSubtypes($productId, [
+            ['price' => '3.00', 't' => ['cs' => 'C']],
+        ]);
+
+        $subtypes = ProductModel::getSubtypes($productId);
+        $this->assertCount(1, $subtypes);
+        $this->assertSame('C', $subtypes[0]['t']['cs']);
+    }
+
+    public function test_set_subtypes_skips_rows_with_no_names(): void
+    {
+        $productId = $this->makeProduct();
+        ProductModel::setSubtypes($productId, [
+            ['price' => '1.00', 't' => ['cs' => '', 'en' => '']],
+            ['price' => '2.00', 't' => ['cs' => 'Valid']],
+        ]);
+
+        $subtypes = ProductModel::getSubtypes($productId);
+        $this->assertCount(1, $subtypes);
+        $this->assertSame('Valid', $subtypes[0]['t']['cs']);
+    }
+
     public function test_slugify_converts_name_to_kebab_case(): void
     {
         $this->assertSame('latex-balloons-kitten-50-pcs', ProductModel::slugify('Latex balloons kitten 50 pcs'));

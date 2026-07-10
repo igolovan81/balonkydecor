@@ -89,6 +89,7 @@ class ProductModel
         $imgs = $pdo->prepare('SELECT * FROM product_images WHERE product_id = ? ORDER BY sort_order, id');
         $imgs->execute([$id]);
         $product['images'] = $imgs->fetchAll();
+        $product['subtypes'] = self::getSubtypes($id);
         return $product;
     }
 
@@ -188,6 +189,52 @@ class ProductModel
         foreach ($translations as $lang => $t) {
             if (empty($t['name'])) continue;
             $stmt->execute([$id, $lang, $t['name'], $t['description'] ?? '', $t['meta_title'] ?? null, $t['meta_desc'] ?? null]);
+        }
+    }
+
+    public static function getSubtypes(int $productId): array
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare(
+            'SELECT id, price, sort_order FROM product_subtypes WHERE product_id = ? ORDER BY sort_order, id'
+        );
+        $stmt->execute([$productId]);
+        $rows = $stmt->fetchAll();
+
+        $tStmt = $pdo->prepare('SELECT lang_code, name FROM product_subtype_t WHERE subtype_id = ?');
+        foreach ($rows as &$row) {
+            $tStmt->execute([$row['id']]);
+            $row['t'] = [];
+            foreach ($tStmt->fetchAll() as $t) {
+                $row['t'][$t['lang_code']] = $t['name'];
+            }
+        }
+        unset($row);
+        return $rows;
+    }
+
+    public static function setSubtypes(int $productId, array $rows): void
+    {
+        $pdo = Database::getConnection();
+        $pdo->prepare('DELETE FROM product_subtypes WHERE product_id = ?')->execute([$productId]);
+
+        $insertSubtype = $pdo->prepare(
+            'INSERT INTO product_subtypes (product_id, price, sort_order) VALUES (?, ?, ?)'
+        );
+        $insertName = $pdo->prepare(
+            'INSERT INTO product_subtype_t (subtype_id, lang_code, name) VALUES (?, ?, ?)'
+        );
+
+        foreach (array_values($rows) as $index => $row) {
+            $t = array_filter($row['t'] ?? [], fn ($name) => trim((string) $name) !== '');
+            if (!$t) continue;
+
+            $insertSubtype->execute([$productId, $row['price'] ?? '0.00', $index]);
+            $subtypeId = (int) $pdo->lastInsertId();
+
+            foreach ($t as $lang => $name) {
+                $insertName->execute([$subtypeId, $lang, trim((string) $name)]);
+            }
         }
     }
 
