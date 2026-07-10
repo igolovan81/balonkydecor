@@ -373,4 +373,36 @@ class ProductModelTest extends TestCase
         $this->assertSame('Český název kategorie', $csRow['category_name']);
         $this->assertSame('English Category Name', $enRow['category_name']);
     }
+
+    public function test_all_includes_product_name_respecting_language(): void
+    {
+        $id = ProductModel::create([
+            'sku'         => 'TEST-NAME-' . uniqid(),
+            'price'       => 9.99,
+            'category_id' => self::$categoryId,
+        ], self::$userId);
+        ProductModel::setTranslations($id, [
+            'cs' => ['name' => 'Český název produktu'],
+            'en' => ['name' => 'English Product Name'],
+        ]);
+
+        $csRow = current(array_filter(ProductModel::all('cs'), fn ($r) => (int) $r['id'] === $id));
+        $enRow = current(array_filter(ProductModel::all('en'), fn ($r) => (int) $r['id'] === $id));
+
+        $this->assertSame('Český název produktu', $csRow['name']);
+        $this->assertSame('English Product Name', $enRow['name']);
+    }
+
+    public function test_all_falls_back_to_sku_when_no_translation(): void
+    {
+        $sku = 'TEST-NONAME-' . uniqid();
+        $id  = ProductModel::create([
+            'sku'         => $sku,
+            'price'       => 9.99,
+            'category_id' => self::$categoryId,
+        ], self::$userId);
+
+        $row = current(array_filter(ProductModel::all('en'), fn ($r) => (int) $r['id'] === $id));
+        $this->assertSame($sku, $row['name']);
+    }
 }

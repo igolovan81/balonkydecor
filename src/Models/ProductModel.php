@@ -55,17 +55,19 @@ class ProductModel
         $stmt = $pdo->prepare(
             'SELECT p.*,
                     (SELECT filename FROM product_images WHERE product_id = p.id AND is_primary = 1 LIMIT 1) AS primary_image,
+                    COALESCE(t.name, p.sku) AS name,
                     COALESCE(ct.name, c.slug) AS category_name,
                     creator.email AS created_by_email,
                     updater.email AS updated_by_email
              FROM products p
+             LEFT JOIN product_t t ON t.product_id = p.id AND t.lang_code = :lang
              LEFT JOIN categories c ON c.id = p.category_id
-             LEFT JOIN category_t ct ON ct.category_id = p.category_id AND ct.lang_code = :lang
+             LEFT JOIN category_t ct ON ct.category_id = p.category_id AND ct.lang_code = :lang2
              LEFT JOIN users creator ON creator.id = p.created_by
              LEFT JOIN users updater ON updater.id = p.updated_by
              ORDER BY p.id DESC'
         );
-        $stmt->execute(['lang' => $lang]);
+        $stmt->execute(['lang' => $lang, 'lang2' => $lang]);
         return $stmt->fetchAll();
     }
 

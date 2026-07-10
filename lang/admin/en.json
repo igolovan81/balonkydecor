@@ -155,6 +155,7 @@
   "products.col.active": "Active",
   "products.col.category": "Category",
   "products.col.image": "Image",
+  "products.col.name": "Name",
   "products.col.price": "Price",
   "products.col.sku": "SKU",
   "products.col.stock": "Stock",

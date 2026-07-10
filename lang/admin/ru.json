@@ -155,6 +155,7 @@
   "products.col.active": "Активный",
   "products.col.category": "Категория",
   "products.col.image": "Изображение",
+  "products.col.name": "Название",
   "products.col.price": "Цена",
   "products.col.sku": "SKU",
   "products.col.stock": "На складе",
