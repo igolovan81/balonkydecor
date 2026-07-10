@@ -9,3 +9,4 @@ www/assets/uploads/*
 !www/assets/uploads/.gitkeep
 .superpowers/
 /backups/
+/VERSION

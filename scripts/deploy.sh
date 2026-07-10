@@ -30,6 +30,9 @@ fi
 
 echo "Deploying to $FTP_HOST ..."
 
+GIT_HASH="$(git -C "$LOCAL_DIR" rev-parse --short HEAD)"
+echo "$(date +%Y-%m-%d) (${GIT_HASH})" > "$LOCAL_DIR/VERSION"
+
 lftp -u "$FTP_USER","$FTP_PASS" "ftp://$FTP_HOST" <<EOF
 set ftp:passive-mode yes
 set mirror:use-pget-n 4
