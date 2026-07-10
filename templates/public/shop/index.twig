@@ -38,7 +38,11 @@
                 </div>
                 <div class="product-info">
                     <h3>{{ product.name }}</h3>
+                    {% if product.min_subtype_price is not null %}
+                    <p class="product-price">{{ t('shop.from_price', {price: product.min_subtype_price|number_format(2, '.', ' ')}) }}</p>
+                    {% else %}
                     <p class="product-price">{{ product.price|number_format(2, '.', ' ') }} Kč</p>
+                    {% endif %}
                 </div>
             </a>
             {% endfor %}
