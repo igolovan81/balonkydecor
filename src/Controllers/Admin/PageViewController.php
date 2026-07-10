@@ -24,6 +24,7 @@ class PageViewController extends AdminBaseController
 
         $summary = PageViewModel::summary($from, $to);
         $data    = PageViewModel::topPages($from, $to, $page, self::PER_PAGE);
+        $devices = PageViewModel::deviceBreakdown($from, $to);
 
         return $this->renderAdmin($request, $response, 'admin/page-views/index.twig', [
             'summary' => $summary,
@@ -31,6 +32,7 @@ class PageViewController extends AdminBaseController
             'page'    => $page,
             'pages'   => $data['pages'],
             'days'    => $days,
+            'devices' => $devices,
         ]);
     }
 }

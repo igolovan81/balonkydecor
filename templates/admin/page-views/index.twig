@@ -40,4 +40,18 @@
     {% endfor %}
 </div>
 {% endif %}
+<h2>{{ t('page_views.devices.title') }}</h2>
+<table class="admin-table">
+    <thead><tr><th>{{ t('page_views.devices.col.type') }}</th><th>{{ t('page_views.col.views') }}</th></tr></thead>
+    <tbody>
+    {% for d in devices %}
+    <tr>
+        <td>{{ t('page_views.devices.type.' ~ d.device_type) }}</td>
+        <td>{{ d.views }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="2">{{ t('page_views.no_data') }}</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
 {% endblock %}
