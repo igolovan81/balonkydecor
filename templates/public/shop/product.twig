@@ -68,3 +68,8 @@
     </div>
 </div>
 {% endblock %}
+
+{% block scripts %}
+{{ parent() }}
+<script src="/assets/js/product-gallery.js" defer></script>
+{% endblock %}
