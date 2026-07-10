@@ -7,12 +7,20 @@ use PHPUnit\Framework\TestCase;
 
 class CategoryModelTest extends TestCase
 {
+    private static int $userId;
+
     public static function setUpBeforeClass(): void
     {
         $pdo = Database::getConnection();
         $pdo->exec("INSERT IGNORE INTO categories (slug, sort_order) VALUES ('test-cat', 99)");
         $pdo->exec("INSERT IGNORE INTO category_t (category_id, lang_code, name)
                     SELECT id, 'en', 'Test Category' FROM categories WHERE slug='test-cat'");
+
+        $pdo->exec("INSERT IGNORE INTO users (email, password_hash, role)
+                    VALUES ('category-audit-test@example.com', 'x', 'editor')");
+        self::$userId = (int) $pdo->query(
+            "SELECT id FROM users WHERE email='category-audit-test@example.com'"
+        )->fetch()['id'];
     }
 
     public function test_returns_array(): void
@@ -28,6 +36,46 @@ class CategoryModelTest extends TestCase
         $row = $result[0];
         foreach (['id', 'slug', 'name'] as $key) {
             $this->assertArrayHasKey($key, $row);
+        }
+    }
+
+    public function test_create_records_creator_and_updater(): void
+    {
+        $id = CategoryModel::create(['slug' => 'audit-cat-' . uniqid(), 'sort_order' => 1], self::$userId);
+        $category = CategoryModel::findById($id);
+        $this->assertSame(self::$userId, (int) $category['created_by']);
+        $this->assertSame(self::$userId, (int) $category['updated_by']);
+        $this->assertSame('category-audit-test@example.com', $category['created_by_email']);
+        $this->assertSame('category-audit-test@example.com', $category['updated_by_email']);
+        $this->assertNotEmpty($category['created_at']);
+        $this->assertNotEmpty($category['updated_at']);
+    }
+
+    public function test_update_changes_updated_by_but_not_created_by(): void
+    {
+        $id = CategoryModel::create(['slug' => 'audit-cat-' . uniqid(), 'sort_order' => 1], self::$userId);
+
+        $pdo = Database::getConnection();
+        $pdo->exec("INSERT IGNORE INTO users (email, password_hash, role)
+                    VALUES ('category-audit-editor2@example.com', 'x', 'editor')");
+        $secondUserId = (int) $pdo->query(
+            "SELECT id FROM users WHERE email='category-audit-editor2@example.com'"
+        )->fetch()['id'];
+
+        CategoryModel::update($id, ['slug' => 'audit-cat-updated-' . uniqid(), 'sort_order' => 2], $secondUserId);
+
+        $category = CategoryModel::findById($id);
+        $this->assertSame(self::$userId, (int) $category['created_by']);
+        $this->assertSame($secondUserId, (int) $category['updated_by']);
+    }
+
+    public function test_all_includes_audit_columns(): void
+    {
+        CategoryModel::create(['slug' => 'audit-cat-' . uniqid(), 'sort_order' => 1], self::$userId);
+        $rows = CategoryModel::all();
+        $this->assertNotEmpty($rows);
+        foreach (['created_by_email', 'created_at', 'updated_by_email', 'updated_at'] as $key) {
+            $this->assertArrayHasKey($key, $rows[0]);
         }
     }
 }
