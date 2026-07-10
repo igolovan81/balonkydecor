@@ -37,7 +37,7 @@
         <td><a href="/admin/orders/{{ o.order_number }}">{{ o.order_number }}</a></td>
         <td>{{ o.customer_name }}</td>
         <td>{{ o.total_amount|number_format(2, '.', ' ') }} Kč</td>
-        <td><span class="badge badge-{{ o.status }}">{{ o.status }}</span></td>
+        <td><span class="badge badge-{{ o.status }}">{{ t('orders.status.' ~ o.status) }}</span></td>
         <td>{{ o.created_at }}</td>
     </tr>
     {% else %}

@@ -7,7 +7,7 @@
     <select name="status" onchange="this.form.submit()">
         <option value="">{{ t('orders.filter_all') }}</option>
         {% for s in statuses %}
-        <option value="{{ s }}" {% if s == status %}selected{% endif %}>{{ s }}</option>
+        <option value="{{ s }}" {% if s == status %}selected{% endif %}>{{ t('orders.status.' ~ s) }}</option>
         {% endfor %}
     </select>
 </form>
@@ -20,7 +20,7 @@
         <td>{{ o.customer_name }}</td>
         <td>{{ o.customer_email }}</td>
         <td>{{ o.total_amount|number_format(2, '.', ' ') }} Kč</td>
-        <td><span class="badge badge-{{ o.status }}">{{ o.status }}</span></td>
+        <td><span class="badge badge-{{ o.status }}">{{ t('orders.status.' ~ o.status) }}</span></td>
         <td>{{ o.created_at }}</td>
         <td><a href="/admin/orders/{{ o.order_number }}">{{ t('orders.detail_link') }}</a></td>
     </tr>

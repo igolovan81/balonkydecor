@@ -20,7 +20,7 @@
     <form method="POST" action="/admin/orders/{{ order.order_number }}/status" style="display:flex;gap:0.5rem;align-items:center;">
         <select name="status">
             {% for s in statuses %}
-            <option value="{{ s }}" {% if s == order.status %}selected{% endif %}>{{ s }}</option>
+            <option value="{{ s }}" {% if s == order.status %}selected{% endif %}>{{ t('orders.status.' ~ s) }}</option>
             {% endfor %}
         </select>
         <button type="submit" class="btn btn-primary">{{ t('orders.detail.save') }}</button>
