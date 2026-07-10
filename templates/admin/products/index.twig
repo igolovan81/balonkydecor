@@ -34,6 +34,9 @@
         <td class="audit-meta">{{ p.updated_by_email ?? t('common.audit.unknown_user') }}<br>{{ p.updated_at }}</td>
         <td>
             <a href="/admin/products/{{ p.id }}/edit">{{ t('products.edit') }}</a> |
+            <form method="POST" action="/admin/products/{{ p.id }}/clone" style="display:inline">
+                <button class="btn-link">{{ t('products.clone') }}</button>
+            </form> |
             <form method="POST" action="/admin/products/{{ p.id }}/delete" style="display:inline" onsubmit="return confirm('{{ t('products.confirm_delete') }}')">
                 <button class="btn-link">{{ t('products.delete') }}</button>
             </form>
