@@ -20,11 +20,14 @@ abstract class AdminBaseController
         if ($i18n && !$env->hasExtension(\App\Twig\I18nExtension::class)) {
             $env->addExtension(new \App\Twig\I18nExtension($i18n));
         }
+        $userId      = (int) ($_SESSION['admin_user']['id'] ?? 0);
+        $unreadCount = $userId ? \App\Models\NotificationModel::unreadCount($userId) : 0;
         return $this->twig->render($response, $template, array_merge([
-            'flash'          => $flash,
-            'session_role'   => $_SESSION['admin_user']['role']  ?? '',
-            'session_email'  => $_SESSION['admin_user']['email'] ?? '',
-            'admin_lang'     => $request->getAttribute('admin_lang', 'cs'),
+            'flash'                      => $flash,
+            'session_role'               => $_SESSION['admin_user']['role']  ?? '',
+            'session_email'              => $_SESSION['admin_user']['email'] ?? '',
+            'admin_lang'                 => $request->getAttribute('admin_lang', 'cs'),
+            'unread_notifications_count' => $unreadCount,
         ], $data));
     }
 

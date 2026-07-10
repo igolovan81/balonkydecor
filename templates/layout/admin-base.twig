@@ -12,6 +12,17 @@
     <aside class="admin-sidebar">
         <div class="admin-logo">BalonkyDecor</div>
         <nav class="admin-nav">
+            <div class="admin-notif-wrap">
+                <button type="button" class="admin-notif-bell" id="notifBell" aria-haspopup="true" aria-expanded="false" aria-label="{{ t('notifications.bell.aria') }}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    <span>{{ t('nav.notifications') }}</span>
+                    <span class="admin-notif-badge" id="notifBadge"{% if unread_notifications_count == 0 %} hidden{% endif %}>{{ unread_notifications_count > 99 ? '99+' : unread_notifications_count }}</span>
+                </button>
+                <div class="admin-notif-dropdown" id="notifDropdown" hidden>
+                    <div class="admin-notif-list" id="notifList" data-empty-text="{{ t('notifications.empty') }}"></div>
+                    <a href="/admin/notifications" class="admin-notif-viewall">{{ t('notifications.view_all') }}</a>
+                </div>
+            </div>
             <a href="/admin">{{ t('nav.dashboard') }}</a>
             <a href="/admin/products">{{ t('nav.products') }}</a>
             <a href="/admin/categories">{{ t('nav.categories') }}</a>
@@ -19,6 +30,7 @@
             <a href="/admin/gallery">{{ t('nav.gallery') }}</a>
             <a href="/admin/services">{{ t('nav.services') }}</a>
             <a href="/admin/pages">{{ t('nav.pages') }}</a>
+            <a href="/admin/notifications">{{ t('nav.notifications') }}</a>
             <a href="/admin/settings">{{ t('nav.settings') }}</a>
             {% if session_role == 'admin' %}<a href="/admin/users">{{ t('nav.users') }}</a>{% endif %}
         </nav>
