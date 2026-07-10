@@ -9,8 +9,9 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class GalleryController extends AdminBaseController
 {
-    private const LANGS      = ['cs', 'en', 'ru', 'uk', 'sk'];
-    private const UPLOAD_DIR = __DIR__ . '/../../../www/assets/uploads/gallery';
+    private const LANGS               = ['cs', 'en', 'ru', 'uk', 'sk'];
+    private const TRANSLATABLE_FIELDS  = ['name', 'description', 'meta_title', 'meta_desc'];
+    private const UPLOAD_DIR           = __DIR__ . '/../../../www/assets/uploads/gallery';
 
     public function index(Request $request, Response $response, array $args): Response
     {
@@ -35,7 +36,13 @@ class GalleryController extends AdminBaseController
             ['slug' => trim($body['slug'] ?? ''), 'sort_order' => (int) ($body['sort_order'] ?? 0)],
             $userId
         );
-        GalleryModel::setAlbumTranslations($id, $body['t'] ?? []);
+        $translations = \App\Services\Translator::autoFill(
+            $body['t'] ?? [],
+            $request->getAttribute('admin_lang', 'cs'),
+            self::LANGS,
+            self::TRANSLATABLE_FIELDS
+        );
+        GalleryModel::setAlbumTranslations($id, $translations);
         $this->handleImageUploads($request, $id);
         $this->handleVideoUploads($request, $id);
         $this->flash('success', 'gallery.flash.created');

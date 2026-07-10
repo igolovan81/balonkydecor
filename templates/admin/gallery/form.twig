@@ -62,11 +62,11 @@
     <h3>{{ t('gallery.form.translations') }}</h3>
     <div class="lang-tabs">
         {% for lang in langs %}
-        <button type="button" class="lang-tab {% if loop.first %}active{% endif %}" data-lang="{{ lang }}">{{ lang|upper }}</button>
+        <button type="button" class="lang-tab {% if lang == admin_lang %}active preferred{% endif %}" data-lang="{{ lang }}">{% if lang == admin_lang %}★ {% endif %}{{ lang|upper }}</button>
         {% endfor %}
     </div>
     {% for lang in langs %}
-    <div class="lang-panel {% if loop.first %}active{% endif %}" id="panel-{{ lang }}">
+    <div class="lang-panel {% if lang == admin_lang %}active{% endif %}" id="panel-{{ lang }}">
         <div class="form-group">
             <label>{{ t('gallery.form.name_label') }} ({{ lang|upper }})</label>
             <input type="text" name="t[{{ lang }}][name]" value="{{ translations[lang].name ?? '' }}">
@@ -83,6 +83,12 @@
             <label>{{ t('gallery.form.meta_desc_label') }} ({{ lang|upper }})</label>
             <textarea name="t[{{ lang }}][meta_desc]" maxlength="500">{{ translations[lang].meta_desc ?? '' }}</textarea>
         </div>
+        {% if lang != admin_lang %}
+        <div class="form-group">
+            <button type="button" class="btn btn-secondary translate-btn" data-lang="{{ lang }}">{{ t('gallery.form.translate_btn') }}</button>
+            <span class="translate-msg" style="display:none;margin-left:0.5rem;font-size:0.85rem;"></span>
+        </div>
+        {% endif %}
     </div>
     {% endfor %}
     <div class="form-actions">
@@ -93,6 +99,8 @@
 {% endblock %}
 {% block scripts %}
 <script>
+const PREFERRED_LANG = "{{ admin_lang }}";
+
 // Delete-image buttons — plain fetch(), not a nested <form> (forms can't nest in valid HTML)
 document.querySelectorAll('.delete-image-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
@@ -107,6 +115,68 @@ document.querySelectorAll('.lang-tab').forEach(tab => {
         document.querySelectorAll('.lang-panel').forEach(p => p.classList.remove('active'));
         tab.classList.add('active');
         document.getElementById('panel-' + tab.dataset.lang).classList.add('active');
+    });
+});
+
+// Translate buttons — JS runtime strings remain hardcoded Czech per spec
+document.querySelectorAll('.translate-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+        const targetLang = btn.dataset.lang;
+        const panel      = document.getElementById('panel-' + targetLang);
+        const msgSpan    = panel.querySelector('.translate-msg');
+        const fields     = [
+            { name: 'name',        el: document.querySelector('input[name="t[' + PREFERRED_LANG + '][name]"]') },
+            { name: 'description', el: document.querySelector('textarea[name="t[' + PREFERRED_LANG + '][description]"]') },
+            { name: 'meta_title',  el: document.querySelector('input[name="t[' + PREFERRED_LANG + '][meta_title]"]') },
+            { name: 'meta_desc',   el: document.querySelector('textarea[name="t[' + PREFERRED_LANG + '][meta_desc]"]') },
+        ];
+        const filled = fields.filter(f => f.el.value.trim() !== '');
+
+        if (filled.length === 0) {
+            msgSpan.textContent = 'Nejprve vyplňte texty ve výchozím jazyce.';
+            msgSpan.style.color = '#c00';
+            msgSpan.style.display = 'inline';
+            return;
+        }
+
+        btn.disabled = true;
+        const originalLabel = btn.textContent;
+        btn.textContent = 'Překládám…';
+        msgSpan.style.display = 'none';
+        msgSpan.textContent   = '';
+
+        try {
+            const res = await fetch('/admin/translate', {
+                method:  'POST',
+                headers: {'Content-Type': 'application/json'},
+                body:    JSON.stringify({
+                    texts:  filled.map(f => f.el.value),
+                    target: targetLang.toUpperCase(),
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || data.error) {
+                msgSpan.textContent   = 'Překlad se nezdařil: ' + (data.error ?? res.status);
+                msgSpan.style.color   = '#c00';
+                msgSpan.style.display = 'inline';
+                return;
+            }
+
+            filled.forEach((f, i) => {
+                panel.querySelector('[name="t[' + targetLang + '][' + f.name + ']"]').value = data.texts[i] ?? '';
+            });
+            msgSpan.style.display = 'none';
+            msgSpan.textContent   = '';
+        } catch (e) {
+            msgSpan.textContent   = 'Překlad se nezdařil: ' + e.message;
+            msgSpan.style.color   = '#c00';
+            msgSpan.style.display = 'inline';
+        } finally {
+            btn.disabled    = false;
+            btn.textContent = originalLabel;
+        }
     });
 });
 </script>
