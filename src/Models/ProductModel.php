@@ -275,4 +275,29 @@ class ProductModel
 
         return $row['filename'];
     }
+
+    public static function clone(int $id, int $userId): ?int
+    {
+        $source = self::findById($id);
+        if (!$source) {
+            return null;
+        }
+
+        $sku   = self::uniqueSku($source['sku']);
+        $newId = self::create([
+            'sku'         => $sku,
+            'price'       => $source['price'],
+            'category_id' => $source['category_id'],
+            'is_active'   => 0,
+            'stock_type'  => $source['stock_type'],
+            'stock_qty'   => $source['stock_qty'],
+        ], $userId);
+
+        $translations = self::getTranslations($id);
+        if ($translations) {
+            self::setTranslations($newId, $translations);
+        }
+
+        return $newId;
+    }
 }

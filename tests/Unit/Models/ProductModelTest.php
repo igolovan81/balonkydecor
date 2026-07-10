@@ -405,4 +405,65 @@ class ProductModelTest extends TestCase
         $row = current(array_filter(ProductModel::all('en'), fn ($r) => (int) $r['id'] === $id));
         $this->assertSame($sku, $row['name']);
     }
+
+    public function test_clone_copies_translations_and_creates_inactive_product(): void
+    {
+        $id = ProductModel::create([
+            'sku'         => 'TEST-CLONE-' . uniqid(),
+            'price'       => 24.50,
+            'category_id' => self::$categoryId,
+            'is_active'   => 1,
+            'stock_type'  => 'limited',
+            'stock_qty'   => 7,
+        ], self::$userId);
+        ProductModel::setTranslations($id, [
+            'cs' => ['name' => 'Balónek modrý', 'description' => 'Popis', 'meta_title' => 'Meta CS', 'meta_desc' => 'Desc CS'],
+            'en' => ['name' => 'Blue Balloon', 'description' => 'Description', 'meta_title' => 'Meta EN', 'meta_desc' => 'Desc EN'],
+        ]);
+
+        $newId = ProductModel::clone($id, self::$userId);
+
+        $this->assertNotNull($newId);
+        $this->assertNotSame($id, $newId);
+
+        $original = ProductModel::findById($id);
+        $clone    = ProductModel::findById($newId);
+
+        $this->assertNotSame($original['sku'], $clone['sku']);
+        $this->assertEquals(24.50, (float) $clone['price']);
+        $this->assertSame(self::$categoryId, (int) $clone['category_id']);
+        $this->assertSame('limited', $clone['stock_type']);
+        $this->assertSame(7, (int) $clone['stock_qty']);
+        $this->assertSame(0, (int) $clone['is_active']);
+        $this->assertSame([], $clone['images']);
+
+        $cloneTranslations = ProductModel::getTranslations($newId);
+        $this->assertSame('Blue Balloon', $cloneTranslations['en']['name']);
+        $this->assertSame('Meta EN', $cloneTranslations['en']['meta_title']);
+        $this->assertSame('Balónek modrý', $cloneTranslations['cs']['name']);
+    }
+
+    public function test_clone_generates_unique_sku_on_collision(): void
+    {
+        $base = 'CLONE-SKU-' . uniqid();
+        $id   = ProductModel::create([
+            'sku'         => $base,
+            'price'       => 9.99,
+            'category_id' => self::$categoryId,
+        ], self::$userId);
+
+        $firstCloneId  = ProductModel::clone($id, self::$userId);
+        $secondCloneId = ProductModel::clone($id, self::$userId);
+
+        $firstSku  = ProductModel::findById($firstCloneId)['sku'];
+        $secondSku = ProductModel::findById($secondCloneId)['sku'];
+
+        $this->assertSame($base . '-2', $firstSku);
+        $this->assertSame($base . '-3', $secondSku);
+    }
+
+    public function test_clone_returns_null_for_missing_product(): void
+    {
+        $this->assertNull(ProductModel::clone(999999999, self::$userId));
+    }
 }
