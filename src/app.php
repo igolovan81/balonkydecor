@@ -25,6 +25,9 @@ $builder->addDefinitions([
             $full = __DIR__ . '/../www/' . ltrim($path, '/');
             return file_exists($full) ? filemtime($full) : time();
         }));
+        $twig->getEnvironment()->addFunction(new \Twig\TwigFunction('site_version', function () {
+            return \App\Services\Version::current();
+        }));
         return $twig;
     },
 ]);
