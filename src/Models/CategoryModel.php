@@ -49,6 +49,29 @@ class CategoryModel
         return $stmt->fetch() ?: null;
     }
 
+    public static function slugify(string $name): string
+    {
+        $slug = strtolower(trim($name));
+        $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
+        $slug = trim($slug, '-');
+        return $slug !== '' ? $slug : 'category';
+    }
+
+    public static function uniqueSlug(string $candidate): string
+    {
+        $pdo    = Database::getConnection();
+        $stmt   = $pdo->prepare('SELECT COUNT(*) FROM categories WHERE slug = ?');
+        $slug   = $candidate;
+        $suffix = 2;
+        $stmt->execute([$slug]);
+        while ((int) $stmt->fetchColumn() > 0) {
+            $slug = $candidate . '-' . $suffix;
+            $suffix++;
+            $stmt->execute([$slug]);
+        }
+        return $slug;
+    }
+
     public static function create(array $data, int $userId): int
     {
         $pdo  = Database::getConnection();

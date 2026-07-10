@@ -39,6 +39,43 @@ class CategoryModelTest extends TestCase
         }
     }
 
+    public function test_slugify_converts_name_to_kebab_case(): void
+    {
+        $this->assertSame('summer-party-decorations', CategoryModel::slugify('Summer party decorations'));
+    }
+
+    public function test_slugify_collapses_punctuation_and_symbols(): void
+    {
+        $this->assertSame('foo-bar', CategoryModel::slugify('  Foo!!  ---  Bar??  '));
+    }
+
+    public function test_slugify_falls_back_to_category_when_empty(): void
+    {
+        $this->assertSame('category', CategoryModel::slugify('   '));
+        $this->assertSame('category', CategoryModel::slugify('###'));
+    }
+
+    public function test_unique_slug_returns_candidate_when_free(): void
+    {
+        $candidate = 'free-slug-' . uniqid();
+        $this->assertSame($candidate, CategoryModel::uniqueSlug($candidate));
+    }
+
+    public function test_unique_slug_appends_suffix_on_single_collision(): void
+    {
+        $base = 'collide-slug-' . uniqid();
+        CategoryModel::create(['slug' => $base, 'sort_order' => 0], self::$userId);
+        $this->assertSame($base . '-2', CategoryModel::uniqueSlug($base));
+    }
+
+    public function test_unique_slug_appends_incrementing_suffix_on_multiple_collisions(): void
+    {
+        $base = 'collide-slug-' . uniqid();
+        CategoryModel::create(['slug' => $base, 'sort_order' => 0], self::$userId);
+        CategoryModel::create(['slug' => $base . '-2', 'sort_order' => 0], self::$userId);
+        $this->assertSame($base . '-3', CategoryModel::uniqueSlug($base));
+    }
+
     public function test_create_records_creator_and_updater(): void
     {
         $id = CategoryModel::create(['slug' => 'audit-cat-' . uniqid(), 'sort_order' => 1], self::$userId);
