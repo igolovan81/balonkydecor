@@ -52,7 +52,7 @@
 
     <footer class="site-footer">
         <div class="container">
-            <p>&copy; {{ "now"|date("Y") }} {{ t('site.name') }}</p>
+            <p>&copy; {{ "now"|date("Y") }} {{ t('site.name') }} <span class="site-version">v{{ site_version() }}</span></p>
             {% if facebook_url or instagram_url or whatsapp_url %}
             <div class="footer-social">
                 <span class="footer-social-label">{{ t('footer.follow_us') }}</span>

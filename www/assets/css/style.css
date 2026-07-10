@@ -85,6 +85,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 
 /* Footer */
 .site-footer { border-top: 1px solid var(--border); padding: 2rem 0; text-align: center; color: var(--muted); font-family: var(--ui-font); font-size: .85rem; margin-top: 4rem; }
+.site-version { font-size: .75rem; opacity: .7; }
 .footer-social { margin-top: 1rem; }
 .footer-social-label { display: block; margin-bottom: .5rem; font-family: var(--ui-font); font-size: .8rem; }
 .footer-social-icons { display: flex; justify-content: center; gap: .75rem; }
