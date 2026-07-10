@@ -12,6 +12,7 @@
             <th>{{ t('categories.col.name') }}</th>
             <th>{{ t('categories.col.slug') }}</th>
             <th>{{ t('categories.col.order') }}</th>
+            <th>{{ t('categories.col.updated') }}</th>
             <th>{{ t('categories.col.actions') }}</th>
         </tr>
     </thead>
@@ -22,6 +23,7 @@
         <td>{{ cat.name ?? '—' }}</td>
         <td>{{ cat.slug }}</td>
         <td>{{ cat.sort_order }}</td>
+        <td class="audit-meta">{{ cat.updated_by_email ?? t('common.audit.unknown_user') }}<br>{{ cat.updated_at }}</td>
         <td>
             <a href="/admin/categories/{{ cat.id }}/edit">{{ t('categories.edit') }}</a> |
             <form method="POST" action="/admin/categories/{{ cat.id }}/delete" style="display:inline" onsubmit="return confirm('{{ t('categories.confirm_delete') }}')">
@@ -30,7 +32,7 @@
         </td>
     </tr>
     {% else %}
-    <tr><td colspan="5">{{ t('categories.no_categories') }}</td></tr>
+    <tr><td colspan="6">{{ t('categories.no_categories') }}</td></tr>
     {% endfor %}
     </tbody>
 </table>

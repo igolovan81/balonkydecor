@@ -5,6 +5,13 @@
     <h1>{{ product ? t('products.form.title_edit') : t('products.form.title_new') }}</h1>
     <a href="/admin/products" class="btn btn-secondary">{{ t('products.form.back') }}</a>
 </div>
+{% if product %}
+<p class="audit-meta">
+    {{ t('products.audit.created', {user: product.created_by_email ?? t('common.audit.unknown_user'), date: product.created_at}) }}
+    ·
+    {{ t('products.audit.updated', {user: product.updated_by_email ?? t('common.audit.unknown_user'), date: product.updated_at}) }}
+</p>
+{% endif %}
 <form method="POST" action="{{ product ? '/admin/products/' ~ product.id ~ '/edit' : '/admin/products/new' }}" enctype="multipart/form-data" class="admin-form admin-form--wide">
     <div class="product-form-columns">
         <div class="product-form-main">

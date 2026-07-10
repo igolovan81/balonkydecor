@@ -14,6 +14,7 @@
             <th>{{ t('products.col.price') }}</th>
             <th>{{ t('products.col.stock') }}</th>
             <th>{{ t('products.col.active') }}</th>
+            <th>{{ t('products.col.updated') }}</th>
             <th>{{ t('products.col.actions') }}</th>
         </tr>
     </thead>
@@ -30,6 +31,7 @@
         <td>{{ p.price|number_format(2, '.', ' ') }} Kč</td>
         <td>{{ p.stock_type == 'limited' ? p.stock_qty ~ ' ks' : '—' }}</td>
         <td>{{ p.is_active ? '✓' : '—' }}</td>
+        <td class="audit-meta">{{ p.updated_by_email ?? t('common.audit.unknown_user') }}<br>{{ p.updated_at }}</td>
         <td>
             <a href="/admin/products/{{ p.id }}/edit">{{ t('products.edit') }}</a> |
             <form method="POST" action="/admin/products/{{ p.id }}/delete" style="display:inline" onsubmit="return confirm('{{ t('products.confirm_delete') }}')">
@@ -38,7 +40,7 @@
         </td>
     </tr>
     {% else %}
-    <tr><td colspan="7">{{ t('products.no_products') }}</td></tr>
+    <tr><td colspan="8">{{ t('products.no_products') }}</td></tr>
     {% endfor %}
     </tbody>
 </table>

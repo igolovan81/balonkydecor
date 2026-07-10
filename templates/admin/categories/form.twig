@@ -5,6 +5,13 @@
     <h1>{{ category ? t('categories.form.title_edit') : t('categories.form.title_new') }}</h1>
     <a href="/admin/categories" class="btn btn-secondary">{{ t('categories.form.back') }}</a>
 </div>
+{% if category %}
+<p class="audit-meta">
+    {{ t('categories.audit.created', {user: category.created_by_email ?? t('common.audit.unknown_user'), date: category.created_at}) }}
+    ·
+    {{ t('categories.audit.updated', {user: category.updated_by_email ?? t('common.audit.unknown_user'), date: category.updated_at}) }}
+</p>
+{% endif %}
 <form method="POST" action="{{ category ? '/admin/categories/' ~ category.id ~ '/edit' : '/admin/categories/new' }}" class="admin-form">
     <div class="form-group">
         <label>{{ t('categories.form.slug') }}</label>
