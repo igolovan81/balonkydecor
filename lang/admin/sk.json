@@ -250,6 +250,7 @@
   "settings.test_mode": "Testovací režim (sandbox)",
   "settings.title": "Nastavenie",
   "settings.web": "Web",
+  "settings.whatsapp_phone": "Telefón pre WhatsApp",
   "users.add": "+ Pridať používateľa",
   "users.change_password": "Zmeniť heslo",
   "users.col.actions": "Akcie",

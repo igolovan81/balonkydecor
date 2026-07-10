@@ -250,6 +250,7 @@
   "settings.test_mode": "Test mode (sandbox)",
   "settings.title": "Settings",
   "settings.web": "Website",
+  "settings.whatsapp_phone": "WhatsApp phone number",
   "users.add": "+ Add user",
   "users.change_password": "Change password",
   "users.col.actions": "Actions",

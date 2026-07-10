@@ -250,6 +250,7 @@
   "settings.test_mode": "Тестовый режим (sandbox)",
   "settings.title": "Настройки",
   "settings.web": "Сайт",
+  "settings.whatsapp_phone": "Телефон для WhatsApp",
   "users.add": "+ Добавить пользователя",
   "users.change_password": "Сменить пароль",
   "users.col.actions": "Действия",
