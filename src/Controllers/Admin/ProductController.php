@@ -64,6 +64,9 @@ class ProductController extends AdminBaseController
             self::TRANSLATABLE_FIELDS
         );
         ProductModel::setTranslations($id, $translations);
+        ProductModel::setSubtypes($id, $this->buildSubtypes(
+            $body['subtypes'] ?? [], $request->getAttribute('admin_lang', 'cs')
+        ));
         $this->handleImageUpload($request, $id, true);
         \App\Services\Notifier::notify(
             'product', $id, $sku, 'created', $userId, $_SESSION['admin_user']['email'] ?? ''
@@ -101,6 +104,9 @@ class ProductController extends AdminBaseController
             'stock_qty'   => $body['stock_qty'] ?? 0,
         ], $userId);
         ProductModel::setTranslations($id, $body['t'] ?? []);
+        ProductModel::setSubtypes($id, $this->buildSubtypes(
+            $body['subtypes'] ?? [], $request->getAttribute('admin_lang', 'cs')
+        ));
         $this->handleImageUpload($request, $id, false);
         \App\Services\Notifier::notify(
             'product', $id, $sku, 'updated', $userId, $_SESSION['admin_user']['email'] ?? ''
@@ -163,5 +169,24 @@ class ProductController extends AdminBaseController
         $tmp      = ['tmp_name' => $file->getStream()->getMetadata('uri'), 'error' => $file->getError()];
         $filename = ImageUploader::upload($tmp, self::UPLOAD_DIR);
         ProductModel::addImage($productId, $filename, $isPrimary);
+    }
+
+    private function buildSubtypes(array $rows, string $adminLang): array
+    {
+        $subtypes = [];
+        foreach ($rows as $row) {
+            $name = trim($row['name'] ?? '');
+            if ($name === '') continue;
+
+            $t = \App\Services\Translator::autoFill(
+                [$adminLang => ['name' => $name]],
+                $adminLang, self::LANGS, ['name']
+            );
+            $subtypes[] = [
+                'price' => $row['price'] ?? '0.00',
+                't'     => array_map(fn ($fields) => $fields['name'] ?? '', $t),
+            ];
+        }
+        return $subtypes;
     }
 }
