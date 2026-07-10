@@ -4,19 +4,21 @@
 {% block meta_desc %}{{ product.meta_desc ?? product.description|striptags|slice(0, 160) }}{% endblock %}
 
 {% block head %}
+{% set base_offer = {
+    'priceCurrency': 'CZK',
+    'availability': (product.stock_type == 'limited' and product.stock_qty <= 0) ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
+    'url': canonical_url
+} %}
+{% set offer = product.subtypes
+    ? base_offer|merge({'@type': 'AggregateOffer', 'lowPrice': min_subtype_price, 'highPrice': max_subtype_price, 'offerCount': product.subtypes|length})
+    : base_offer|merge({'@type': 'Offer', 'price': product.price}) %}
 {% set product_schema = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     'name': product.name,
     'description': product.description ? product.description|striptags : '',
     'sku': product.sku,
-    'offers': {
-        '@type': 'Offer',
-        'price': product.price,
-        'priceCurrency': 'CZK',
-        'availability': (product.stock_type == 'limited' and product.stock_qty <= 0) ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
-        'url': canonical_url
-    }
+    'offers': offer
 } %}
 {% if product.images %}
     {% set product_schema = product_schema|merge({'image': base_url ~ '/assets/uploads/products/' ~ product.images[0]}) %}
@@ -52,12 +54,26 @@
 
     <div class="product-detail-info">
         <h1>{{ product.name }}</h1>
+        {% if product.subtypes %}
+        <p class="product-price-lg" id="subtype-price">{{ product.subtypes[0].price|number_format(2, '.', ' ') }} Kč</p>
+        {% else %}
         <p class="product-price-lg">{{ product.price|number_format(2, '.', ' ') }} Kč</p>
+        {% endif %}
         {% if product.description %}
         <div class="product-description">{{ product.description|nl2br }}</div>
         {% endif %}
 
         <form action="/{{ lang }}/cart/add" method="POST" class="add-to-cart-form">
+            {% if product.subtypes %}
+            <div class="qty-row">
+                <label for="subtype-select">{{ t('shop.subtype') }}</label>
+                <select name="subtype_id" id="subtype-select" class="subtype-select">
+                    {% for subtype in product.subtypes %}
+                    <option value="{{ subtype.id }}" data-price="{{ subtype.price }}">{{ subtype.name }} — {{ subtype.price|number_format(2, '.', ' ') }} Kč</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
             <div class="qty-row">
                 <label for="qty">{{ t('shop.qty') }}</label>
                 <input type="number" id="qty" name="qty" value="1" min="1" class="qty-input">
@@ -72,4 +88,17 @@
 {% block scripts %}
 {{ parent() }}
 <script src="/assets/js/product-gallery.js" defer></script>
+{% if product.subtypes %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var select  = document.getElementById('subtype-select');
+    var priceEl = document.getElementById('subtype-price');
+    if (!select || !priceEl) return;
+    select.addEventListener('change', function () {
+        var price = parseFloat(select.options[select.selectedIndex].dataset.price);
+        priceEl.textContent = price.toLocaleString('cs-CZ', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' Kč';
+    });
+});
+</script>
+{% endif %}
 {% endblock %}
