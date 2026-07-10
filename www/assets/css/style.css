@@ -93,6 +93,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 .social-icon svg { width: 18px; height: 18px; }
 .social-icon-facebook { background: #1877F2; }
 .social-icon-instagram { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285aeb 90%); }
+.social-icon-whatsapp { background: #25D366; }
 
 /* Page hero */
 .page-hero { padding: 3rem 0 2rem; background: var(--surface); border-bottom: 1px solid var(--border); }
@@ -138,6 +139,21 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 .qty-input { width: 70px; padding: .5rem; border: 1px solid var(--border); font-size: 1rem; }
 .btn-lg { padding: 1rem 2.5rem; font-size: 1rem; }
 .empty-state { color: var(--muted); font-family: var(--ui-font); padding: 2rem 0; }
+
+/* Services cards */
+.services-page { padding: 2.5rem 1.5rem; }
+.services-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+.service-card { background: var(--surface); border: 1px solid var(--border); border-radius: 2px; padding: 1.75rem; }
+.service-card h2 { font-size: 1.3rem; font-weight: normal; margin-bottom: .6rem; }
+.service-card p { color: var(--muted); line-height: 1.7; margin-bottom: 1rem; }
+.service-features { list-style: none; margin-bottom: 1rem; font-family: var(--ui-font); font-size: .9rem; }
+.service-features li { padding: .3rem 0 .3rem 1.5rem; position: relative; }
+.service-features li::before { content: '✓'; position: absolute; left: 0; color: var(--accent); }
+.service-price { font-family: var(--ui-font); color: var(--accent); font-size: 1.05rem; }
+@media (max-width: 768px) {
+    .services-page { padding: 1.5rem 1rem; }
+    .services-grid { grid-template-columns: 1fr; gap: 1rem; }
+}
 
 /* Services / rich content */
 .content-page { padding: 2.5rem 1.5rem; max-width: 800px; }
