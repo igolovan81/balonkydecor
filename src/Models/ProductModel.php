@@ -46,6 +46,17 @@ class ProductModel
         $imgs = $pdo->prepare('SELECT filename FROM product_images WHERE product_id = ? ORDER BY sort_order, id');
         $imgs->execute([$product['id']]);
         $product['images'] = $imgs->fetchAll(\PDO::FETCH_COLUMN);
+
+        $subStmt = $pdo->prepare(
+            'SELECT ps.id, ps.price, st.name
+             FROM product_subtypes ps
+             JOIN product_subtype_t st ON st.subtype_id = ps.id AND st.lang_code = ?
+             WHERE ps.product_id = ?
+             ORDER BY ps.sort_order, ps.id'
+        );
+        $subStmt->execute([$lang, $product['id']]);
+        $product['subtypes'] = $subStmt->fetchAll();
+
         return $product;
     }
 

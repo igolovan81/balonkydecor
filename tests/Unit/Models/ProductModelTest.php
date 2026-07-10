@@ -76,6 +76,14 @@ class ProductModelTest extends TestCase
         return (int) $pdo->lastInsertId();
     }
 
+    private function skuOf(int $productId): string
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare('SELECT sku FROM products WHERE id = ?');
+        $stmt->execute([$productId]);
+        return (string) $stmt->fetchColumn();
+    }
+
     private function makeUploadsDir(array $files): string
     {
         $dir = sys_get_temp_dir() . '/product-cleanup-test-' . uniqid();
@@ -104,6 +112,26 @@ class ProductModelTest extends TestCase
     public function test_find_by_sku_returns_null_for_unknown(): void
     {
         $this->assertNull(ProductModel::findBySku('NONEXISTENT', 'en'));
+    }
+
+    public function test_find_by_sku_resolves_subtype_names_for_requested_lang(): void
+    {
+        $productId = $this->makeProduct();
+        $sku       = $this->skuOf($productId);
+        ProductModel::setSubtypes($productId, [
+            ['price' => '1.90', 't' => ['cs' => 'Makarons', 'en' => 'Macarons']],
+        ]);
+
+        $product = ProductModel::findBySku($sku, 'en');
+        $this->assertCount(1, $product['subtypes']);
+        $this->assertSame('Macarons', $product['subtypes'][0]['name']);
+        $this->assertSame('1.90', $product['subtypes'][0]['price']);
+    }
+
+    public function test_find_by_sku_subtypes_empty_without_any(): void
+    {
+        $product = ProductModel::findBySku('TEST-SKU-001', 'en');
+        $this->assertSame([], $product['subtypes']);
     }
 
     public function test_filter_by_category(): void
