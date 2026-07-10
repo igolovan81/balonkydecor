@@ -27,8 +27,12 @@ class CategoryController extends AdminBaseController
 
     public function createSubmit(Request $request, Response $response, array $args): Response
     {
-        $body = (array) $request->getParsedBody();
-        $id   = CategoryModel::create(['slug' => trim($body['slug'] ?? ''), 'sort_order' => (int) ($body['sort_order'] ?? 0)]);
+        $body   = (array) $request->getParsedBody();
+        $userId = (int) ($_SESSION['admin_user']['id'] ?? 0);
+        $id     = CategoryModel::create(
+            ['slug' => trim($body['slug'] ?? ''), 'sort_order' => (int) ($body['sort_order'] ?? 0)],
+            $userId
+        );
         $translations = \App\Services\Translator::autoFill(
             $body['t'] ?? [],
             $request->getAttribute('admin_lang', 'cs'),
@@ -54,9 +58,14 @@ class CategoryController extends AdminBaseController
 
     public function editSubmit(Request $request, Response $response, array $args): Response
     {
-        $id   = (int) $args['id'];
-        $body = (array) $request->getParsedBody();
-        CategoryModel::update($id, ['slug' => trim($body['slug'] ?? ''), 'sort_order' => (int) ($body['sort_order'] ?? 0)]);
+        $id     = (int) $args['id'];
+        $body   = (array) $request->getParsedBody();
+        $userId = (int) ($_SESSION['admin_user']['id'] ?? 0);
+        CategoryModel::update(
+            $id,
+            ['slug' => trim($body['slug'] ?? ''), 'sort_order' => (int) ($body['sort_order'] ?? 0)],
+            $userId
+        );
         CategoryModel::setTranslations($id, $body['t'] ?? []);
         $this->flash('success', 'categories.flash.updated');
         return $this->redirect($response, '/admin/categories');
