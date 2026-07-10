@@ -32,9 +32,11 @@ abstract class BaseController
         $path = preg_replace('#^/' . preg_quote($lang, '#') . '#', '', $uri) ?: '/';
 
         $pdo          = Database::getConnection();
-        $settingsStmt = $pdo->prepare("SELECT `key`, `value` FROM settings WHERE `key` IN ('contact_phone','contact_email','facebook_url','instagram_url')");
+        $settingsStmt = $pdo->prepare("SELECT `key`, `value` FROM settings WHERE `key` IN ('contact_phone','contact_email','facebook_url','instagram_url','whatsapp_phone')");
         $settingsStmt->execute();
         $settingsMap = array_column($settingsStmt->fetchAll(), 'value', 'key');
+
+        $whatsappDigits = preg_replace('/\D+/', '', $settingsMap['whatsapp_phone'] ?? '');
 
         return $this->twig->render($response, $template, array_merge([
             'lang'                 => $lang,
@@ -49,6 +51,7 @@ abstract class BaseController
             ),
             'facebook_url'         => $settingsMap['facebook_url'] ?? '',
             'instagram_url'        => $settingsMap['instagram_url'] ?? '',
+            'whatsapp_url'         => $whatsappDigits !== '' ? 'https://wa.me/' . $whatsappDigits : '',
         ], $data));
     }
 }
