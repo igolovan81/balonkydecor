@@ -29,6 +29,39 @@ class CartTest extends TestCase
         $this->assertSame(4, Cart::items()['SKU-1']['qty']);
     }
 
+    public function test_add_with_subtype_creates_distinct_line(): void
+    {
+        Cart::add('SKU-1', 1, 'Balloon — Macarons', '1.90', 10, 'Macarons');
+        Cart::add('SKU-1', 1, 'Balloon — Chrome', '3.40', 20, 'Chrome');
+        $items = Cart::items();
+        $this->assertArrayHasKey('SKU-1:10', $items);
+        $this->assertArrayHasKey('SKU-1:20', $items);
+        $this->assertSame(1, $items['SKU-1:10']['qty']);
+    }
+
+    public function test_add_with_same_subtype_accumulates_qty(): void
+    {
+        Cart::add('SKU-1', 1, 'Balloon — Macarons', '1.90', 10, 'Macarons');
+        Cart::add('SKU-1', 2, 'Balloon — Macarons', '1.90', 10, 'Macarons');
+        $this->assertSame(3, Cart::items()['SKU-1:10']['qty']);
+    }
+
+    public function test_add_with_subtype_stores_sku_and_subtype_fields(): void
+    {
+        Cart::add('SKU-1', 1, 'Balloon — Macarons', '1.90', 10, 'Macarons');
+        $item = Cart::items()['SKU-1:10'];
+        $this->assertSame('SKU-1', $item['sku']);
+        $this->assertSame(10, $item['subtype_id']);
+        $this->assertSame('Macarons', $item['subtype_name']);
+    }
+
+    public function test_add_without_subtype_still_stores_sku(): void
+    {
+        Cart::add('SKU-1', 1, 'Red Balloon', '49.00');
+        $this->assertSame('SKU-1', Cart::items()['SKU-1']['sku']);
+        $this->assertNull(Cart::items()['SKU-1']['subtype_id']);
+    }
+
     public function test_remove_deletes_item(): void
     {
         Cart::add('SKU-1', 1, 'Red Balloon', '49.00');

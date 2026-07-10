@@ -13,13 +13,23 @@ class Cart
         }
     }
 
-    public static function add(string $sku, int $qty, string $name, string $price): void
-    {
+    public static function add(
+        string $sku, int $qty, string $name, string $price,
+        ?int $subtypeId = null, ?string $subtypeName = null
+    ): void {
         self::boot();
-        if (isset($_SESSION['cart'][$sku])) {
-            $_SESSION['cart'][$sku]['qty'] += $qty;
+        $key = $subtypeId !== null ? $sku . ':' . $subtypeId : $sku;
+        if (isset($_SESSION['cart'][$key])) {
+            $_SESSION['cart'][$key]['qty'] += $qty;
         } else {
-            $_SESSION['cart'][$sku] = ['qty' => $qty, 'name' => $name, 'price' => $price];
+            $_SESSION['cart'][$key] = [
+                'qty'          => $qty,
+                'name'         => $name,
+                'price'        => $price,
+                'sku'          => $sku,
+                'subtype_id'   => $subtypeId,
+                'subtype_name' => $subtypeName,
+            ];
         }
     }
 
