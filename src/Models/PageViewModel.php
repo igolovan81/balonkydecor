@@ -23,13 +23,59 @@ class PageViewModel
         return $ip;
     }
 
-    public static function record(string $path, string $lang, ?string $referrer, ?string $ipAnon, ?string $userAgent): void
+    public static function record(string $path, string $lang, ?string $referrer, ?string $ipAnon, ?string $userAgent, string $deviceType = 'other', string $browser = 'other'): void
     {
         $pdo  = Database::getConnection();
         $stmt = $pdo->prepare(
-            'INSERT INTO page_views (path, lang, referrer, ip_anon, user_agent) VALUES (?, ?, ?, ?, ?)'
+            'INSERT INTO page_views (path, lang, referrer, ip_anon, user_agent, device_type, browser) VALUES (?, ?, ?, ?, ?, ?, ?)'
         );
-        $stmt->execute([$path, $lang, $referrer, $ipAnon, $userAgent]);
+        $stmt->execute([$path, $lang, $referrer, $ipAnon, $userAgent, $deviceType, $browser]);
+    }
+
+    public static function classifyDevice(?string $userAgent): string
+    {
+        if ($userAgent === null || trim($userAgent) === '') {
+            return 'other';
+        }
+        if (stripos($userAgent, 'iPad') !== false) {
+            return 'tablet-ios';
+        }
+        if (stripos($userAgent, 'iPhone') !== false || stripos($userAgent, 'iPod') !== false) {
+            return 'mobile-ios';
+        }
+        if (stripos($userAgent, 'Android') !== false) {
+            return stripos($userAgent, 'Mobile') !== false ? 'mobile-android' : 'tablet-android';
+        }
+        return 'desktop';
+    }
+
+    public static function classifyBrowser(?string $userAgent): string
+    {
+        if ($userAgent === null || trim($userAgent) === '') {
+            return 'other';
+        }
+        if (stripos($userAgent, 'Edg/') !== false || stripos($userAgent, 'Edge/') !== false) {
+            return 'edge';
+        }
+        if (stripos($userAgent, 'OPR/') !== false || stripos($userAgent, 'Opera') !== false) {
+            return 'opera';
+        }
+        if (stripos($userAgent, 'SamsungBrowser') !== false) {
+            return 'samsung';
+        }
+        if (stripos($userAgent, 'Firefox') !== false) {
+            return 'firefox';
+        }
+        if (stripos($userAgent, 'Chrome') !== false || stripos($userAgent, 'CriOS') !== false) {
+            return 'chrome';
+        }
+        if (stripos($userAgent, 'Safari') !== false) {
+            return 'safari';
+        }
+        if (stripos($userAgent, 'MSIE') !== false || stripos($userAgent, 'Trident') !== false) {
+            return 'ie';
+        }
+        return 'other';
     }
 
     public static function summary(string $from, string $to): array
@@ -79,6 +125,20 @@ class PageViewModel
             'total' => $total,
             'pages' => max(1, (int) ceil($total / $perPage)),
         ];
+    }
+
+    public static function deviceBreakdown(string $from, string $to): array
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare(
+            'SELECT device_type, COUNT(*) AS views
+             FROM page_views
+             WHERE created_at BETWEEN :from AND :to
+             GROUP BY device_type
+             ORDER BY views DESC'
+        );
+        $stmt->execute(['from' => $from, 'to' => $to]);
+        return $stmt->fetchAll();
     }
 
     public static function pruneOlderThan(int $days): int

@@ -96,4 +96,122 @@ class PageViewModelTest extends TestCase
         $recentStmt->execute([$recent]);
         $this->assertSame(1, (int) $recentStmt->fetchColumn());
     }
+
+    public function test_classify_device_detects_ipad_as_tablet_ios(): void
+    {
+        $ua = 'Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15';
+        $this->assertSame('tablet-ios', PageViewModel::classifyDevice($ua));
+    }
+
+    public function test_classify_device_detects_iphone_as_mobile_ios(): void
+    {
+        $ua = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15';
+        $this->assertSame('mobile-ios', PageViewModel::classifyDevice($ua));
+    }
+
+    public function test_classify_device_detects_android_phone_as_mobile_android(): void
+    {
+        $ua = 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 Mobile Safari/537.36';
+        $this->assertSame('mobile-android', PageViewModel::classifyDevice($ua));
+    }
+
+    public function test_classify_device_detects_android_tablet_as_tablet_android(): void
+    {
+        $ua = 'Mozilla/5.0 (Linux; Android 13; SM-X200) AppleWebKit/537.36 Safari/537.36';
+        $this->assertSame('tablet-android', PageViewModel::classifyDevice($ua));
+    }
+
+    public function test_classify_device_detects_desktop(): void
+    {
+        $ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/128.0 Safari/537.36';
+        $this->assertSame('desktop', PageViewModel::classifyDevice($ua));
+    }
+
+    public function test_classify_device_returns_other_for_empty_user_agent(): void
+    {
+        $this->assertSame('other', PageViewModel::classifyDevice(null));
+        $this->assertSame('other', PageViewModel::classifyDevice(''));
+    }
+
+    public function test_classify_browser_detects_edge(): void
+    {
+        $ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/128.0 Safari/537.36 Edg/128.0';
+        $this->assertSame('edge', PageViewModel::classifyBrowser($ua));
+    }
+
+    public function test_classify_browser_detects_opera(): void
+    {
+        $ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/128.0 Safari/537.36 OPR/114.0';
+        $this->assertSame('opera', PageViewModel::classifyBrowser($ua));
+    }
+
+    public function test_classify_browser_detects_samsung_internet(): void
+    {
+        $ua = 'Mozilla/5.0 (Linux; Android 13; SM-S911B) AppleWebKit/537.36 SamsungBrowser/24.0 Chrome/115.0 Mobile Safari/537.36';
+        $this->assertSame('samsung', PageViewModel::classifyBrowser($ua));
+    }
+
+    public function test_classify_browser_detects_firefox(): void
+    {
+        $ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0';
+        $this->assertSame('firefox', PageViewModel::classifyBrowser($ua));
+    }
+
+    public function test_classify_browser_detects_chrome(): void
+    {
+        $ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/128.0 Safari/537.36';
+        $this->assertSame('chrome', PageViewModel::classifyBrowser($ua));
+    }
+
+    public function test_classify_browser_detects_safari(): void
+    {
+        $ua = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15 Version/17.0 Safari/605.1.15';
+        $this->assertSame('safari', PageViewModel::classifyBrowser($ua));
+    }
+
+    public function test_classify_browser_detects_ie(): void
+    {
+        $ua = 'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)';
+        $this->assertSame('ie', PageViewModel::classifyBrowser($ua));
+    }
+
+    public function test_classify_browser_returns_other_for_empty_user_agent(): void
+    {
+        $this->assertSame('other', PageViewModel::classifyBrowser(null));
+        $this->assertSame('other', PageViewModel::classifyBrowser(''));
+    }
+
+    public function test_record_persists_device_type_and_browser(): void
+    {
+        $path = '/cs/device-test-' . uniqid();
+        PageViewModel::record($path, 'cs', null, '1.2.3.0', 'TestAgent/1.0', 'mobile-android', 'chrome');
+
+        $stmt = Database::getConnection()->prepare('SELECT device_type, browser FROM page_views WHERE path = ?');
+        $stmt->execute([$path]);
+        $row = $stmt->fetch();
+
+        $this->assertSame('mobile-android', $row['device_type']);
+        $this->assertSame('chrome', $row['browser']);
+    }
+
+    public function test_device_breakdown_groups_and_orders_by_views(): void
+    {
+        $pdo   = Database::getConnection();
+        $pathA = '/cs/breakdown-test-' . uniqid();
+        $pathB = '/cs/breakdown-test-' . uniqid();
+        foreach (range(1, 3) as $i) {
+            $pdo->prepare("INSERT INTO page_views (path, lang, device_type, created_at) VALUES (?, 'cs', 'desktop', NOW())")->execute([$pathA]);
+        }
+        $pdo->prepare("INSERT INTO page_views (path, lang, device_type, created_at) VALUES (?, 'cs', 'mobile-android', NOW())")->execute([$pathB]);
+
+        $from = date('Y-m-d H:i:s', strtotime('-1 minute'));
+        $to   = date('Y-m-d H:i:s', strtotime('+1 minute'));
+
+        $breakdown = PageViewModel::deviceBreakdown($from, $to);
+        $types     = array_column($breakdown, 'device_type');
+
+        $this->assertContains('desktop', $types);
+        $this->assertContains('mobile-android', $types);
+        $this->assertLessThanOrEqual(array_search('mobile-android', $types), array_search('desktop', $types));
+    }
 }
