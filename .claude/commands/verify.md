@@ -7,7 +7,7 @@ Check that balonkydecor.cz is healthy — public pages and admin portal.
 Run all checks with curl and report pass/fail for each:
 
 ```bash
-BASE="http://balonkydecor.cz"
+BASE="https://balonkydecor.cz"
 
 check() {
   local label="$1" url="$2" expected="$3"
@@ -26,7 +26,7 @@ check "CS homepage"              "$BASE/cs/"          200
 check "EN homepage"              "$BASE/en/"          200
 check "SK homepage"              "$BASE/sk/"          200
 check "CS shop"                  "$BASE/cs/shop"      200
-check "CS gallery"               "$BASE/cs/gallery"   200
+check "CS gallery"               "$BASE/cs/services/archive" 200
 check "CS contact"               "$BASE/cs/contact"   200
 check "CS services"              "$BASE/cs/services"  200
 
