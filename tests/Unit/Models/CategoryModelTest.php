@@ -109,10 +109,25 @@ class CategoryModelTest extends TestCase
     public function test_all_includes_audit_columns(): void
     {
         CategoryModel::create(['slug' => 'audit-cat-' . uniqid(), 'sort_order' => 1], self::$userId);
-        $rows = CategoryModel::all();
+        $rows = CategoryModel::all('cs');
         $this->assertNotEmpty($rows);
         foreach (['created_by_email', 'created_at', 'updated_by_email', 'updated_at'] as $key) {
             $this->assertArrayHasKey($key, $rows[0]);
         }
+    }
+
+    public function test_all_respects_requested_language(): void
+    {
+        $id = CategoryModel::create(['slug' => 'lang-test-cat-' . uniqid(), 'sort_order' => 0], self::$userId);
+        CategoryModel::setTranslations($id, [
+            'cs' => ['name' => 'Český název', 'description' => ''],
+            'en' => ['name' => 'English Name', 'description' => ''],
+        ]);
+
+        $csRow = current(array_filter(CategoryModel::all('cs'), fn ($r) => (int) $r['id'] === $id));
+        $enRow = current(array_filter(CategoryModel::all('en'), fn ($r) => (int) $r['id'] === $id));
+
+        $this->assertSame('Český název', $csRow['name']);
+        $this->assertSame('English Name', $enRow['name']);
     }
 }

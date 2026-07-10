@@ -12,7 +12,7 @@ class CategoryController extends AdminBaseController
 
     public function index(Request $request, Response $response, array $args): Response
     {
-        $categories = CategoryModel::all();
+        $categories = CategoryModel::all($request->getAttribute('admin_lang', 'cs'));
         return $this->renderAdmin($request, $response, 'admin/categories/index.twig', compact('categories'));
     }
 

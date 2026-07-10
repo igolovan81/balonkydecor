@@ -2,6 +2,7 @@
 namespace Tests\Unit\Models;
 
 use App\Models\ProductModel;
+use App\Models\CategoryModel;
 use App\Models\Database;
 use PHPUnit\Framework\TestCase;
 
@@ -345,10 +346,31 @@ class ProductModelTest extends TestCase
             'category_id' => self::$categoryId,
         ], self::$userId);
 
-        $rows = ProductModel::all();
+        $rows = ProductModel::all('cs');
         $this->assertNotEmpty($rows);
         foreach (['created_by_email', 'updated_by_email', 'updated_at'] as $key) {
             $this->assertArrayHasKey($key, $rows[0]);
         }
+    }
+
+    public function test_all_respects_requested_language_for_category_name(): void
+    {
+        $catId = CategoryModel::create(['slug' => 'lang-test-cat-' . uniqid(), 'sort_order' => 0], self::$userId);
+        CategoryModel::setTranslations($catId, [
+            'cs' => ['name' => 'Český název kategorie', 'description' => ''],
+            'en' => ['name' => 'English Category Name', 'description' => ''],
+        ]);
+
+        $id = ProductModel::create([
+            'sku'         => 'TEST-LANG-' . uniqid(),
+            'price'       => 9.99,
+            'category_id' => $catId,
+        ], self::$userId);
+
+        $csRow = current(array_filter(ProductModel::all('cs'), fn ($r) => (int) $r['id'] === $id));
+        $enRow = current(array_filter(ProductModel::all('en'), fn ($r) => (int) $r['id'] === $id));
+
+        $this->assertSame('Český název kategorie', $csRow['category_name']);
+        $this->assertSame('English Category Name', $enRow['category_name']);
     }
 }

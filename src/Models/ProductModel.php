@@ -49,21 +49,24 @@ class ProductModel
         return $product;
     }
 
-    public static function all(): array
+    public static function all(string $lang): array
     {
-        $pdo = Database::getConnection();
-        return $pdo->query(
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare(
             'SELECT p.*,
                     (SELECT filename FROM product_images WHERE product_id = p.id AND is_primary = 1 LIMIT 1) AS primary_image,
-                    ct.name AS category_name,
+                    COALESCE(ct.name, c.slug) AS category_name,
                     creator.email AS created_by_email,
                     updater.email AS updated_by_email
              FROM products p
-             LEFT JOIN category_t ct ON ct.category_id = p.category_id AND ct.lang_code = \'cs\'
+             LEFT JOIN categories c ON c.id = p.category_id
+             LEFT JOIN category_t ct ON ct.category_id = p.category_id AND ct.lang_code = :lang
              LEFT JOIN users creator ON creator.id = p.created_by
              LEFT JOIN users updater ON updater.id = p.updated_by
              ORDER BY p.id DESC'
-        )->fetchAll();
+        );
+        $stmt->execute(['lang' => $lang]);
+        return $stmt->fetchAll();
     }
 
     public static function findById(int $id): ?array

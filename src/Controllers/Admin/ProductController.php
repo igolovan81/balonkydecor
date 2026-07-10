@@ -15,13 +15,13 @@ class ProductController extends AdminBaseController
 
     public function index(Request $request, Response $response, array $args): Response
     {
-        $products = ProductModel::all();
+        $products = ProductModel::all($request->getAttribute('admin_lang', 'cs'));
         return $this->renderAdmin($request, $response, 'admin/products/index.twig', compact('products'));
     }
 
     public function createForm(Request $request, Response $response, array $args): Response
     {
-        $categories = CategoryModel::allWithTranslation('cs');
+        $categories = CategoryModel::allWithTranslation($request->getAttribute('admin_lang', 'cs'));
         return $this->renderAdmin($request, $response, 'admin/products/form.twig', [
             'product'      => null,
             'translations' => [],
@@ -77,7 +77,7 @@ class ProductController extends AdminBaseController
         $product = ProductModel::findById((int) $args['id']);
         if (!$product) return $response->withStatus(404);
         $translations = ProductModel::getTranslations((int) $args['id']);
-        $categories   = CategoryModel::allWithTranslation('cs');
+        $categories   = CategoryModel::allWithTranslation($request->getAttribute('admin_lang', 'cs'));
         return $this->renderAdmin($request, $response, 'admin/products/form.twig', [
             'product'      => $product,
             'translations' => $translations,

@@ -18,19 +18,21 @@ class CategoryModel
         return $stmt->fetchAll();
     }
 
-    public static function all(): array
+    public static function all(string $lang): array
     {
-        $pdo = Database::getConnection();
-        return $pdo->query(
-            'SELECT c.*, ct.name AS name,
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare(
+            'SELECT c.*, COALESCE(ct.name, c.slug) AS name,
                     creator.email AS created_by_email,
                     updater.email AS updated_by_email
              FROM categories c
-             LEFT JOIN category_t ct ON ct.category_id = c.id AND ct.lang_code = \'cs\'
+             LEFT JOIN category_t ct ON ct.category_id = c.id AND ct.lang_code = :lang
              LEFT JOIN users creator ON creator.id = c.created_by
              LEFT JOIN users updater ON updater.id = c.updated_by
              ORDER BY c.sort_order, c.id'
-        )->fetchAll();
+        );
+        $stmt->execute(['lang' => $lang]);
+        return $stmt->fetchAll();
     }
 
     public static function findById(int $id): ?array
