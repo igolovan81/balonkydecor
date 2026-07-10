@@ -16,6 +16,7 @@ use App\Controllers\Admin\GalleryController as AdminGalleryController;
 use App\Controllers\Admin\NotificationController;
 use App\Controllers\Admin\OrderController as AdminOrderController;
 use App\Controllers\Admin\PageController as AdminPageController;
+use App\Controllers\Admin\PageViewController;
 use App\Controllers\Admin\ProductController;
 use App\Controllers\Admin\ServiceController as AdminServiceController;
 use App\Controllers\Admin\SettingsController;
@@ -60,6 +61,9 @@ $app->group('/admin', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->get('/orders',                  AdminOrderController::class . ':index');
     $group->get('/orders/{number}',         AdminOrderController::class . ':detail');
     $group->post('/orders/{number}/status', AdminOrderController::class . ':updateStatus');
+
+    // Page views
+    $group->get('/page-views', PageViewController::class . ':index');
 
     // Gallery
     $group->get('/gallery',                                               AdminGalleryController::class . ':index');

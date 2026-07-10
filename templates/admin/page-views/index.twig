@@ -1,0 +1,43 @@
+{% extends "layout/admin-base.twig" %}
+{% block title %}{{ t('page_views.title') }}{% endblock %}
+{% block content %}
+<div class="admin-topbar"><h1>{{ t('page_views.title') }}</h1></div>
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ summary.total_views }}</div>
+        <div class="stat-label">{{ t('page_views.stats.total_views') }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ summary.unique_visitors }}</div>
+        <div class="stat-label">{{ t('page_views.stats.unique_visitors') }}</div>
+    </div>
+</div>
+<form method="GET" action="/admin/page-views" style="margin-bottom:1rem;display:flex;gap:0.5rem;align-items:center;">
+    <label>{{ t('page_views.filter.label') }}</label>
+    <select name="days" onchange="this.form.submit()">
+        <option value="7"  {% if days == 7 %}selected{% endif %}>{{ t('page_views.filter.7') }}</option>
+        <option value="30" {% if days == 30 %}selected{% endif %}>{{ t('page_views.filter.30') }}</option>
+        <option value="90" {% if days == 90 %}selected{% endif %}>{{ t('page_views.filter.90') }}</option>
+    </select>
+</form>
+<table class="admin-table">
+    <thead><tr><th>{{ t('page_views.col.path') }}</th><th>{{ t('page_views.col.views') }}</th></tr></thead>
+    <tbody>
+    {% for row in rows %}
+    <tr>
+        <td>{{ row.path }}</td>
+        <td>{{ row.views }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="2">{{ t('page_views.no_data') }}</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% if pages > 1 %}
+<div class="pagination" style="margin-top:1rem;">
+    {% for p in 1..pages %}
+    <a href="?page={{ p }}&days={{ days }}" class="{% if p == page %}active{% endif %}">{{ p }}</a>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
