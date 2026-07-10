@@ -18,15 +18,36 @@ class CartController extends BaseController
 
     public function add(Request $request, Response $response, array $args): Response
     {
-        $lang    = $request->getAttribute('lang');
-        $body    = (array) $request->getParsedBody();
-        $sku     = trim($body['sku'] ?? '');
-        $qty     = max(1, (int) ($body['qty'] ?? 1));
+        $lang = $request->getAttribute('lang');
+        $body = (array) $request->getParsedBody();
+        $sku  = trim($body['sku'] ?? '');
+        $qty  = max(1, (int) ($body['qty'] ?? 1));
 
         if ($sku) {
             $product = ProductModel::findBySku($sku, $lang);
             if ($product) {
-                Cart::add($sku, $qty, $product['name'], (string) $product['price']);
+                if (!empty($product['subtypes'])) {
+                    $subtypeId = isset($body['subtype_id']) && $body['subtype_id'] !== ''
+                        ? (int) $body['subtype_id'] : null;
+                    $subtype = null;
+                    foreach ($product['subtypes'] as $st) {
+                        if ((int) $st['id'] === $subtypeId) {
+                            $subtype = $st;
+                            break;
+                        }
+                    }
+                    if ($subtype) {
+                        Cart::add(
+                            $sku, $qty,
+                            $product['name'] . ' — ' . $subtype['name'],
+                            (string) $subtype['price'],
+                            (int) $subtype['id'], $subtype['name']
+                        );
+                    }
+                    // no valid subtype_id posted → do nothing, cart unchanged
+                } else {
+                    Cart::add($sku, $qty, $product['name'], (string) $product['price']);
+                }
             }
         }
 
