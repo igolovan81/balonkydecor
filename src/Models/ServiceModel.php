@@ -20,19 +20,22 @@ class ServiceModel
         return $stmt->fetchAll();
     }
 
-    public static function all(): array
+    public static function all(string $lang): array
     {
-        $pdo = Database::getConnection();
-        return $pdo->query(
-            'SELECT s.*, st.name AS name,
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare(
+            'SELECT s.*, COALESCE(st.name, cs.name) AS name,
                     creator.email AS created_by_email,
                     updater.email AS updated_by_email
              FROM services s
-             LEFT JOIN service_t st ON st.service_id = s.id AND st.lang_code = \'cs\'
+             LEFT JOIN service_t st ON st.service_id = s.id AND st.lang_code = :lang
+             LEFT JOIN service_t cs ON cs.service_id = s.id AND cs.lang_code = \'cs\'
              LEFT JOIN users creator ON creator.id = s.created_by
              LEFT JOIN users updater ON updater.id = s.updated_by
              ORDER BY s.sort_order, s.id'
-        )->fetchAll();
+        );
+        $stmt->execute(['lang' => $lang]);
+        return $stmt->fetchAll();
     }
 
     public static function findById(int $id): ?array

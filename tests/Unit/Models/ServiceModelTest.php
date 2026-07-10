@@ -129,11 +129,28 @@ class ServiceModelTest extends TestCase
     public function test_all_includes_audit_columns(): void
     {
         $id   = ServiceModel::create(['price_from' => 500, 'sort_order' => 99], self::$userId);
-        $rows = ServiceModel::all();
+        $rows = ServiceModel::all('cs');
         $this->assertNotEmpty($rows);
         foreach (['created_by_email', 'created_at', 'updated_by_email', 'updated_at'] as $key) {
             $this->assertArrayHasKey($key, $rows[0]);
         }
+        ServiceModel::delete($id);
+    }
+
+    public function test_all_respects_requested_language(): void
+    {
+        $id = ServiceModel::create(['price_from' => 500, 'sort_order' => 99], self::$userId);
+        ServiceModel::setTranslations($id, [
+            'cs' => ['name' => 'Český název', 'description' => '', 'features' => ''],
+            'en' => ['name' => 'English Name', 'description' => '', 'features' => ''],
+        ]);
+
+        $csRow = $this->findService(ServiceModel::all('cs'), $id);
+        $enRow = $this->findService(ServiceModel::all('en'), $id);
+
+        $this->assertSame('Český název', $csRow['name']);
+        $this->assertSame('English Name', $enRow['name']);
+
         ServiceModel::delete($id);
     }
 

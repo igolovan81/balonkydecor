@@ -12,7 +12,7 @@ class ServiceController extends AdminBaseController
 
     public function index(Request $request, Response $response, array $args): Response
     {
-        $services = ServiceModel::all();
+        $services = ServiceModel::all($request->getAttribute('admin_lang', 'cs'));
         return $this->renderAdmin($request, $response, 'admin/services/index.twig', compact('services'));
     }
 
