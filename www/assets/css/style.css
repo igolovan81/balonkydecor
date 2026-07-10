@@ -129,8 +129,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 .product-detail { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; padding: 3rem 1.5rem; }
 .product-gallery img { width: 100%; border-radius: 2px; }
 .product-main-img { width: 100%; aspect-ratio: 1; object-fit: contain; background: var(--border); }
-.product-thumbs { display: flex; gap: .5rem; margin-top: .5rem; }
-.product-thumb { width: 70px; height: 70px; object-fit: cover; cursor: pointer; border: 1px solid var(--border); }
+.product-thumbs { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .5rem; }
+.product-thumbs .product-thumb { width: 70px; height: 70px; flex-shrink: 0; object-fit: cover; cursor: pointer; border: 1px solid var(--border); }
 .product-detail-info h1 { font-size: 1.8rem; font-weight: normal; margin-bottom: .75rem; }
 .product-price-lg { font-size: 1.6rem; color: var(--accent); font-family: var(--ui-font); margin-bottom: 1.5rem; }
 .product-description { color: var(--muted); line-height: 1.8; margin-bottom: 2rem; }
