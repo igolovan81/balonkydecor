@@ -69,7 +69,9 @@
   "shipping.title": "Доставка та оплата",
   "shop.add_to_cart": "До кошика",
   "shop.all": "Усі",
+  "shop.from_price": "від {price} Kč",
   "shop.no_products": "Немає товарів у цій категорії.",
   "shop.qty": "Кількість",
+  "shop.subtype": "Варіант",
   "site.name": "BalonkyDecor"
 }
