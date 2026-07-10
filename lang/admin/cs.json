@@ -22,6 +22,8 @@
   "categories.form.order": "Pořadí",
   "categories.form.save": "Uložit",
   "categories.form.slug": "Slug (URL)",
+  "categories.form.slug_edit_manually": "Upravit ručně",
+  "categories.form.slug_hint": "Automaticky generováno z anglického názvu kategorie. Kliknutím na „Upravit ručně“ jej můžete nastavit sami.",
   "categories.form.title_edit": "Upravit kategorii",
   "categories.form.title_new": "Nová kategorie",
   "categories.form.translate_btn": "Přeložit z výchozího jazyka",

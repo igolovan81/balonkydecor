@@ -22,6 +22,8 @@
   "categories.form.order": "Порядок",
   "categories.form.save": "Сохранить",
   "categories.form.slug": "Slug (URL)",
+  "categories.form.slug_edit_manually": "Изменить вручную",
+  "categories.form.slug_hint": "Автоматически генерируется из английского названия категории. Нажмите «Изменить вручную», чтобы задать его самостоятельно.",
   "categories.form.title_edit": "Изменить категорию",
   "categories.form.title_new": "Новая категория",
   "categories.form.translate_btn": "Перевести с языка по умолчанию",

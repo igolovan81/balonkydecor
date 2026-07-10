@@ -22,6 +22,8 @@
   "categories.form.order": "Poradie",
   "categories.form.save": "Uložiť",
   "categories.form.slug": "Slug (URL)",
+  "categories.form.slug_edit_manually": "Upraviť ručne",
+  "categories.form.slug_hint": "Automaticky generované z anglického názvu kategórie. Kliknutím na „Upraviť ručne“ ho môžete nastaviť sami.",
   "categories.form.title_edit": "Upraviť kategóriu",
   "categories.form.title_new": "Nová kategória",
   "categories.form.translate_btn": "Preložiť z predvoleného jazyka",

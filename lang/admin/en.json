@@ -22,6 +22,8 @@
   "categories.form.order": "Order",
   "categories.form.save": "Save",
   "categories.form.slug": "Slug (URL)",
+  "categories.form.slug_edit_manually": "Edit manually",
+  "categories.form.slug_hint": "Auto-generated from the English category name. Click \"Edit manually\" to set it yourself.",
   "categories.form.title_edit": "Edit category",
   "categories.form.title_new": "New category",
   "categories.form.translate_btn": "Translate from default language",
