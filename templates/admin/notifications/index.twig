@@ -12,7 +12,7 @@
     <tbody>
     {% for n in notifications %}
     <tr>
-        <td>{% if n.url %}<a href="{{ n.url }}">{{ n.message }}</a>{% else %}{{ n.message }}{% endif %}</td>
+        <td>{% if n.url %}<a href="{{ n.url }}" class="notif-msg-link">{{ n.message }}</a>{% else %}{{ n.message }}{% endif %}</td>
         <td>{{ n.created_at }}</td>
     </tr>
     {% else %}
