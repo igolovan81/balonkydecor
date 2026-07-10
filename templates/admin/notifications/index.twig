@@ -1,0 +1,30 @@
+{% extends "layout/admin-base.twig" %}
+{% block title %}{{ t('notifications.page.title') }}{% endblock %}
+{% block content %}
+<div class="admin-topbar"><h1>{{ t('notifications.page.title') }}</h1></div>
+<table class="admin-table">
+    <thead>
+        <tr>
+            <th>{{ t('notifications.col.message') }}</th>
+            <th>{{ t('notifications.col.date') }}</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for n in notifications %}
+    <tr>
+        <td>{% if n.url %}<a href="{{ n.url }}">{{ n.message }}</a>{% else %}{{ n.message }}{% endif %}</td>
+        <td>{{ n.created_at }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="2">{{ t('notifications.empty') }}</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% if pages > 1 %}
+<div class="pagination" style="margin-top:1rem;">
+    {% for p in 1..pages %}
+    <a href="?page={{ p }}" class="{% if p == page %}active{% endif %}">{{ p }}</a>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

@@ -13,6 +13,7 @@ use App\Controllers\Admin\AuthController;
 use App\Controllers\Admin\CategoryController;
 use App\Controllers\Admin\DashboardController;
 use App\Controllers\Admin\GalleryController as AdminGalleryController;
+use App\Controllers\Admin\NotificationController;
 use App\Controllers\Admin\OrderController as AdminOrderController;
 use App\Controllers\Admin\PageController as AdminPageController;
 use App\Controllers\Admin\ProductController;
@@ -76,6 +77,11 @@ $app->group('/admin', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->get('/services/{id:[0-9]+}/edit',      AdminServiceController::class . ':editForm');
     $group->post('/services/{id:[0-9]+}/edit',     AdminServiceController::class . ':editSubmit');
     $group->post('/services/{id:[0-9]+}/delete',   AdminServiceController::class . ':delete');
+
+    // Notifications
+    $group->get('/notifications',              NotificationController::class . ':index');
+    $group->get('/notifications/unread-count', NotificationController::class . ':unreadCount');
+    $group->post('/notifications/open',        NotificationController::class . ':open');
 
     // Pages
     $group->get('/pages',              AdminPageController::class . ':index');
