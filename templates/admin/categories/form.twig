@@ -15,7 +15,13 @@
 <form method="POST" action="{{ category ? '/admin/categories/' ~ category.id ~ '/edit' : '/admin/categories/new' }}" class="admin-form">
     <div class="form-group">
         <label>{{ t('categories.form.slug') }}</label>
-        <input type="text" name="slug" value="{{ category.slug ?? '' }}" required>
+        <input type="text" id="slug-input" class="slug-input" name="slug" value="{{ category.slug ?? '' }}" {% if not category %}readonly{% endif %} required>
+        {% if not category %}
+        <div style="margin-top:0.35rem;">
+            <button type="button" id="slug-edit-btn" class="btn-link" style="font-size:0.85rem">{{ t('categories.form.slug_edit_manually') }}</button>
+        </div>
+        <p class="audit-meta" style="margin-top:0.35rem;">{{ t('categories.form.slug_hint') }}</p>
+        {% endif %}
     </div>
     <div class="form-group">
         <label>{{ t('categories.form.order') }}</label>
@@ -66,25 +72,29 @@ document.querySelectorAll('.lang-tab').forEach(tab => {
     });
 });
 
-// Slug auto-generation from preferred-language name
+// Slug auto-generation from English name (create form only — readonly + unlock button
+// are only rendered when there's no existing category)
 (function () {
-    const slugInput = document.querySelector('input[name="slug"]');
-    const prefName  = document.querySelector('input[name="t[' + PREFERRED_LANG + '][name]"]');
-    if (!slugInput || !prefName) return;
+    const slugInput   = document.getElementById('slug-input');
+    const editBtn     = document.getElementById('slug-edit-btn');
+    const enNameInput = document.querySelector('input[name="t[en][name]"]');
+    if (!slugInput || !editBtn || !enNameInput) return;
 
-    function toSlug(s) {
-        return s.toLowerCase()
-            .replace(/[áä]/g,'a').replace(/č/g,'c').replace(/ď/g,'d')
-            .replace(/[éě]/g,'e').replace(/í/g,'i').replace(/ň/g,'n')
-            .replace(/[óö]/g,'o').replace(/[řŕ]/g,'r').replace(/š/g,'s')
-            .replace(/ť/g,'t').replace(/[úůü]/g,'u').replace(/ý/g,'y')
-            .replace(/ž/g,'z')
-            .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+    function slugify(s) {
+        return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
     }
 
-    let locked = slugInput.value !== '';
-    slugInput.addEventListener('input', () => { locked = slugInput.value !== ''; });
-    prefName.addEventListener('input', () => { if (!locked) slugInput.value = toSlug(prefName.value); });
+    enNameInput.addEventListener('input', () => {
+        if (slugInput.readOnly) {
+            slugInput.value = slugify(enNameInput.value);
+        }
+    });
+
+    editBtn.addEventListener('click', () => {
+        slugInput.readOnly = false;
+        slugInput.focus();
+        editBtn.style.display = 'none';
+    });
 })();
 
 // Translate buttons — JS runtime strings remain hardcoded Czech per spec
