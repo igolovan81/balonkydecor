@@ -21,14 +21,20 @@ check() {
 }
 
 echo "=== Public pages ==="
-check "Homepage redirect"        "$BASE/"             302
-check "CS homepage"              "$BASE/cs/"          200
-check "EN homepage"              "$BASE/en/"          200
-check "SK homepage"              "$BASE/sk/"          200
-check "CS shop"                  "$BASE/cs/shop"      200
+check "Homepage redirect"        "$BASE/"                    302
+check "CS homepage"              "$BASE/cs/"                 200
+check "EN homepage"              "$BASE/en/"                 200
+check "SK homepage"              "$BASE/sk/"                 200
+check "RU homepage"              "$BASE/ru/"                 200
+check "UK homepage"              "$BASE/uk/"                 200
+check "CS shop"                  "$BASE/cs/shop"             200
 check "CS gallery"               "$BASE/cs/services/archive" 200
-check "CS contact"               "$BASE/cs/contact"   200
-check "CS services"              "$BASE/cs/services"  200
+check "CS contact"               "$BASE/cs/contact"          200
+check "CS services"              "$BASE/cs/services"         200
+check "CS shipping/payment"      "$BASE/cs/shipping-payment" 200
+check "CS cart"                  "$BASE/cs/cart"             200
+check "robots.txt"               "$BASE/robots.txt"          200
+check "sitemap.xml"              "$BASE/sitemap.xml"         200
 
 echo ""
 echo "=== Admin portal ==="
