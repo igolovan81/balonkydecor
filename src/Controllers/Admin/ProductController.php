@@ -34,8 +34,9 @@ class ProductController extends AdminBaseController
     {
         $body   = (array) $request->getParsedBody();
         $userId = (int) ($_SESSION['admin_user']['id'] ?? 0);
+        $sku    = trim($body['sku'] ?? '');
         $id     = ProductModel::create([
-            'sku'         => trim($body['sku'] ?? ''),
+            'sku'         => $sku,
             'price'       => $body['price'] ?? '0.00',
             'category_id' => $body['category_id'] ?? 1,
             'is_active'   => isset($body['is_active']) ? 1 : 0,
@@ -50,6 +51,9 @@ class ProductController extends AdminBaseController
         );
         ProductModel::setTranslations($id, $translations);
         $this->handleImageUpload($request, $id, true);
+        \App\Services\Notifier::notify(
+            'product', $id, $sku, 'created', $userId, $_SESSION['admin_user']['email'] ?? ''
+        );
         $this->flash('success', 'products.flash.created');
         return $this->redirect($response, '/admin/products');
     }
@@ -73,8 +77,9 @@ class ProductController extends AdminBaseController
         $id     = (int) $args['id'];
         $body   = (array) $request->getParsedBody();
         $userId = (int) ($_SESSION['admin_user']['id'] ?? 0);
+        $sku    = trim($body['sku'] ?? '');
         ProductModel::update($id, [
-            'sku'         => trim($body['sku'] ?? ''),
+            'sku'         => $sku,
             'price'       => $body['price'] ?? '0.00',
             'category_id' => $body['category_id'] ?? 1,
             'is_active'   => isset($body['is_active']) ? 1 : 0,
@@ -83,6 +88,9 @@ class ProductController extends AdminBaseController
         ], $userId);
         ProductModel::setTranslations($id, $body['t'] ?? []);
         $this->handleImageUpload($request, $id, false);
+        \App\Services\Notifier::notify(
+            'product', $id, $sku, 'updated', $userId, $_SESSION['admin_user']['email'] ?? ''
+        );
         $this->flash('success', 'products.flash.updated');
         return $this->redirect($response, '/admin/products');
     }
@@ -100,13 +108,18 @@ class ProductController extends AdminBaseController
 
     public function delete(Request $request, Response $response, array $args): Response
     {
-        $product = ProductModel::findById((int) $args['id']);
+        $id      = (int) $args['id'];
+        $product = ProductModel::findById($id);
         if ($product) {
             foreach ($product['images'] as $img) {
                 @unlink(self::UPLOAD_DIR . '/' . $img['filename']);
                 @unlink(self::UPLOAD_DIR . '/thumb_' . $img['filename']);
             }
-            ProductModel::delete((int) $args['id']);
+            ProductModel::delete($id);
+            $userId = (int) ($_SESSION['admin_user']['id'] ?? 0);
+            \App\Services\Notifier::notify(
+                'product', $id, $product['sku'], 'deleted', $userId, $_SESSION['admin_user']['email'] ?? ''
+            );
         }
         $this->flash('success', 'products.flash.deleted');
         return $this->redirect($response, '/admin/products');

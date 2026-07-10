@@ -39,6 +39,11 @@ class ServiceController extends AdminBaseController
             self::TRANSLATABLE_FIELDS
         );
         ServiceModel::setTranslations($id, $translations);
+        $userId = (int) ($_SESSION['admin_user']['id'] ?? 0);
+        \App\Services\Notifier::notify(
+            'service', $id, $this->serviceLabel($translations, $id),
+            'created', $userId, $_SESSION['admin_user']['email'] ?? ''
+        );
         $this->flash('success', 'services.flash.created');
         return $this->redirect($response, '/admin/services');
     }
@@ -63,15 +68,34 @@ class ServiceController extends AdminBaseController
             'price_from' => trim($body['price_from'] ?? ''),
             'sort_order' => (int) ($body['sort_order'] ?? 0),
         ]);
-        ServiceModel::setTranslations($id, $body['t'] ?? []);
+        $translations = $body['t'] ?? [];
+        ServiceModel::setTranslations($id, $translations);
+        $userId = (int) ($_SESSION['admin_user']['id'] ?? 0);
+        \App\Services\Notifier::notify(
+            'service', $id, $this->serviceLabel($translations, $id),
+            'updated', $userId, $_SESSION['admin_user']['email'] ?? ''
+        );
         $this->flash('success', 'services.flash.updated');
         return $this->redirect($response, '/admin/services');
     }
 
     public function delete(Request $request, Response $response, array $args): Response
     {
-        ServiceModel::delete((int) $args['id']);
+        $id           = (int) $args['id'];
+        $translations = ServiceModel::getTranslations($id);
+        ServiceModel::delete($id);
+        $userId = (int) ($_SESSION['admin_user']['id'] ?? 0);
+        \App\Services\Notifier::notify(
+            'service', $id, $this->serviceLabel($translations, $id),
+            'deleted', $userId, $_SESSION['admin_user']['email'] ?? ''
+        );
         $this->flash('success', 'services.flash.deleted');
         return $this->redirect($response, '/admin/services');
+    }
+
+    private function serviceLabel(array $translations, int $id): string
+    {
+        $name = $translations['cs']['name'] ?? '';
+        return $name !== '' ? $name : ('#' . $id);
     }
 }

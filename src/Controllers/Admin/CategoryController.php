@@ -40,6 +40,10 @@ class CategoryController extends AdminBaseController
             self::TRANSLATABLE_FIELDS
         );
         CategoryModel::setTranslations($id, $translations);
+        \App\Services\Notifier::notify(
+            'category', $id, $this->categoryLabel($translations, $body),
+            'created', $userId, $_SESSION['admin_user']['email'] ?? ''
+        );
         $this->flash('success', 'categories.flash.created');
         return $this->redirect($response, '/admin/categories');
     }
@@ -66,7 +70,12 @@ class CategoryController extends AdminBaseController
             ['slug' => trim($body['slug'] ?? ''), 'sort_order' => (int) ($body['sort_order'] ?? 0)],
             $userId
         );
-        CategoryModel::setTranslations($id, $body['t'] ?? []);
+        $translations = $body['t'] ?? [];
+        CategoryModel::setTranslations($id, $translations);
+        \App\Services\Notifier::notify(
+            'category', $id, $this->categoryLabel($translations, $body),
+            'updated', $userId, $_SESSION['admin_user']['email'] ?? ''
+        );
         $this->flash('success', 'categories.flash.updated');
         return $this->redirect($response, '/admin/categories');
     }
@@ -78,8 +87,25 @@ class CategoryController extends AdminBaseController
             $this->flash('error', 'categories.flash.delete_blocked');
             return $this->redirect($response, '/admin/categories');
         }
+        $category     = CategoryModel::findById($id);
+        $translations = CategoryModel::getTranslations($id);
         CategoryModel::delete($id);
+        if ($category) {
+            $userId = (int) ($_SESSION['admin_user']['id'] ?? 0);
+            \App\Services\Notifier::notify(
+                'category', $id, $this->categoryLabel($translations, $category),
+                'deleted', $userId, $_SESSION['admin_user']['email'] ?? ''
+            );
+        }
         $this->flash('success', 'categories.flash.deleted');
         return $this->redirect($response, '/admin/categories');
+    }
+
+    private function categoryLabel(array $translations, array $data): string
+    {
+        $name = $translations['cs']['name'] ?? '';
+        if ($name !== '') return $name;
+        $slug = trim($data['slug'] ?? '');
+        return $slug !== '' ? $slug : 'category';
     }
 }
