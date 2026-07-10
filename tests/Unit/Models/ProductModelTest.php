@@ -143,6 +143,35 @@ class ProductModelTest extends TestCase
         }
     }
 
+    public function test_all_active_reports_min_subtype_price_for_products_with_subtypes(): void
+    {
+        $productId = $this->makeProduct();
+        ProductModel::setSubtypes($productId, [
+            ['price' => '1.90', 't' => ['cs' => 'Makarons']],
+            ['price' => '1.20', 't' => ['cs' => 'SDM']],
+        ]);
+
+        $row = $this->findActiveRow($productId);
+        $this->assertSame('1.20', $row['min_subtype_price']);
+    }
+
+    public function test_all_active_min_subtype_price_is_null_without_subtypes(): void
+    {
+        $productId = $this->makeProduct();
+        $row       = $this->findActiveRow($productId);
+        $this->assertNull($row['min_subtype_price']);
+    }
+
+    private function findActiveRow(int $productId): array
+    {
+        foreach (ProductModel::allActive('en', self::$categoryId) as $row) {
+            if ((int) $row['id'] === $productId) {
+                return $row;
+            }
+        }
+        $this->fail('Product ' . $productId . ' not found in allActive() results');
+    }
+
     public function test_set_translations_stores_meta_fields(): void
     {
         $pdo = Database::getConnection();

@@ -10,7 +10,8 @@ class ProductModel
             SELECT p.id, p.category_id, p.sku, p.price, p.stock_type, p.stock_qty,
                    COALESCE(t.name, p.sku) AS name,
                    t.description,
-                   i.filename AS primary_image
+                   i.filename AS primary_image,
+                   (SELECT MIN(price) FROM product_subtypes WHERE product_id = p.id) AS min_subtype_price
             FROM products p
             LEFT JOIN product_t t ON t.product_id = p.id AND t.lang_code = :lang
             LEFT JOIN product_images i ON i.product_id = p.id AND i.is_primary = 1
