@@ -29,8 +29,23 @@ class CategoryController extends AdminBaseController
     {
         $body   = (array) $request->getParsedBody();
         $userId = (int) ($_SESSION['admin_user']['id'] ?? 0);
-        $id     = CategoryModel::create(
-            ['slug' => trim($body['slug'] ?? ''), 'sort_order' => (int) ($body['sort_order'] ?? 0)],
+        $slug   = trim($body['slug'] ?? '');
+        if ($slug === '') {
+            $nameForSlug = trim($body['t']['en']['name'] ?? '');
+            if ($nameForSlug === '') {
+                foreach (self::LANGS as $lang) {
+                    $candidate = trim($body['t'][$lang]['name'] ?? '');
+                    if ($candidate !== '') {
+                        $nameForSlug = $candidate;
+                        break;
+                    }
+                }
+            }
+            $slug = CategoryModel::slugify($nameForSlug);
+        }
+        $slug = CategoryModel::uniqueSlug($slug);
+        $id   = CategoryModel::create(
+            ['slug' => $slug, 'sort_order' => (int) ($body['sort_order'] ?? 0)],
             $userId
         );
         $translations = \App\Services\Translator::autoFill(
