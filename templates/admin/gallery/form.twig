@@ -5,6 +5,13 @@
     <h1>{{ album ? t('gallery.form.title_edit') : t('gallery.form.title_new') }}</h1>
     <a href="/admin/gallery" class="btn btn-secondary">{{ t('gallery.form.back') }}</a>
 </div>
+{% if album %}
+<p class="audit-meta">
+    {{ t('gallery.audit.created', {user: album.created_by_email ?? t('common.audit.unknown_user'), date: album.created_at}) }}
+    ·
+    {{ t('gallery.audit.updated', {user: album.updated_by_email ?? t('common.audit.unknown_user'), date: album.updated_at}) }}
+</p>
+{% endif %}
 <form method="POST" action="{{ album ? '/admin/gallery/' ~ album.id ~ '/edit' : '/admin/gallery/new' }}" enctype="multipart/form-data" class="admin-form">
     <div class="form-group">
         <label>{{ t('gallery.form.slug') }}</label>

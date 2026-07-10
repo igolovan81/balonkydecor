@@ -5,6 +5,13 @@
     <h1>{{ service ? t('services.form.title_edit') : t('services.form.title_new') }}</h1>
     <a href="/admin/services" class="btn btn-secondary">{{ t('services.form.back') }}</a>
 </div>
+{% if service %}
+<p class="audit-meta">
+    {{ t('services.audit.created', {user: service.created_by_email ?? t('common.audit.unknown_user'), date: service.created_at}) }}
+    ·
+    {{ t('services.audit.updated', {user: service.updated_by_email ?? t('common.audit.unknown_user'), date: service.updated_at}) }}
+</p>
+{% endif %}
 <form method="POST" action="{{ service ? '/admin/services/' ~ service.id ~ '/edit' : '/admin/services/new' }}" class="admin-form">
     <div class="form-group">
         <label>{{ t('services.form.price') }}</label>

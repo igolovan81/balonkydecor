@@ -6,13 +6,14 @@
     <a href="/admin/gallery/new" class="btn btn-primary">{{ t('gallery.add') }}</a>
 </div>
 <table class="admin-table">
-    <thead><tr><th>{{ t('gallery.col.id') }}</th><th>{{ t('gallery.col.slug') }}</th><th>{{ t('gallery.col.order') }}</th><th>{{ t('gallery.col.actions') }}</th></tr></thead>
+    <thead><tr><th>{{ t('gallery.col.id') }}</th><th>{{ t('gallery.col.slug') }}</th><th>{{ t('gallery.col.order') }}</th><th>{{ t('gallery.col.updated') }}</th><th>{{ t('gallery.col.actions') }}</th></tr></thead>
     <tbody>
     {% for a in albums %}
     <tr>
         <td>{{ a.id }}</td>
         <td>{{ a.slug }}</td>
         <td>{{ a.sort_order }}</td>
+        <td class="audit-meta">{{ a.updated_by_email ?? t('common.audit.unknown_user') }}<br>{{ a.updated_at }}</td>
         <td>
             <a href="/admin/gallery/{{ a.id }}/edit">{{ t('gallery.edit') }}</a> |
             <form method="POST" action="/admin/gallery/{{ a.id }}/delete" style="display:inline" onsubmit="return confirm('{{ t('gallery.confirm_delete') }}')">
@@ -21,7 +22,7 @@
         </td>
     </tr>
     {% else %}
-    <tr><td colspan="4">{{ t('gallery.no_albums') }}</td></tr>
+    <tr><td colspan="5">{{ t('gallery.no_albums') }}</td></tr>
     {% endfor %}
     </tbody>
 </table>
