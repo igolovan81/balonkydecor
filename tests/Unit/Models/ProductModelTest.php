@@ -126,6 +126,43 @@ class ProductModelTest extends TestCase
         $this->assertSame('Best test product in town.', $translations['en']['meta_desc']);
     }
 
+    public function test_slugify_converts_name_to_kebab_case(): void
+    {
+        $this->assertSame('latex-balloons-kitten-50-pcs', ProductModel::slugify('Latex balloons kitten 50 pcs'));
+    }
+
+    public function test_slugify_collapses_punctuation_and_symbols(): void
+    {
+        $this->assertSame('foo-bar', ProductModel::slugify('  Foo!!  ---  Bar??  '));
+    }
+
+    public function test_slugify_falls_back_to_product_when_empty(): void
+    {
+        $this->assertSame('product', ProductModel::slugify('   '));
+        $this->assertSame('product', ProductModel::slugify('###'));
+    }
+
+    public function test_unique_sku_returns_candidate_when_free(): void
+    {
+        $candidate = 'free-sku-' . uniqid();
+        $this->assertSame($candidate, ProductModel::uniqueSku($candidate));
+    }
+
+    public function test_unique_sku_appends_suffix_on_single_collision(): void
+    {
+        $base = 'collide-sku-' . uniqid();
+        ProductModel::create(['sku' => $base, 'price' => 9.99, 'category_id' => self::$categoryId], self::$userId);
+        $this->assertSame($base . '-2', ProductModel::uniqueSku($base));
+    }
+
+    public function test_unique_sku_appends_incrementing_suffix_on_multiple_collisions(): void
+    {
+        $base = 'collide-sku-' . uniqid();
+        ProductModel::create(['sku' => $base, 'price' => 9.99, 'category_id' => self::$categoryId], self::$userId);
+        ProductModel::create(['sku' => $base . '-2', 'price' => 9.99, 'category_id' => self::$categoryId], self::$userId);
+        $this->assertSame($base . '-3', ProductModel::uniqueSku($base));
+    }
+
     public function test_create_persists_limited_stock(): void
     {
         $id = ProductModel::create([

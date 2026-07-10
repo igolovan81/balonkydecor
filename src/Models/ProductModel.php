@@ -87,6 +87,29 @@ class ProductModel
         return $product;
     }
 
+    public static function slugify(string $name): string
+    {
+        $slug = strtolower(trim($name));
+        $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
+        $slug = trim($slug, '-');
+        return $slug !== '' ? $slug : 'product';
+    }
+
+    public static function uniqueSku(string $candidate): string
+    {
+        $pdo    = Database::getConnection();
+        $stmt   = $pdo->prepare('SELECT COUNT(*) FROM products WHERE sku = ?');
+        $sku    = $candidate;
+        $suffix = 2;
+        $stmt->execute([$sku]);
+        while ((int) $stmt->fetchColumn() > 0) {
+            $sku = $candidate . '-' . $suffix;
+            $suffix++;
+            $stmt->execute([$sku]);
+        }
+        return $sku;
+    }
+
     public static function create(array $data, int $userId): int
     {
         $pdo       = Database::getConnection();
