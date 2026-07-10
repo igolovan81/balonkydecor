@@ -41,8 +41,10 @@ $app->add(TwigMiddleware::createFromContainer($app, Twig::class));
 $app->add(new PageViewMiddleware($settings['languages'], function (
     string $path, string $lang, ?string $referrer, string $ip, ?string $userAgent
 ) {
-    $ipAnon = \App\Models\PageViewModel::anonymizeIp($ip);
-    \App\Models\PageViewModel::record($path, $lang, $referrer, $ipAnon, $userAgent);
+    $ipAnon     = \App\Models\PageViewModel::anonymizeIp($ip);
+    $deviceType = \App\Models\PageViewModel::classifyDevice($userAgent);
+    $browser    = \App\Models\PageViewModel::classifyBrowser($userAgent);
+    \App\Models\PageViewModel::record($path, $lang, $referrer, $ipAnon, $userAgent, $deviceType, $browser);
     if (random_int(1, 100) === 1) {
         \App\Models\PageViewModel::pruneOlderThan(90);
     }
