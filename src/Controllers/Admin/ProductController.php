@@ -32,15 +32,16 @@ class ProductController extends AdminBaseController
 
     public function createSubmit(Request $request, Response $response, array $args): Response
     {
-        $body = (array) $request->getParsedBody();
-        $id   = ProductModel::create([
+        $body   = (array) $request->getParsedBody();
+        $userId = (int) ($_SESSION['admin_user']['id'] ?? 0);
+        $id     = ProductModel::create([
             'sku'         => trim($body['sku'] ?? ''),
             'price'       => $body['price'] ?? '0.00',
             'category_id' => $body['category_id'] ?? 1,
             'is_active'   => isset($body['is_active']) ? 1 : 0,
             'stock_type'  => $body['stock_type'] ?? 'unlimited',
             'stock_qty'   => $body['stock_qty'] ?? 0,
-        ]);
+        ], $userId);
         $translations = \App\Services\Translator::autoFill(
             $body['t'] ?? [],
             $request->getAttribute('admin_lang', 'cs'),
@@ -69,8 +70,9 @@ class ProductController extends AdminBaseController
 
     public function editSubmit(Request $request, Response $response, array $args): Response
     {
-        $id   = (int) $args['id'];
-        $body = (array) $request->getParsedBody();
+        $id     = (int) $args['id'];
+        $body   = (array) $request->getParsedBody();
+        $userId = (int) ($_SESSION['admin_user']['id'] ?? 0);
         ProductModel::update($id, [
             'sku'         => trim($body['sku'] ?? ''),
             'price'       => $body['price'] ?? '0.00',
@@ -78,7 +80,7 @@ class ProductController extends AdminBaseController
             'is_active'   => isset($body['is_active']) ? 1 : 0,
             'stock_type'  => $body['stock_type'] ?? 'unlimited',
             'stock_qty'   => $body['stock_qty'] ?? 0,
-        ]);
+        ], $userId);
         ProductModel::setTranslations($id, $body['t'] ?? []);
         $this->handleImageUpload($request, $id, false);
         $this->flash('success', 'products.flash.updated');
