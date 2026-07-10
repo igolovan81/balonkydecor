@@ -127,18 +127,22 @@ class GalleryModel
         return $album;
     }
 
-    public static function allAlbums(): array
+    public static function allAlbums(string $lang): array
     {
-        $pdo = Database::getConnection();
-        return $pdo->query(
-            'SELECT a.*,
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare(
+            'SELECT a.*, COALESCE(t.name, cs.name, a.slug) AS name,
                     creator.email AS created_by_email,
                     updater.email AS updated_by_email
              FROM gallery_albums a
+             LEFT JOIN gallery_album_t t  ON t.album_id = a.id AND t.lang_code  = :lang
+             LEFT JOIN gallery_album_t cs ON cs.album_id = a.id AND cs.lang_code = \'cs\'
              LEFT JOIN users creator ON creator.id = a.created_by
              LEFT JOIN users updater ON updater.id = a.updated_by
              ORDER BY a.sort_order, a.id'
-        )->fetchAll();
+        );
+        $stmt->execute(['lang' => $lang]);
+        return $stmt->fetchAll();
     }
 
     public static function findAlbumById(int $id): ?array

@@ -14,7 +14,7 @@ class GalleryController extends AdminBaseController
 
     public function index(Request $request, Response $response, array $args): Response
     {
-        $albums = GalleryModel::allAlbums();
+        $albums = GalleryModel::allAlbums($request->getAttribute('admin_lang', 'cs'));
         return $this->renderAdmin($request, $response, 'admin/gallery/index.twig', compact('albums'));
     }
 

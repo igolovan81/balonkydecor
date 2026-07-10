@@ -77,11 +77,46 @@ class GalleryModelTest extends TestCase
     public function test_all_albums_includes_audit_columns(): void
     {
         GalleryModel::createAlbum(['slug' => 'audit-album-' . uniqid(), 'sort_order' => 1], self::$userId);
-        $rows = GalleryModel::allAlbums();
+        $rows = GalleryModel::allAlbums('cs');
         $this->assertNotEmpty($rows);
         foreach (['created_by_email', 'created_at', 'updated_by_email', 'updated_at'] as $key) {
             $this->assertArrayHasKey($key, $rows[0]);
         }
+    }
+
+    public function test_all_albums_respects_requested_language(): void
+    {
+        $slug = 'audit-album-' . uniqid();
+        $id   = GalleryModel::createAlbum(['slug' => $slug, 'sort_order' => 1], self::$userId);
+        GalleryModel::setAlbumTranslations($id, [
+            'cs' => ['name' => 'Český název alba'],
+            'en' => ['name' => 'English Album Name'],
+        ]);
+
+        $csRow = $this->findInAllAlbums($slug, 'cs');
+        $enRow = $this->findInAllAlbums($slug, 'en');
+
+        $this->assertSame('Český název alba', $csRow['name']);
+        $this->assertSame('English Album Name', $enRow['name']);
+    }
+
+    public function test_all_albums_falls_back_to_slug_when_no_translation(): void
+    {
+        $slug = 'audit-album-' . uniqid();
+        GalleryModel::createAlbum(['slug' => $slug, 'sort_order' => 1], self::$userId);
+
+        $row = $this->findInAllAlbums($slug, 'en');
+        $this->assertSame($slug, $row['name']);
+    }
+
+    private function findInAllAlbums(string $slug, string $lang): array
+    {
+        foreach (GalleryModel::allAlbums($lang) as $album) {
+            if ($album['slug'] === $slug) {
+                return $album;
+            }
+        }
+        $this->fail("Album {$slug} not returned by allAlbums()");
     }
 
     public function test_set_album_translations_stores_meta_fields(): void
