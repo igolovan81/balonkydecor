@@ -133,6 +133,8 @@ body.admin-login-page { background:#1a1a2e; display:flex; align-items:center; ju
 .admin-logout:hover { color: #fff; }
 .admin-logout:hover svg { opacity: 1; }
 
+.admin-version { margin-top: 0.6rem; color: #6a6a94; font-size: 0.68rem; }
+
 /* Notifications bell */
 .admin-notif-wrap { position: relative; padding: 0 1.25rem 0.75rem; }
 .admin-notif-bell {
