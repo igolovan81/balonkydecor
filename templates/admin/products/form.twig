@@ -17,7 +17,13 @@
         <div class="product-form-main">
             <div class="form-group">
                 <label>{{ t('products.form.sku') }}</label>
-                <input type="text" name="sku" value="{{ product.sku ?? '' }}" required>
+                <input type="text" id="sku-input" class="sku-input" name="sku" value="{{ product.sku ?? '' }}" {% if not product %}readonly{% endif %} required>
+                {% if not product %}
+                <div style="margin-top:0.35rem;">
+                    <button type="button" id="sku-edit-btn" class="btn-link" style="font-size:0.85rem">{{ t('products.form.sku_edit_manually') }}</button>
+                </div>
+                <p class="audit-meta" style="margin-top:0.35rem;">{{ t('products.form.sku_hint') }}</p>
+                {% endif %}
             </div>
             <div class="form-group">
                 <label>{{ t('products.form.price') }}</label>
@@ -140,6 +146,31 @@ document.querySelectorAll('.lang-tab').forEach(tab => {
 
     stockTypeSelect.addEventListener('change', syncStockQtyVisibility);
     syncStockQtyVisibility();
+})();
+
+// SKU auto-generation from English name (create form only — readonly + unlock button
+// are only rendered when there's no existing product)
+(function () {
+    const skuInput    = document.getElementById('sku-input');
+    const editBtn     = document.getElementById('sku-edit-btn');
+    const enNameInput = document.querySelector('input[name="t[en][name]"]');
+    if (!skuInput || !editBtn || !enNameInput) return;
+
+    function slugify(s) {
+        return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    }
+
+    enNameInput.addEventListener('input', () => {
+        if (skuInput.readOnly) {
+            skuInput.value = slugify(enNameInput.value);
+        }
+    });
+
+    editBtn.addEventListener('click', () => {
+        skuInput.readOnly = false;
+        skuInput.focus();
+        editBtn.style.display = 'none';
+    });
 })();
 
 // Translate buttons — JS runtime strings remain hardcoded Czech per spec
