@@ -1,5 +1,6 @@
 <?php
 use App\Middleware\LangMiddleware;
+use App\Middleware\PageViewMiddleware;
 use DI\ContainerBuilder;
 use Slim\Factory\AppFactory;
 use Slim\Views\Twig;
@@ -37,6 +38,15 @@ AppFactory::setContainer($container);
 $app = AppFactory::create();
 
 $app->add(TwigMiddleware::createFromContainer($app, Twig::class));
+$app->add(new PageViewMiddleware($settings['languages'], function (
+    string $path, string $lang, ?string $referrer, string $ip, ?string $userAgent
+) {
+    $ipAnon = \App\Models\PageViewModel::anonymizeIp($ip);
+    \App\Models\PageViewModel::record($path, $lang, $referrer, $ipAnon, $userAgent);
+    if (random_int(1, 100) === 1) {
+        \App\Models\PageViewModel::pruneOlderThan(90);
+    }
+}));
 $app->add(new LangMiddleware(
     $settings['languages'],
     $settings['default_lang'],
