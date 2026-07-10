@@ -178,6 +178,8 @@
   "products.form.price": "Цена (Kč)",
   "products.form.save": "Сохранить",
   "products.form.sku": "SKU",
+  "products.form.sku_edit_manually": "Изменить вручную",
+  "products.form.sku_hint": "Автоматически генерируется из английского названия товара. Нажмите «Изменить вручную», чтобы задать его самостоятельно.",
   "products.form.stock_label": "На складе",
   "products.form.stock_limited": "Ограничено",
   "products.form.stock_qty_label": "Количество",

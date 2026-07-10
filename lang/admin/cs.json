@@ -178,6 +178,8 @@
   "products.form.price": "Cena (Kč)",
   "products.form.save": "Uložit",
   "products.form.sku": "SKU",
+  "products.form.sku_edit_manually": "Upravit ručně",
+  "products.form.sku_hint": "Automaticky generováno z anglického názvu produktu. Kliknutím na „Upravit ručně“ jej můžete nastavit sami.",
   "products.form.stock_label": "Skladem",
   "products.form.stock_limited": "Omezeno",
   "products.form.stock_qty_label": "Množství",

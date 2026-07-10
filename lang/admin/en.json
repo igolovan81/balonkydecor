@@ -178,6 +178,8 @@
   "products.form.price": "Price (CZK)",
   "products.form.save": "Save",
   "products.form.sku": "SKU",
+  "products.form.sku_edit_manually": "Edit manually",
+  "products.form.sku_hint": "Auto-generated from the English product name. Click \"Edit manually\" to set it yourself.",
   "products.form.stock_label": "Stock",
   "products.form.stock_limited": "Limited",
   "products.form.stock_qty_label": "Quantity",
