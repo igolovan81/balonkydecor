@@ -69,6 +69,26 @@
                 {% endif %}
             </div>
             {% endfor %}
+
+            <h3>{{ t('products.form.subtypes') }}</h3>
+            <div id="subtype-rows">
+                {% for subtype in product.subtypes ?? [] %}
+                <div class="subtype-row">
+                    <input type="text" name="subtypes[{{ loop.index0 }}][name]" value="{{ subtype.t[admin_lang] ?? '' }}" placeholder="{{ t('products.form.subtype_name_label') }}">
+                    <input type="number" name="subtypes[{{ loop.index0 }}][price]" step="0.01" min="0" value="{{ subtype.price }}" placeholder="{{ t('products.form.subtype_price') }}">
+                    <button type="button" class="btn-link subtype-remove-btn">{{ t('products.form.subtype_remove') }}</button>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" id="subtype-add-btn" class="btn btn-secondary">{{ t('products.form.subtype_add') }}</button>
+
+            <template id="subtype-row-template">
+                <div class="subtype-row">
+                    <input type="text" name="subtypes[__INDEX__][name]" placeholder="{{ t('products.form.subtype_name_label') }}">
+                    <input type="number" name="subtypes[__INDEX__][price]" step="0.01" min="0" placeholder="{{ t('products.form.subtype_price') }}">
+                    <button type="button" class="btn-link subtype-remove-btn">{{ t('products.form.subtype_remove') }}</button>
+                </div>
+            </template>
         </div>
         <div class="product-form-side">
             <div class="form-group">
@@ -133,6 +153,34 @@ document.querySelectorAll('.lang-tab').forEach(tab => {
         document.getElementById('panel-' + tab.dataset.lang).classList.add('active');
     });
 });
+
+// Subtype rows — add/remove
+(function () {
+    const container = document.getElementById('subtype-rows');
+    const addBtn    = document.getElementById('subtype-add-btn');
+    const template  = document.getElementById('subtype-row-template');
+    if (!container || !addBtn || !template) return;
+
+    let nextIndex = container.querySelectorAll('.subtype-row').length;
+
+    function bindRemove(row) {
+        row.querySelector('.subtype-remove-btn').addEventListener('click', () => {
+            row.remove();
+        });
+    }
+
+    container.querySelectorAll('.subtype-row').forEach(bindRemove);
+
+    addBtn.addEventListener('click', () => {
+        const html    = template.innerHTML.replace(/__INDEX__/g, nextIndex);
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = html.trim();
+        const row = wrapper.firstElementChild;
+        container.appendChild(row);
+        bindRemove(row);
+        nextIndex++;
+    });
+})();
 
 // Stock quantity field toggle
 (function () {
