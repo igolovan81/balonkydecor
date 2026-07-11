@@ -21,6 +21,7 @@
     <div class="container">
         <a href="/{{ lang }}/services/archive" class="back-link">{{ t('gallery.back') }}</a>
         <h1>{{ album.name }}</h1>
+        {% if album.description %}<p class="gallery-album-description">{{ album.description }}</p>{% endif %}
     </div>
 </section>
 <div class="container" style="padding: 2.5rem 1.5rem;">
