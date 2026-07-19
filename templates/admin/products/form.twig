@@ -120,6 +120,7 @@
                 <div style="text-align:center;">
                     <img src="/assets/uploads/products/thumb_{{ img.filename }}" class="img-thumb"><br>
                     <button type="button" class="btn-link delete-image-btn" style="font-size:0.8rem" data-url="/admin/products/{{ product.id }}/image/{{ img.id }}/delete">{{ t('products.form.delete_image') }}</button>
+                    <button type="button" class="btn-link split-image-btn" style="font-size:0.8rem" data-url="/admin/products/{{ product.id }}/clone-image/{{ img.id }}" data-confirm="{{ t('products.form.confirm_split') }}">{{ t('products.form.split_image') }}</button>
                 </div>
                 {% endfor %}
                 </div>
@@ -142,6 +143,17 @@ document.querySelectorAll('.delete-image-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
         await fetch(btn.dataset.url, { method: 'POST' });
         location.reload();
+    });
+});
+
+// Split-image buttons — same fetch() convention as delete, but navigate to
+// wherever the request redirected (the new product's edit page) instead of
+// reloading in place.
+document.querySelectorAll('.split-image-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+        if (!confirm(btn.dataset.confirm)) return;
+        const res = await fetch(btn.dataset.url, { method: 'POST' });
+        location.href = res.url;
     });
 });
 
