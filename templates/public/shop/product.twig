@@ -53,7 +53,16 @@
     </div>
 
     <div class="product-detail-info">
-        <h1>{{ product.name }}</h1>
+        <div class="product-detail-heading">
+            <h1>{{ product.name }}</h1>
+            <form action="/{{ lang }}/wishlist/toggle" method="POST" class="wishlist-toggle-form wishlist-toggle-form--lg">
+                <input type="hidden" name="sku" value="{{ product.sku }}">
+                <input type="hidden" name="return" value="/{{ lang }}{{ current_path }}">
+                <button type="submit" class="wishlist-toggle {{ in_wishlist ? 'active' : '' }}" aria-label="{{ in_wishlist ? t('shop.wishlist_remove') : t('shop.wishlist_add') }}">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.686-9.9-9.028C.4 8.9 1.5 5 5 5c2.3 0 3.6 1.4 4.5 2.7C10.4 6.4 11.7 5 14 5c3.5 0 4.6 3.9 2.9 6.972C19.5 16.314 12 21 12 21z"/></svg>
+                </button>
+            </form>
+        </div>
         {% if product.subtypes %}
         <p class="product-price-lg" id="subtype-price">{{ product.subtypes[0].price|number_format(2, '.', ' ') }} Kč</p>
         {% else %}

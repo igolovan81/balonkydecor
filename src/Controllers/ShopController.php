@@ -38,6 +38,7 @@ class ShopController extends BaseController
             'product'           => $product,
             'min_subtype_price' => $subtypePrices ? min($subtypePrices) : null,
             'max_subtype_price' => $subtypePrices ? max($subtypePrices) : null,
+            'in_wishlist'       => Wishlist::has($product['sku']),
         ]);
     }
 }
