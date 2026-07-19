@@ -171,6 +171,26 @@ class ProductModel
         ]);
     }
 
+    public static function bulkSetActive(array $ids, bool $active, int $userId): int
+    {
+        $ids = array_values(array_unique(array_filter(
+            array_map('intval', $ids),
+            fn ($id) => $id > 0
+        )));
+        if (!$ids) {
+            return 0;
+        }
+
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $pdo          = Database::getConnection();
+        $stmt         = $pdo->prepare(
+            "UPDATE products SET is_active = ?, updated_by = ? WHERE id IN ($placeholders)"
+        );
+        $stmt->execute(array_merge([$active ? 1 : 0, $userId], $ids));
+
+        return count($ids);
+    }
+
     public static function delete(int $id): void
     {
         $pdo = Database::getConnection();

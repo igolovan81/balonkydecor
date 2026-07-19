@@ -681,4 +681,70 @@ class ProductModelTest extends TestCase
         $this->assertCount(1, $otherImages);
         $this->assertSame('not-mine.jpg', $otherImages[0]['filename']);
     }
+
+    public function test_bulk_set_active_activates_selected_products(): void
+    {
+        $id1 = ProductModel::create([
+            'sku' => 'TEST-BULK-' . uniqid(), 'price' => 9.99,
+            'category_id' => self::$categoryId, 'is_active' => 0,
+        ], self::$userId);
+        $id2 = ProductModel::create([
+            'sku' => 'TEST-BULK-' . uniqid(), 'price' => 9.99,
+            'category_id' => self::$categoryId, 'is_active' => 0,
+        ], self::$userId);
+
+        $count = ProductModel::bulkSetActive([$id1, $id2], true, self::$userId);
+
+        $this->assertSame(2, $count);
+        $this->assertSame(1, (int) ProductModel::findById($id1)['is_active']);
+        $this->assertSame(1, (int) ProductModel::findById($id2)['is_active']);
+    }
+
+    public function test_bulk_set_active_deactivates_selected_products(): void
+    {
+        $id1 = ProductModel::create([
+            'sku' => 'TEST-BULK-' . uniqid(), 'price' => 9.99,
+            'category_id' => self::$categoryId, 'is_active' => 1,
+        ], self::$userId);
+        $id2 = ProductModel::create([
+            'sku' => 'TEST-BULK-' . uniqid(), 'price' => 9.99,
+            'category_id' => self::$categoryId, 'is_active' => 1,
+        ], self::$userId);
+
+        $count = ProductModel::bulkSetActive([$id1, $id2], false, self::$userId);
+
+        $this->assertSame(2, $count);
+        $this->assertSame(0, (int) ProductModel::findById($id1)['is_active']);
+        $this->assertSame(0, (int) ProductModel::findById($id2)['is_active']);
+    }
+
+    public function test_bulk_set_active_ignores_non_numeric_and_empty_ids(): void
+    {
+        $id = ProductModel::create([
+            'sku' => 'TEST-BULK-' . uniqid(), 'price' => 9.99,
+            'category_id' => self::$categoryId, 'is_active' => 0,
+        ], self::$userId);
+
+        $count = ProductModel::bulkSetActive([(string) $id, 'abc', '', '0', '-5'], true, self::$userId);
+
+        $this->assertSame(1, $count);
+        $this->assertSame(1, (int) ProductModel::findById($id)['is_active']);
+    }
+
+    public function test_bulk_set_active_returns_zero_for_empty_array(): void
+    {
+        $this->assertSame(0, ProductModel::bulkSetActive([], true, self::$userId));
+    }
+
+    public function test_bulk_set_active_records_updated_by(): void
+    {
+        $id = ProductModel::create([
+            'sku' => 'TEST-BULK-' . uniqid(), 'price' => 9.99,
+            'category_id' => self::$categoryId,
+        ], self::$userId);
+
+        ProductModel::bulkSetActive([$id], false, self::$userId);
+
+        $this->assertSame(self::$userId, (int) ProductModel::findById($id)['updated_by']);
+    }
 }
