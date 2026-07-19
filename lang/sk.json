@@ -49,6 +49,7 @@
   "nav.services_our": "Naše služby",
   "nav.shipping": "Doprava a platba",
   "nav.shop": "Obchod",
+  "nav.wishlist": "Obľúbené",
   "order.items": "Položky",
   "order.product": "Produkt",
   "order.qty": "Počet",
@@ -73,5 +74,10 @@
   "shop.no_products": "Žiadne produkty v tejto kategórii.",
   "shop.qty": "Množstvo",
   "shop.subtype": "Variant",
-  "site.name": "BalonkyDecor"
+  "shop.wishlist_add": "Pridať do obľúbených",
+  "shop.wishlist_remove": "Odstrániť z obľúbených",
+  "site.name": "BalonkyDecor",
+  "wishlist.empty": "Zatiaľ nemáte žiadne obľúbené produkty.",
+  "wishlist.title": "Obľúbené",
+  "wishlist.view_product": "Zobraziť produkt"
 }

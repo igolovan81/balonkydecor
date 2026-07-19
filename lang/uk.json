@@ -49,6 +49,7 @@
   "nav.services_our": "Наші послуги",
   "nav.shipping": "Доставка та оплата",
   "nav.shop": "Магазин",
+  "nav.wishlist": "Обране",
   "order.items": "Позиції",
   "order.product": "Товар",
   "order.qty": "К-сть",
@@ -73,5 +74,10 @@
   "shop.no_products": "Немає товарів у цій категорії.",
   "shop.qty": "Кількість",
   "shop.subtype": "Варіант",
-  "site.name": "BalonkyDecor"
+  "shop.wishlist_add": "Додати в обране",
+  "shop.wishlist_remove": "Прибрати з обраного",
+  "site.name": "BalonkyDecor",
+  "wishlist.empty": "У вас поки немає збережених товарів.",
+  "wishlist.title": "Обране",
+  "wishlist.view_product": "Переглянути товар"
 }

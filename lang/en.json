@@ -49,6 +49,7 @@
   "nav.services_our": "Our Services",
   "nav.shipping": "Shipping and payment",
   "nav.shop": "Shop",
+  "nav.wishlist": "Wishlist",
   "order.items": "Items",
   "order.product": "Product",
   "order.qty": "Qty",
@@ -73,5 +74,10 @@
   "shop.no_products": "No products in this category.",
   "shop.qty": "Quantity",
   "shop.subtype": "Variant",
-  "site.name": "BalonkyDecor"
+  "shop.wishlist_add": "Add to wishlist",
+  "shop.wishlist_remove": "Remove from wishlist",
+  "site.name": "BalonkyDecor",
+  "wishlist.empty": "You have no saved products yet.",
+  "wishlist.title": "Wishlist",
+  "wishlist.view_product": "View product"
 }

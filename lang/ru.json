@@ -49,6 +49,7 @@
   "nav.services_our": "Наши услуги",
   "nav.shipping": "Доставка и оплата",
   "nav.shop": "Магазин",
+  "nav.wishlist": "Избранное",
   "order.items": "Позиции",
   "order.product": "Товар",
   "order.qty": "Кол-во",
@@ -73,5 +74,10 @@
   "shop.no_products": "Нет товаров в этой категории.",
   "shop.qty": "Количество",
   "shop.subtype": "Вариант",
-  "site.name": "BalonkyDecor"
+  "shop.wishlist_add": "Добавить в избранное",
+  "shop.wishlist_remove": "Убрать из избранного",
+  "site.name": "BalonkyDecor",
+  "wishlist.empty": "У вас пока нет сохранённых товаров.",
+  "wishlist.title": "Избранное",
+  "wishlist.view_product": "Смотреть товар"
 }
