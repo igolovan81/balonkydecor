@@ -5,9 +5,16 @@
     <h1>{{ t('products.title') }}</h1>
     <a href="/admin/products/new" class="btn btn-primary">{{ t('products.add') }}</a>
 </div>
+<div style="margin:0 0 1rem;display:flex;gap:0.5rem;">
+    <button type="button" class="btn btn-secondary" id="bulk-activate-btn" disabled
+            data-action="activate" data-confirm="{{ t('products.bulk.confirm_activate') }}">{{ t('products.bulk.activate') }}</button>
+    <button type="button" class="btn btn-secondary" id="bulk-deactivate-btn" disabled
+            data-action="deactivate" data-confirm="{{ t('products.bulk.confirm_deactivate') }}">{{ t('products.bulk.deactivate') }}</button>
+</div>
 <table class="admin-table">
     <thead>
         <tr>
+            <th><input type="checkbox" id="select-all-checkbox" aria-label="{{ t('products.bulk.select_all') }}"></th>
             <th>{{ t('products.col.image') }}</th>
             <th>{{ t('products.col.name') }}</th>
             <th>{{ t('products.col.category') }}</th>
@@ -21,6 +28,7 @@
     <tbody>
     {% for p in products %}
     <tr>
+        <td><input type="checkbox" class="row-checkbox" value="{{ p.id }}"></td>
         <td>
             {% if p.primary_image %}
             <img src="/assets/uploads/products/thumb_{{ p.primary_image }}" class="img-thumb">
@@ -43,8 +51,54 @@
         </td>
     </tr>
     {% else %}
-    <tr><td colspan="8">{{ t('products.no_products') }}</td></tr>
+    <tr><td colspan="9">{{ t('products.no_products') }}</td></tr>
     {% endfor %}
     </tbody>
 </table>
+{% endblock %}
+{% block scripts %}
+<script>
+const rowCheckboxes     = document.querySelectorAll('.row-checkbox');
+const selectAllCheckbox = document.getElementById('select-all-checkbox');
+const activateBtn       = document.getElementById('bulk-activate-btn');
+const deactivateBtn     = document.getElementById('bulk-deactivate-btn');
+
+function checkedIds() {
+    return Array.from(rowCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
+}
+
+function refreshButtons() {
+    const hasSelection = checkedIds().length > 0;
+    activateBtn.disabled = !hasSelection;
+    deactivateBtn.disabled = !hasSelection;
+}
+
+rowCheckboxes.forEach(cb => cb.addEventListener('change', () => {
+    if (!cb.checked) selectAllCheckbox.checked = false;
+    refreshButtons();
+}));
+
+selectAllCheckbox.addEventListener('change', () => {
+    rowCheckboxes.forEach(cb => { cb.checked = selectAllCheckbox.checked; });
+    refreshButtons();
+});
+
+// Bulk buttons — fetch(), not a wrapping <form> (the table already has
+// per-row Clone/Delete forms; forms can't nest in valid HTML).
+[activateBtn, deactivateBtn].forEach(btn => {
+    btn.addEventListener('click', async () => {
+        const ids = checkedIds();
+        if (!ids.length) return;
+        const message = btn.dataset.confirm.replace('{count}', ids.length);
+        if (!confirm(message)) return;
+
+        const body = new URLSearchParams();
+        body.set('action', btn.dataset.action);
+        ids.forEach(id => body.append('ids[]', id));
+
+        await fetch('/admin/products/bulk', { method: 'POST', body });
+        location.reload();
+    });
+});
+</script>
 {% endblock %}
