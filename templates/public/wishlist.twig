@@ -1,0 +1,58 @@
+{% extends "layout/base.twig" %}
+
+{% block title %}{{ t('wishlist.title') }} — {{ t('site.name') }}{% endblock %}
+{% block meta_desc %}{% endblock %}
+
+{% block head %}<meta name="robots" content="noindex,nofollow">{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container"><h1>{{ t('wishlist.title') }}</h1></div>
+</section>
+
+<div class="container">
+    {% if items %}
+    <div class="product-grid">
+        {% for product in items %}
+        <div class="product-card-wrap">
+            <a href="/{{ lang }}/shop/{{ product.sku }}" class="product-card">
+                <div class="product-img">
+                    {% if product.images[0] %}
+                        <img src="/assets/uploads/products/{{ product.images[0] }}" alt="{{ product.name }}">
+                    {% else %}
+                        <div class="product-img-placeholder"></div>
+                    {% endif %}
+                </div>
+                <div class="product-info">
+                    <h3>{{ product.name }}</h3>
+                    {% if product.subtypes %}
+                    <p class="product-price">{{ t('shop.from_price', {price: product.subtypes[0].price|number_format(2, '.', ' ')}) }}</p>
+                    {% else %}
+                    <p class="product-price">{{ product.price|number_format(2, '.', ' ') }} Kč</p>
+                    {% endif %}
+                </div>
+            </a>
+            <form action="/{{ lang }}/wishlist/toggle" method="POST" class="wishlist-toggle-form">
+                <input type="hidden" name="sku" value="{{ product.sku }}">
+                <input type="hidden" name="return" value="/{{ lang }}/wishlist">
+                <button type="submit" class="wishlist-toggle active" aria-label="{{ t('shop.wishlist_remove') }}">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.686-9.9-9.028C.4 8.9 1.5 5 5 5c2.3 0 3.6 1.4 4.5 2.7C10.4 6.4 11.7 5 14 5c3.5 0 4.6 3.9 2.9 6.972C19.5 16.314 12 21 12 21z"/></svg>
+                </button>
+            </form>
+            {% if product.subtypes %}
+            <a href="/{{ lang }}/shop/{{ product.sku }}" class="btn btn-primary wishlist-action">{{ t('wishlist.view_product') }}</a>
+            {% else %}
+            <form action="/{{ lang }}/cart/add" method="POST" class="wishlist-action">
+                <input type="hidden" name="sku" value="{{ product.sku }}">
+                <input type="hidden" name="qty" value="1">
+                <button type="submit" class="btn btn-primary">{{ t('shop.add_to_cart') }}</button>
+            </form>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty-state">{{ t('wishlist.empty') }}</p>
+    {% endif %}
+</div>
+{% endblock %}
