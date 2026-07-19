@@ -19,6 +19,27 @@ class ProductController extends AdminBaseController
         return $this->renderAdmin($request, $response, 'admin/products/index.twig', compact('products'));
     }
 
+    public function bulkUpdate(Request $request, Response $response, array $args): Response
+    {
+        $body   = (array) $request->getParsedBody();
+        $action = $body['action'] ?? '';
+        if (!in_array($action, ['activate', 'deactivate'], true)) {
+            return $response->withStatus(400);
+        }
+
+        $ids = $body['ids'] ?? [];
+        if (!is_array($ids) || !$ids) {
+            $this->flash('error', 'products.flash.bulk_none_selected');
+            return $this->redirect($response, '/admin/products');
+        }
+
+        $userId = (int) ($_SESSION['admin_user']['id'] ?? 0);
+        ProductModel::bulkSetActive($ids, $action === 'activate', $userId);
+
+        $this->flash('success', $action === 'activate' ? 'products.flash.bulk_activated' : 'products.flash.bulk_deactivated');
+        return $this->redirect($response, '/admin/products');
+    }
+
     public function createForm(Request $request, Response $response, array $args): Response
     {
         $categories = CategoryModel::allWithTranslation($request->getAttribute('admin_lang', 'cs'));
