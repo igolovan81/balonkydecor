@@ -55,6 +55,7 @@ $app->group('/admin', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->get('/products/{id:[0-9]+}/edit',                             ProductController::class . ':editForm');
     $group->post('/products/{id:[0-9]+}/edit',                            ProductController::class . ':editSubmit');
     $group->post('/products/{id:[0-9]+}/clone',                           ProductController::class . ':clone');
+    $group->post('/products/{id:[0-9]+}/clone-image/{image_id:[0-9]+}',   ProductController::class . ':cloneWithImage');
     $group->post('/products/{id:[0-9]+}/delete',                          ProductController::class . ':delete');
     $group->post('/products/{id:[0-9]+}/image/{image_id:[0-9]+}/delete',  ProductController::class . ':deleteImage');
 

@@ -130,6 +130,21 @@ class ProductController extends AdminBaseController
         return $this->redirect($response, '/admin/products/' . $newId . '/edit');
     }
 
+    public function cloneWithImage(Request $request, Response $response, array $args): Response
+    {
+        $userId = (int) ($_SESSION['admin_user']['id'] ?? 0);
+        $newId  = ProductModel::clone((int) $args['id'], $userId, (int) $args['image_id']);
+        if ($newId === null) {
+            return $response->withStatus(404);
+        }
+        $clone = ProductModel::findById($newId);
+        \App\Services\Notifier::notify(
+            'product', $newId, $clone['sku'], 'created', $userId, $_SESSION['admin_user']['email'] ?? ''
+        );
+        $this->flash('success', 'products.flash.split');
+        return $this->redirect($response, '/admin/products/' . $newId . '/edit');
+    }
+
     public function deleteImage(Request $request, Response $response, array $args): Response
     {
         $filename = ProductModel::deleteImage((int) $args['image_id']);
