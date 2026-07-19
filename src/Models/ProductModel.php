@@ -335,12 +335,26 @@ class ProductModel
         return $row['filename'];
     }
 
-    public static function clone(int $id, int $userId): ?int
+    public static function clone(int $id, int $userId, ?int $imageId = null): ?int
     {
         $source = self::findById($id);
         if (!$source) {
             return null;
         }
+
+        $movedImage = null;
+        if ($imageId !== null) {
+            $movedImage = current(array_filter(
+                $source['images'],
+                fn ($img) => (int) $img['id'] === $imageId
+            ));
+            if (!$movedImage) {
+                return null;
+            }
+        }
+
+        $pdo = Database::getConnection();
+        $pdo->beginTransaction();
 
         $sku   = self::uniqueSku($source['sku']);
         $newId = self::create([
@@ -356,6 +370,29 @@ class ProductModel
         if ($translations) {
             self::setTranslations($newId, $translations);
         }
+
+        if ($movedImage !== null) {
+            $pdo->prepare('UPDATE product_images SET product_id = ?, is_primary = 1, sort_order = 0 WHERE id = ?')
+                ->execute([$newId, $movedImage['id']]);
+
+            if ((int) $movedImage['is_primary'] === 1) {
+                $pdo->prepare(
+                    'UPDATE product_images SET is_primary = 1 WHERE product_id = ? ORDER BY sort_order, id LIMIT 1'
+                )->execute([$id]);
+            }
+
+            if ($source['subtypes']) {
+                self::setSubtypes($newId, $source['subtypes']);
+            }
+
+            $countStmt = $pdo->prepare('SELECT COUNT(*) FROM product_images WHERE product_id = ?');
+            $countStmt->execute([$id]);
+            if ((int) $countStmt->fetchColumn() === 0) {
+                $pdo->prepare('UPDATE products SET is_active = 0 WHERE id = ?')->execute([$id]);
+            }
+        }
+
+        $pdo->commit();
 
         return $newId;
     }

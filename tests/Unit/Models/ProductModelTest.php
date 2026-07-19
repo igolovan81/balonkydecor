@@ -567,4 +567,118 @@ class ProductModelTest extends TestCase
     {
         $this->assertNull(ProductModel::clone(999999999, self::$userId));
     }
+
+    public function test_clone_with_image_id_moves_image_and_makes_it_primary(): void
+    {
+        $id = $this->makeProduct();
+        ProductModel::addImage($id, 'color-red.jpg', false);   // becomes primary
+        ProductModel::addImage($id, 'color-blue.jpg', false);
+
+        $images    = ProductModel::findById($id)['images'];
+        $secondary = current(array_filter($images, fn ($img) => $img['filename'] === 'color-blue.jpg'));
+
+        $newId = ProductModel::clone($id, self::$userId, (int) $secondary['id']);
+
+        $this->assertNotNull($newId);
+        $newImages = ProductModel::findById($newId)['images'];
+        $this->assertCount(1, $newImages);
+        $this->assertSame('color-blue.jpg', $newImages[0]['filename']);
+        $this->assertSame(1, (int) $newImages[0]['is_primary']);
+
+        $sourceImages = ProductModel::findById($id)['images'];
+        $this->assertCount(1, $sourceImages);
+        $this->assertSame('color-red.jpg', $sourceImages[0]['filename']);
+        $this->assertSame(1, (int) $sourceImages[0]['is_primary']);
+    }
+
+    public function test_clone_with_image_id_promotes_new_primary_on_source_when_primary_moved(): void
+    {
+        $id = $this->makeProduct();
+        ProductModel::addImage($id, 'color-red.jpg', false);   // becomes primary
+        ProductModel::addImage($id, 'color-blue.jpg', false);
+
+        $images  = ProductModel::findById($id)['images'];
+        $primary = current(array_filter($images, fn ($img) => (int) $img['is_primary'] === 1));
+
+        ProductModel::clone($id, self::$userId, (int) $primary['id']);
+
+        $remaining = ProductModel::findById($id)['images'];
+        $this->assertCount(1, $remaining);
+        $this->assertSame('color-blue.jpg', $remaining[0]['filename']);
+        $this->assertSame(1, (int) $remaining[0]['is_primary']);
+    }
+
+    public function test_clone_with_image_id_deactivates_source_when_last_image_removed(): void
+    {
+        $id = ProductModel::create([
+            'sku'         => 'TEST-SPLIT-' . uniqid(),
+            'price'       => 9.99,
+            'category_id' => self::$categoryId,
+            'is_active'   => 1,
+        ], self::$userId);
+        ProductModel::addImage($id, 'only-image.jpg', false);
+        $imageId = ProductModel::findById($id)['images'][0]['id'];
+
+        ProductModel::clone($id, self::$userId, (int) $imageId);
+
+        $source = ProductModel::findById($id);
+        $this->assertSame(0, (int) $source['is_active']);
+        $this->assertSame([], $source['images']);
+    }
+
+    public function test_clone_with_image_id_keeps_source_active_when_images_remain(): void
+    {
+        $id = ProductModel::create([
+            'sku'         => 'TEST-SPLIT-' . uniqid(),
+            'price'       => 9.99,
+            'category_id' => self::$categoryId,
+            'is_active'   => 1,
+        ], self::$userId);
+        ProductModel::addImage($id, 'color-red.jpg', false);
+        ProductModel::addImage($id, 'color-blue.jpg', false);
+        $secondImageId = ProductModel::findById($id)['images'][1]['id'];
+
+        ProductModel::clone($id, self::$userId, (int) $secondImageId);
+
+        $source = ProductModel::findById($id);
+        $this->assertSame(1, (int) $source['is_active']);
+    }
+
+    public function test_clone_with_image_id_copies_subtypes(): void
+    {
+        $id = $this->makeProduct();
+        ProductModel::addImage($id, 'color-red.jpg', false);
+        ProductModel::setSubtypes($id, [
+            ['price' => '1.90', 't' => ['cs' => 'Malý', 'en' => 'Small']],
+            ['price' => '3.40', 't' => ['cs' => 'Velký', 'en' => 'Large']],
+        ]);
+        $imageId = ProductModel::findById($id)['images'][0]['id'];
+
+        $newId = ProductModel::clone($id, self::$userId, (int) $imageId);
+
+        $newSubtypes = ProductModel::getSubtypes($newId);
+        $this->assertCount(2, $newSubtypes);
+        $this->assertSame('1.90', $newSubtypes[0]['price']);
+        $this->assertSame('Small', $newSubtypes[0]['t']['en']);
+        $this->assertSame('Velký', $newSubtypes[1]['t']['cs']);
+
+        $sourceSubtypes = ProductModel::getSubtypes($id);
+        $this->assertCount(2, $sourceSubtypes);
+    }
+
+    public function test_clone_with_image_id_not_belonging_to_product_returns_null(): void
+    {
+        $id      = $this->makeProduct();
+        $otherId = $this->makeProduct();
+        ProductModel::addImage($otherId, 'not-mine.jpg', false);
+        $foreignImageId = ProductModel::findById($otherId)['images'][0]['id'];
+
+        $result = ProductModel::clone($id, self::$userId, (int) $foreignImageId);
+
+        $this->assertNull($result);
+        $this->assertSame([], ProductModel::findById($id)['images']);
+        $otherImages = ProductModel::findById($otherId)['images'];
+        $this->assertCount(1, $otherImages);
+        $this->assertSame('not-mine.jpg', $otherImages[0]['filename']);
+    }
 }
