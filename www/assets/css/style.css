@@ -47,8 +47,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 .lang-switcher a.active { color: var(--accent); font-weight: bold; }
 
 /* Cart link (extracted from .main-nav so it stays visible when nav collapses) */
-.cart-link { order: 3; color: var(--text); text-decoration: none; font-family: var(--ui-font); font-size: .9rem; letter-spacing: .03em; }
-.cart-link:hover { color: var(--accent); }
+.cart-link, .wishlist-link { order: 3; color: var(--text); text-decoration: none; font-family: var(--ui-font); font-size: .9rem; letter-spacing: .03em; }
+.cart-link:hover, .wishlist-link:hover { color: var(--accent); }
 
 /* Hamburger toggle (hidden above 768px) */
 .nav-toggle { display: none; order: 5; }
@@ -57,7 +57,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 /* Responsive: header nav (tablet & phone) */
 @media (max-width: 768px) {
     .header-inner { position: relative; flex-wrap: wrap; }
-    .cart-link { order: 2; margin-left: auto; }
+    .cart-link, .wishlist-link { order: 2; margin-left: auto; }
     .nav-toggle {
         order: 3; display: flex; flex-direction: column; justify-content: center; gap: 5px;
         width: 44px; height: 44px; padding: 0; background: none; border: none; cursor: pointer;

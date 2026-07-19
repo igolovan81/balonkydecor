@@ -3,6 +3,7 @@ namespace App\Controllers;
 
 use App\Models\CategoryModel;
 use App\Models\ProductModel;
+use App\Services\Wishlist;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -15,9 +16,10 @@ class ShopController extends BaseController
         $categoryId = isset($params['category']) ? (int) $params['category'] : null;
 
         return $this->render($request, $response, 'public/shop/index.twig', [
-            'categories' => CategoryModel::allWithTranslation($lang),
-            'products'   => ProductModel::allActive($lang, $categoryId),
-            'active_cat' => $categoryId,
+            'categories'    => CategoryModel::allWithTranslation($lang),
+            'products'      => ProductModel::allActive($lang, $categoryId),
+            'active_cat'    => $categoryId,
+            'wishlist_skus' => Wishlist::skus(),
         ]);
     }
 

@@ -28,23 +28,33 @@
         {% if products %}
         <div class="product-grid">
             {% for product in products %}
-            <a href="/{{ lang }}/shop/{{ product.sku }}" class="product-card">
-                <div class="product-img">
-                    {% if product.primary_image %}
-                        <img src="/assets/uploads/products/{{ product.primary_image }}" alt="{{ product.name }}">
-                    {% else %}
-                        <div class="product-img-placeholder"></div>
-                    {% endif %}
-                </div>
-                <div class="product-info">
-                    <h3>{{ product.name }}</h3>
-                    {% if product.min_subtype_price is not null %}
-                    <p class="product-price">{{ t('shop.from_price', {price: product.min_subtype_price|number_format(2, '.', ' ')}) }}</p>
-                    {% else %}
-                    <p class="product-price">{{ product.price|number_format(2, '.', ' ') }} Kč</p>
-                    {% endif %}
-                </div>
-            </a>
+            {% set in_wishlist = product.sku in wishlist_skus %}
+            <div class="product-card-wrap">
+                <a href="/{{ lang }}/shop/{{ product.sku }}" class="product-card">
+                    <div class="product-img">
+                        {% if product.primary_image %}
+                            <img src="/assets/uploads/products/{{ product.primary_image }}" alt="{{ product.name }}">
+                        {% else %}
+                            <div class="product-img-placeholder"></div>
+                        {% endif %}
+                    </div>
+                    <div class="product-info">
+                        <h3>{{ product.name }}</h3>
+                        {% if product.min_subtype_price is not null %}
+                        <p class="product-price">{{ t('shop.from_price', {price: product.min_subtype_price|number_format(2, '.', ' ')}) }}</p>
+                        {% else %}
+                        <p class="product-price">{{ product.price|number_format(2, '.', ' ') }} Kč</p>
+                        {% endif %}
+                    </div>
+                </a>
+                <form action="/{{ lang }}/wishlist/toggle" method="POST" class="wishlist-toggle-form">
+                    <input type="hidden" name="sku" value="{{ product.sku }}">
+                    <input type="hidden" name="return" value="/{{ lang }}{{ current_path }}">
+                    <button type="submit" class="wishlist-toggle {{ in_wishlist ? 'active' : '' }}" aria-label="{{ in_wishlist ? t('shop.wishlist_remove') : t('shop.wishlist_add') }}">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.686-9.9-9.028C.4 8.9 1.5 5 5 5c2.3 0 3.6 1.4 4.5 2.7C10.4 6.4 11.7 5 14 5c3.5 0 4.6 3.9 2.9 6.972C19.5 16.314 12 21 12 21z"/></svg>
+                    </button>
+                </form>
+            </div>
             {% endfor %}
         </div>
         {% else %}
