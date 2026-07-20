@@ -21,6 +21,7 @@
             <th><button type="button" class="sort-btn" data-sort-type="number">{{ t('products.col.price') }}</button></th>
             <th><button type="button" class="sort-btn" data-sort-type="number">{{ t('products.col.stock') }}</button></th>
             <th><button type="button" class="sort-btn" data-sort-type="number">{{ t('products.col.active') }}</button></th>
+            <th><button type="button" class="sort-btn" data-sort-type="text">{{ t('products.col.updated_by') }}</button></th>
             <th><button type="button" class="sort-btn" data-sort-type="text">{{ t('products.col.updated') }}</button></th>
             <th>{{ t('products.col.actions') }}</th>
         </tr>
@@ -39,7 +40,8 @@
         <td data-sort-value="{{ p.price }}">{{ p.price|number_format(2, '.', ' ') }} Kč</td>
         <td data-sort-value="{{ p.stock_type == 'limited' ? p.stock_qty : -1 }}">{{ p.stock_type == 'limited' ? p.stock_qty ~ ' ks' : '—' }}</td>
         <td data-sort-value="{{ p.is_active ? 1 : 0 }}">{{ p.is_active ? '✓' : '—' }}</td>
-        <td class="audit-meta" data-sort-value="{{ p.updated_at }}">{{ p.updated_by_email ?? t('common.audit.unknown_user') }}<br>{{ p.updated_at }}</td>
+        <td>{{ p.updated_by_email ?? t('common.audit.unknown_user') }}</td>
+        <td class="audit-meta">{{ p.updated_at }}</td>
         <td>
             <a href="/admin/products/{{ p.id }}/edit">{{ t('products.edit') }}</a> |
             <form method="POST" action="/admin/products/{{ p.id }}/clone" style="display:inline">
@@ -51,7 +53,7 @@
         </td>
     </tr>
     {% else %}
-    <tr><td colspan="9">{{ t('products.no_products') }}</td></tr>
+    <tr><td colspan="10">{{ t('products.no_products') }}</td></tr>
     {% endfor %}
     </tbody>
 </table>

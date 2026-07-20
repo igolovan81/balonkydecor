@@ -10,6 +10,7 @@
         <th><button type="button" class="sort-btn" data-sort-type="number">{{ t('gallery.col.id') }}</button></th>
         <th><button type="button" class="sort-btn" data-sort-type="text">{{ t('gallery.col.name') }}</button></th>
         <th><button type="button" class="sort-btn" data-sort-type="number">{{ t('gallery.col.order') }}</button></th>
+        <th><button type="button" class="sort-btn" data-sort-type="text">{{ t('gallery.col.updated_by') }}</button></th>
         <th><button type="button" class="sort-btn" data-sort-type="text">{{ t('gallery.col.updated') }}</button></th>
         <th>{{ t('gallery.col.actions') }}</th>
     </tr></thead>
@@ -19,7 +20,8 @@
         <td>{{ a.id }}</td>
         <td>{{ a.name }}</td>
         <td>{{ a.sort_order }}</td>
-        <td class="audit-meta" data-sort-value="{{ a.updated_at }}">{{ a.updated_by_email ?? t('common.audit.unknown_user') }}<br>{{ a.updated_at }}</td>
+        <td>{{ a.updated_by_email ?? t('common.audit.unknown_user') }}</td>
+        <td class="audit-meta">{{ a.updated_at }}</td>
         <td>
             <a href="/admin/gallery/{{ a.id }}/edit">{{ t('gallery.edit') }}</a> |
             <form method="POST" action="/admin/gallery/{{ a.id }}/delete" style="display:inline" onsubmit="return confirm('{{ t('gallery.confirm_delete') }}')">
@@ -28,7 +30,7 @@
         </td>
     </tr>
     {% else %}
-    <tr><td colspan="5">{{ t('gallery.no_albums') }}</td></tr>
+    <tr><td colspan="6">{{ t('gallery.no_albums') }}</td></tr>
     {% endfor %}
     </tbody>
 </table>

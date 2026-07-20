@@ -12,6 +12,7 @@
             <th><button type="button" class="sort-btn" data-sort-type="text">{{ t('categories.col.name') }}</button></th>
             <th><button type="button" class="sort-btn" data-sort-type="text">{{ t('categories.col.slug') }}</button></th>
             <th><button type="button" class="sort-btn" data-sort-type="number">{{ t('categories.col.order') }}</button></th>
+            <th><button type="button" class="sort-btn" data-sort-type="text">{{ t('categories.col.updated_by') }}</button></th>
             <th><button type="button" class="sort-btn" data-sort-type="text">{{ t('categories.col.updated') }}</button></th>
             <th>{{ t('categories.col.actions') }}</th>
         </tr>
@@ -23,7 +24,8 @@
         <td>{{ cat.name ?? '—' }}</td>
         <td>{{ cat.slug }}</td>
         <td>{{ cat.sort_order }}</td>
-        <td class="audit-meta" data-sort-value="{{ cat.updated_at }}">{{ cat.updated_by_email ?? t('common.audit.unknown_user') }}<br>{{ cat.updated_at }}</td>
+        <td>{{ cat.updated_by_email ?? t('common.audit.unknown_user') }}</td>
+        <td class="audit-meta">{{ cat.updated_at }}</td>
         <td>
             <a href="/admin/categories/{{ cat.id }}/edit">{{ t('categories.edit') }}</a> |
             <form method="POST" action="/admin/categories/{{ cat.id }}/delete" style="display:inline" onsubmit="return confirm('{{ t('categories.confirm_delete') }}')">
@@ -32,7 +34,7 @@
         </td>
     </tr>
     {% else %}
-    <tr><td colspan="6">{{ t('categories.no_categories') }}</td></tr>
+    <tr><td colspan="7">{{ t('categories.no_categories') }}</td></tr>
     {% endfor %}
     </tbody>
 </table>
