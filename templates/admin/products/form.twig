@@ -54,14 +54,14 @@
                     <label>{{ t('products.form.desc_label') }} ({{ lang|upper }})</label>
                     <textarea name="t[{{ lang }}][description]">{{ translations[lang].description ?? '' }}</textarea>
                 </div>
-                <details class="form-section-details" open>
+                <details class="form-section-details">
                     <summary>{{ t('products.form.legal_section_title') }} ({{ lang|upper }})</summary>
                     <div class="form-group">
                         <textarea name="t[{{ lang }}][legal_notice]" class="product-legal-notice-input" data-lang="{{ lang }}" aria-label="{{ t('products.form.legal_notice_label') }} ({{ lang|upper }})">{{ translations[lang].legal_notice ?? '' }}</textarea>
                         <p class="audit-meta" style="margin-top:0.35rem;">{{ t('products.form.legal_notice_hint') }}</p>
                     </div>
                 </details>
-                <details class="form-section-details" open>
+                <details class="form-section-details">
                     <summary>{{ t('products.form.seo_section_title') }} ({{ lang|upper }})</summary>
                     <p class="audit-meta">{{ t('products.form.seo_section_hint') }}</p>
                     <div class="form-group">
