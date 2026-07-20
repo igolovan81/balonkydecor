@@ -5,14 +5,14 @@
     <h1>{{ t('services.title') }}</h1>
     <a href="/admin/services/new" class="btn btn-primary">{{ t('services.add') }}</a>
 </div>
-<table class="admin-table">
+<table class="admin-table" data-sortable>
     <thead>
         <tr>
-            <th>{{ t('services.col.id') }}</th>
-            <th>{{ t('services.col.name') }}</th>
-            <th>{{ t('services.col.price') }}</th>
-            <th>{{ t('services.col.order') }}</th>
-            <th>{{ t('services.col.updated') }}</th>
+            <th><button type="button" class="sort-btn" data-sort-type="number">{{ t('services.col.id') }}</button></th>
+            <th><button type="button" class="sort-btn" data-sort-type="text">{{ t('services.col.name') }}</button></th>
+            <th><button type="button" class="sort-btn" data-sort-type="number">{{ t('services.col.price') }}</button></th>
+            <th><button type="button" class="sort-btn" data-sort-type="number">{{ t('services.col.order') }}</button></th>
+            <th><button type="button" class="sort-btn" data-sort-type="text">{{ t('services.col.updated') }}</button></th>
             <th>{{ t('services.col.actions') }}</th>
         </tr>
     </thead>
@@ -21,9 +21,9 @@
     <tr>
         <td>{{ service.id }}</td>
         <td>{{ service.name ?? '—' }}</td>
-        <td>{{ service.price_from ? service.price_from ~ ' Kč' : '—' }}</td>
+        <td data-sort-value="{{ service.price_from ?? -1 }}">{{ service.price_from ? service.price_from ~ ' Kč' : '—' }}</td>
         <td>{{ service.sort_order }}</td>
-        <td class="audit-meta">{{ service.updated_by_email ?? t('common.audit.unknown_user') }}<br>{{ service.updated_at }}</td>
+        <td class="audit-meta" data-sort-value="{{ service.updated_at }}">{{ service.updated_by_email ?? t('common.audit.unknown_user') }}<br>{{ service.updated_at }}</td>
         <td>
             <a href="/admin/services/{{ service.id }}/edit">{{ t('services.edit') }}</a> |
             <form method="POST" action="/admin/services/{{ service.id }}/delete" style="display:inline" onsubmit="return confirm('{{ t('services.confirm_delete') }}')">
