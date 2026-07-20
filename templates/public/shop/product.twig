@@ -63,6 +63,11 @@
                 </button>
             </form>
         </div>
+        <form action="/{{ lang }}/compare/toggle" method="POST" class="compare-toggle-form compare-toggle-form--detail">
+            <input type="hidden" name="sku" value="{{ product.sku }}">
+            <input type="hidden" name="return" value="/{{ lang }}{{ current_path }}">
+            <button type="submit" class="compare-toggle {{ in_compare ? 'active' : '' }}">{{ in_compare ? t('shop.compare_remove') : t('shop.compare_add') }}</button>
+        </form>
         {% if product.subtypes %}
         <p class="product-price-lg" id="subtype-price">{{ product.subtypes[0].price|number_format(2, '.', ' ') }} Kč</p>
         {% else %}

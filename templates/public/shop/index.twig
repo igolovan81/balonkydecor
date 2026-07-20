@@ -29,6 +29,7 @@
         <div class="product-grid">
             {% for product in products %}
             {% set in_wishlist = product.sku in wishlist_skus %}
+            {% set in_compare = product.sku in compare_skus %}
             <div class="product-card-wrap">
                 <a href="/{{ lang }}/shop/{{ product.sku }}" class="product-card">
                     <div class="product-img">
@@ -53,6 +54,11 @@
                     <button type="submit" class="wishlist-toggle {{ in_wishlist ? 'active' : '' }}" aria-label="{{ in_wishlist ? t('shop.wishlist_remove') : t('shop.wishlist_add') }}">
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                     </button>
+                </form>
+                <form action="/{{ lang }}/compare/toggle" method="POST" class="compare-toggle-form">
+                    <input type="hidden" name="sku" value="{{ product.sku }}">
+                    <input type="hidden" name="return" value="/{{ lang }}{{ current_path }}">
+                    <button type="submit" class="compare-toggle {{ in_compare ? 'active' : '' }}">{{ in_compare ? t('shop.compare_remove') : t('shop.compare_add') }}</button>
                 </form>
             </div>
             {% endfor %}

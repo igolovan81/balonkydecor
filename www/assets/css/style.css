@@ -129,6 +129,14 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 .product-detail-heading h1 { margin-bottom: 0; }
 .wishlist-toggle-form--lg { position: static; flex-shrink: 0; }
 .wishlist-toggle-form--lg .wishlist-toggle { background: var(--border); }
+
+/* Compare toggle (product card + detail page) */
+.compare-toggle-form { display: block; margin-top: .5rem; text-align: center; }
+.compare-toggle-form--detail { margin: 0 0 1.25rem; text-align: left; }
+.compare-toggle { background: none; border: 1px solid var(--border); color: var(--text); font-family: var(--ui-font); font-size: .8rem; padding: .4rem .9rem; border-radius: 2px; cursor: pointer; }
+.compare-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.compare-toggle.active { background: var(--accent); border-color: var(--accent); color: var(--text-inverse); }
+
 .product-img { aspect-ratio: 1; overflow: hidden; background: var(--border); }
 .product-img img { width: 100%; height: 100%; object-fit: cover; }
 .product-img-placeholder { width: 100%; height: 100%; }
