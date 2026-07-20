@@ -3,6 +3,7 @@ namespace App\Controllers;
 
 use App\Models\CategoryModel;
 use App\Models\ProductModel;
+use App\Services\Compare;
 use App\Services\Wishlist;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -20,6 +21,7 @@ class ShopController extends BaseController
             'products'      => ProductModel::allActive($lang, $categoryId),
             'active_cat'    => $categoryId,
             'wishlist_skus' => Wishlist::skus(),
+            'compare_skus'  => Compare::skus(),
         ]);
     }
 
@@ -39,6 +41,7 @@ class ShopController extends BaseController
             'min_subtype_price' => $subtypePrices ? min($subtypePrices) : null,
             'max_subtype_price' => $subtypePrices ? max($subtypePrices) : null,
             'in_wishlist'       => Wishlist::has($product['sku']),
+            'in_compare'        => Compare::has($product['sku']),
         ]);
     }
 }
