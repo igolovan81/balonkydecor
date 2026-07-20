@@ -10,17 +10,22 @@
 </section>
 
 <div class="container shop-layout">
-    {% if categories %}
+    {% if categories or recently_viewed %}
     <aside class="shop-sidebar">
-        <a href="/{{ lang }}/shop" class="cat-filter {{ active_cat is null ? 'active' : '' }}">
-            {{ t('shop.all') }}
-        </a>
-        {% for cat in categories %}
-        <a href="/{{ lang }}/shop?category={{ cat.id }}"
-           class="cat-filter {{ active_cat == cat.id ? 'active' : '' }}">
-            {{ cat.name }}
-        </a>
-        {% endfor %}
+        {% if categories %}
+        <div class="cat-filter-list">
+            <a href="/{{ lang }}/shop" class="cat-filter {{ active_cat is null ? 'active' : '' }}">
+                {{ t('shop.all') }}
+            </a>
+            {% for cat in categories %}
+            <a href="/{{ lang }}/shop?category={{ cat.id }}"
+               class="cat-filter {{ active_cat == cat.id ? 'active' : '' }}">
+                {{ cat.name }}
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% include 'public/partials/recently-viewed-sidebar.twig' %}
     </aside>
     {% endif %}
 
