@@ -18,6 +18,7 @@
   "categories.form.back": "← Back",
   "categories.form.cancel": "Cancel",
   "categories.form.desc_label": "Description",
+  "categories.form.legal_notice_label": "Legal information and warnings",
   "categories.form.name_label": "Name",
   "categories.form.order": "Order",
   "categories.form.save": "Save",

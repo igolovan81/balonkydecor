@@ -44,6 +44,10 @@
             <label>{{ t('categories.form.desc_label') }} ({{ lang_labels[lang] ?? lang|upper }})</label>
             <textarea name="t[{{ lang }}][description]">{{ translations[lang].description ?? '' }}</textarea>
         </div>
+        <div class="form-group">
+            <label>{{ t('categories.form.legal_notice_label') }} ({{ lang_labels[lang] ?? lang|upper }})</label>
+            <textarea name="t[{{ lang }}][legal_notice]">{{ translations[lang].legal_notice ?? '' }}</textarea>
+        </div>
         {% if lang != admin_lang %}
         <div class="form-group">
             <button type="button" class="btn btn-secondary translate-btn" data-lang="{{ lang }}">{{ t('categories.form.translate_btn') }}</button>
@@ -104,8 +108,9 @@ document.querySelectorAll('.translate-btn').forEach(btn => {
         const panel       = document.getElementById('panel-' + targetLang);
         const msgSpan     = panel.querySelector('.translate-msg');
         const fields      = [
-            { name: 'name',        el: document.querySelector('input[name="t[' + PREFERRED_LANG + '][name]"]') },
-            { name: 'description', el: document.querySelector('textarea[name="t[' + PREFERRED_LANG + '][description]"]') },
+            { name: 'name',          el: document.querySelector('input[name="t[' + PREFERRED_LANG + '][name]"]') },
+            { name: 'description',   el: document.querySelector('textarea[name="t[' + PREFERRED_LANG + '][description]"]') },
+            { name: 'legal_notice',  el: document.querySelector('textarea[name="t[' + PREFERRED_LANG + '][legal_notice]"]') },
         ];
         const filled = fields.filter(f => f.el.value.trim() !== '');
 
@@ -122,38 +127,42 @@ document.querySelectorAll('.translate-btn').forEach(btn => {
         msgSpan.style.display = 'none';
         msgSpan.textContent   = '';
 
-        try {
-            const res = await fetch('/admin/translate', {
-                method:  'POST',
-                headers: {'Content-Type': 'application/json'},
-                body:    JSON.stringify({
-                    texts:  filled.map(f => f.el.value),
-                    target: targetLang.toUpperCase(),
-                }),
-            });
+        // One request per field: a single over-length or failing field must not
+        // block its siblings from translating successfully.
+        const failedFields = [];
 
-            const data = await res.json();
-
-            if (!res.ok || data.error) {
-                msgSpan.textContent   = 'Překlad se nezdařil: ' + (data.error ?? res.status);
-                msgSpan.style.color   = '#c00';
-                msgSpan.style.display = 'inline';
-                return;
+        await Promise.all(filled.map(async (f) => {
+            try {
+                const res  = await fetch('/admin/translate', {
+                    method:  'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body:    JSON.stringify({
+                        texts:  [f.el.value],
+                        target: targetLang.toUpperCase(),
+                    }),
+                });
+                const data = await res.json();
+                if (!res.ok || data.error) {
+                    failedFields.push(f.name);
+                    return;
+                }
+                panel.querySelector('[name="t[' + targetLang + '][' + f.name + ']"]').value = data.texts[0] ?? '';
+            } catch (e) {
+                failedFields.push(f.name);
             }
+        }));
 
-            filled.forEach((f, i) => {
-                panel.querySelector('[name="t[' + targetLang + '][' + f.name + ']"]').value = data.texts[i] ?? '';
-            });
-            msgSpan.style.display = 'none';
-            msgSpan.textContent   = '';
-        } catch (e) {
-            msgSpan.textContent   = 'Překlad se nezdařil: ' + e.message;
+        if (failedFields.length > 0) {
+            msgSpan.textContent   = 'Překlad se nezdařil pro: ' + failedFields.join(', ');
             msgSpan.style.color   = '#c00';
             msgSpan.style.display = 'inline';
-        } finally {
-            btn.disabled    = false;
-            btn.textContent = originalLabel;
+        } else {
+            msgSpan.style.display = 'none';
+            msgSpan.textContent   = '';
         }
+
+        btn.disabled    = false;
+        btn.textContent = originalLabel;
     });
 });
 </script>

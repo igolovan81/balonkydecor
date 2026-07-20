@@ -8,7 +8,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class CategoryController extends AdminBaseController
 {
     private const LANGS               = ['cs', 'sk', 'en', 'uk', 'ru'];
-    private const TRANSLATABLE_FIELDS = ['name', 'description'];
+    private const TRANSLATABLE_FIELDS = ['name', 'description', 'legal_notice'];
 
     public function index(Request $request, Response $response, array $args): Response
     {
