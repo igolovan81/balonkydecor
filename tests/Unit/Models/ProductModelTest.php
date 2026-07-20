@@ -134,6 +134,29 @@ class ProductModelTest extends TestCase
         $this->assertSame([], $product['subtypes']);
     }
 
+    public function test_find_by_sku_resolves_spec_rows_for_requested_lang(): void
+    {
+        $productId = $this->makeProduct();
+        $sku       = $this->skuOf($productId);
+        ProductModel::setSpecs($productId, [
+            ['t' => [
+                'cs' => ['name' => 'Materiál', 'value' => 'Latex'],
+                'en' => ['name' => 'Material', 'value' => 'Latex'],
+            ]],
+        ]);
+
+        $product = ProductModel::findBySku($sku, 'en');
+        $this->assertCount(1, $product['specs']);
+        $this->assertSame('Material', $product['specs'][0]['attribute_name']);
+        $this->assertSame('Latex', $product['specs'][0]['attribute_value']);
+    }
+
+    public function test_find_by_sku_specs_empty_without_any(): void
+    {
+        $product = ProductModel::findBySku('TEST-SKU-001', 'en');
+        $this->assertSame([], $product['specs']);
+    }
+
     public function test_filter_by_category(): void
     {
         $result = ProductModel::allActive('en', self::$categoryId);
@@ -226,6 +249,68 @@ class ProductModelTest extends TestCase
         $subtypes = ProductModel::getSubtypes($productId);
         $this->assertCount(1, $subtypes);
         $this->assertSame('Valid', $subtypes[0]['t']['cs']);
+    }
+
+    public function test_set_specs_creates_and_returns_translated_rows(): void
+    {
+        $productId = $this->makeProduct();
+        ProductModel::setSpecs($productId, [
+            ['t' => [
+                'cs' => ['name' => 'Materiál', 'value' => 'Latex'],
+                'en' => ['name' => 'Material', 'value' => 'Latex'],
+            ]],
+            ['t' => [
+                'cs' => ['name' => 'Velikost', 'value' => '30 cm'],
+                'en' => ['name' => 'Size', 'value' => '30 cm'],
+            ]],
+        ]);
+
+        $product = ProductModel::findById($productId);
+        $this->assertCount(2, $product['specs']);
+        $this->assertSame('Materiál', $product['specs'][0]['t']['cs']['name']);
+        $this->assertSame('Latex', $product['specs'][0]['t']['cs']['value']);
+        $this->assertSame('Size', $product['specs'][1]['t']['en']['name']);
+    }
+
+    public function test_set_specs_replaces_existing_rows(): void
+    {
+        $productId = $this->makeProduct();
+        ProductModel::setSpecs($productId, [
+            ['t' => ['cs' => ['name' => 'A', 'value' => '1']]],
+        ]);
+        ProductModel::setSpecs($productId, [
+            ['t' => ['cs' => ['name' => 'B', 'value' => '2']]],
+        ]);
+
+        $specs = ProductModel::getSpecs($productId);
+        $this->assertCount(1, $specs);
+        $this->assertSame('B', $specs[0]['t']['cs']['name']);
+    }
+
+    public function test_set_specs_skips_rows_with_no_names(): void
+    {
+        $productId = $this->makeProduct();
+        ProductModel::setSpecs($productId, [
+            ['t' => ['cs' => ['name' => '', 'value' => 'orphan value']]],
+            ['t' => ['cs' => ['name' => 'Valid', 'value' => 'x']]],
+        ]);
+
+        $specs = ProductModel::getSpecs($productId);
+        $this->assertCount(1, $specs);
+        $this->assertSame('Valid', $specs[0]['t']['cs']['name']);
+    }
+
+    public function test_set_specs_allows_blank_value_for_header_rows(): void
+    {
+        $productId = $this->makeProduct();
+        ProductModel::setSpecs($productId, [
+            ['t' => ['cs' => ['name' => 'Upozornění', 'value' => '']]],
+        ]);
+
+        $specs = ProductModel::getSpecs($productId);
+        $this->assertCount(1, $specs);
+        $this->assertSame('Upozornění', $specs[0]['t']['cs']['name']);
+        $this->assertSame('', $specs[0]['t']['cs']['value']);
     }
 
     public function test_slugify_converts_name_to_kebab_case(): void

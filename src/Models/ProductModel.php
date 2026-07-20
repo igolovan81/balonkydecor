@@ -58,6 +58,16 @@ class ProductModel
         $subStmt->execute([$lang, $product['id']]);
         $product['subtypes'] = $subStmt->fetchAll();
 
+        $specStmt = $pdo->prepare(
+            'SELECT ps.id, pt.attribute_name, pt.attribute_value
+             FROM product_specs ps
+             JOIN product_spec_t pt ON pt.spec_id = ps.id AND pt.lang_code = ?
+             WHERE ps.product_id = ?
+             ORDER BY ps.sort_order, ps.id'
+        );
+        $specStmt->execute([$lang, $product['id']]);
+        $product['specs'] = $specStmt->fetchAll();
+
         return $product;
     }
 
@@ -102,6 +112,7 @@ class ProductModel
         $imgs->execute([$id]);
         $product['images'] = $imgs->fetchAll();
         $product['subtypes'] = self::getSubtypes($id);
+        $product['specs']    = self::getSpecs($id);
         return $product;
     }
 
@@ -270,6 +281,65 @@ class ProductModel
         }
     }
 
+    public static function getSpecs(int $productId): array
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare(
+            'SELECT id, sort_order FROM product_specs WHERE product_id = ? ORDER BY sort_order, id'
+        );
+        $stmt->execute([$productId]);
+        $rows = $stmt->fetchAll();
+
+        $tStmt = $pdo->prepare(
+            'SELECT lang_code, attribute_name, attribute_value FROM product_spec_t WHERE spec_id = ?'
+        );
+        foreach ($rows as &$row) {
+            $tStmt->execute([$row['id']]);
+            $row['t'] = [];
+            foreach ($tStmt->fetchAll() as $t) {
+                $row['t'][$t['lang_code']] = [
+                    'name'  => $t['attribute_name'],
+                    'value' => $t['attribute_value'],
+                ];
+            }
+        }
+        unset($row);
+        return $rows;
+    }
+
+    public static function setSpecs(int $productId, array $rows): void
+    {
+        $pdo = Database::getConnection();
+        $pdo->prepare('DELETE FROM product_specs WHERE product_id = ?')->execute([$productId]);
+
+        $insertSpec = $pdo->prepare(
+            'INSERT INTO product_specs (product_id, sort_order) VALUES (?, ?)'
+        );
+        $insertT = $pdo->prepare(
+            'INSERT INTO product_spec_t (spec_id, lang_code, attribute_name, attribute_value) VALUES (?, ?, ?, ?)'
+        );
+
+        foreach (array_values($rows) as $index => $row) {
+            $t = array_filter(
+                $row['t'] ?? [],
+                fn ($fields) => trim((string) ($fields['name'] ?? '')) !== ''
+            );
+            if (!$t) continue;
+
+            $insertSpec->execute([$productId, $index]);
+            $specId = (int) $pdo->lastInsertId();
+
+            foreach ($t as $lang => $fields) {
+                $insertT->execute([
+                    $specId,
+                    $lang,
+                    trim((string) ($fields['name'] ?? '')),
+                    trim((string) ($fields['value'] ?? '')),
+                ]);
+            }
+        }
+    }
+
     public static function addImage(int $productId, string $filename, bool $isPrimary = false): void
     {
         $pdo = Database::getConnection();
@@ -403,6 +473,9 @@ class ProductModel
 
             if ($source['subtypes']) {
                 self::setSubtypes($newId, $source['subtypes']);
+            }
+            if ($source['specs']) {
+                self::setSpecs($newId, $source['specs']);
             }
 
             $countStmt = $pdo->prepare('SELECT COUNT(*) FROM product_images WHERE product_id = ?');
