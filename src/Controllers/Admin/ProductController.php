@@ -10,7 +10,11 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class ProductController extends AdminBaseController
 {
     private const LANGS                = ['cs', 'en', 'ru', 'uk', 'sk'];
-    private const TRANSLATABLE_FIELDS  = ['name', 'description', 'meta_title', 'meta_desc', 'legal_notice'];
+    // legal_notice is excluded: it's prefilled from the category's own
+    // per-language default (see the product-legal-notice-input JS below),
+    // so re-translating it via MyMemory on every save is redundant and,
+    // for this long legal text, frequently fails/costs quota.
+    private const TRANSLATABLE_FIELDS  = ['name', 'description', 'meta_title', 'meta_desc'];
     private const UPLOAD_DIR           = __DIR__ . '/../../../www/assets/uploads/products';
 
     public function index(Request $request, Response $response, array $args): Response

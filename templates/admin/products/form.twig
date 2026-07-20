@@ -335,10 +335,13 @@ document.querySelectorAll('.translate-btn').forEach(btn => {
         const targetLang = btn.dataset.lang;
         const panel       = document.getElementById('panel-' + targetLang);
         const msgSpan     = panel.querySelector('.translate-msg');
+        // legal_notice is excluded — it's prefilled per-language from the
+        // category's own default text (see the applyCategoryDefaults block
+        // above), so re-translating it here is redundant and, for this long
+        // legal text, frequently fails/costs quota.
         const fields      = [
             { name: 'name',          el: document.querySelector('input[name="t[' + PREFERRED_LANG + '][name]"]') },
             { name: 'description',   el: document.querySelector('textarea[name="t[' + PREFERRED_LANG + '][description]"]') },
-            { name: 'legal_notice',  el: document.querySelector('textarea[name="t[' + PREFERRED_LANG + '][legal_notice]"]') },
             { name: 'meta_title',    el: document.querySelector('input[name="t[' + PREFERRED_LANG + '][meta_title]"]') },
             { name: 'meta_desc',     el: document.querySelector('textarea[name="t[' + PREFERRED_LANG + '][meta_desc]"]') },
         ];
