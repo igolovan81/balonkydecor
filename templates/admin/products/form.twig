@@ -89,6 +89,26 @@
                     <button type="button" class="btn-link subtype-remove-btn">{{ t('products.form.subtype_remove') }}</button>
                 </div>
             </template>
+
+            <h3>{{ t('products.form.specs') }}</h3>
+            <div id="spec-rows">
+                {% for spec in product.specs ?? [] %}
+                <div class="spec-row">
+                    <input type="text" name="specs[{{ loop.index0 }}][name]" value="{{ spec.t[admin_lang].name ?? '' }}" placeholder="{{ t('products.form.spec_name_label') }}">
+                    <input type="text" name="specs[{{ loop.index0 }}][value]" value="{{ spec.t[admin_lang].value ?? '' }}" placeholder="{{ t('products.form.spec_value_label') }}">
+                    <button type="button" class="btn-link spec-remove-btn">{{ t('products.form.spec_remove') }}</button>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" id="spec-add-btn" class="btn btn-secondary">{{ t('products.form.spec_add') }}</button>
+
+            <template id="spec-row-template">
+                <div class="spec-row">
+                    <input type="text" name="specs[__INDEX__][name]" placeholder="{{ t('products.form.spec_name_label') }}">
+                    <input type="text" name="specs[__INDEX__][value]" placeholder="{{ t('products.form.spec_value_label') }}">
+                    <button type="button" class="btn-link spec-remove-btn">{{ t('products.form.spec_remove') }}</button>
+                </div>
+            </template>
         </div>
         <div class="product-form-side">
             <div class="form-group">
@@ -182,6 +202,34 @@ document.querySelectorAll('.lang-tab').forEach(tab => {
     }
 
     container.querySelectorAll('.subtype-row').forEach(bindRemove);
+
+    addBtn.addEventListener('click', () => {
+        const html    = template.innerHTML.replace(/__INDEX__/g, nextIndex);
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = html.trim();
+        const row = wrapper.firstElementChild;
+        container.appendChild(row);
+        bindRemove(row);
+        nextIndex++;
+    });
+})();
+
+// Spec rows — add/remove
+(function () {
+    const container = document.getElementById('spec-rows');
+    const addBtn    = document.getElementById('spec-add-btn');
+    const template  = document.getElementById('spec-row-template');
+    if (!container || !addBtn || !template) return;
+
+    let nextIndex = container.querySelectorAll('.spec-row').length;
+
+    function bindRemove(row) {
+        row.querySelector('.spec-remove-btn').addEventListener('click', () => {
+            row.remove();
+        });
+    }
+
+    container.querySelectorAll('.spec-row').forEach(bindRemove);
 
     addBtn.addEventListener('click', () => {
         const html    = template.innerHTML.replace(/__INDEX__/g, nextIndex);

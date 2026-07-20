@@ -88,6 +88,9 @@ class ProductController extends AdminBaseController
         ProductModel::setSubtypes($id, $this->buildSubtypes(
             $body['subtypes'] ?? [], $request->getAttribute('admin_lang', 'cs')
         ));
+        ProductModel::setSpecs($id, $this->buildSpecs(
+            $body['specs'] ?? [], $request->getAttribute('admin_lang', 'cs')
+        ));
         $this->handleImageUpload($request, $id, true);
         \App\Services\Notifier::notify(
             'product', $id, $sku, 'created', $userId, $_SESSION['admin_user']['email'] ?? ''
@@ -127,6 +130,9 @@ class ProductController extends AdminBaseController
         ProductModel::setTranslations($id, $body['t'] ?? []);
         ProductModel::setSubtypes($id, $this->buildSubtypes(
             $body['subtypes'] ?? [], $request->getAttribute('admin_lang', 'cs')
+        ));
+        ProductModel::setSpecs($id, $this->buildSpecs(
+            $body['specs'] ?? [], $request->getAttribute('admin_lang', 'cs')
         ));
         $this->handleImageUpload($request, $id, false);
         \App\Services\Notifier::notify(
@@ -224,5 +230,21 @@ class ProductController extends AdminBaseController
             ];
         }
         return $subtypes;
+    }
+
+    private function buildSpecs(array $rows, string $adminLang): array
+    {
+        $specs = [];
+        foreach ($rows as $row) {
+            $name = trim($row['name'] ?? '');
+            if ($name === '') continue;
+
+            $t = \App\Services\Translator::autoFill(
+                [$adminLang => ['name' => $name, 'value' => trim($row['value'] ?? '')]],
+                $adminLang, self::LANGS, ['name', 'value']
+            );
+            $specs[] = ['t' => $t];
+        }
+        return $specs;
     }
 }

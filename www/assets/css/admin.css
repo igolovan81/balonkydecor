@@ -45,6 +45,8 @@ body.admin-body { display:flex; min-height:100vh; margin:0; background:#f5f5f5; 
 .subtype-row { display:flex; gap:0.75rem; align-items:center; margin-bottom:0.5rem; }
 .subtype-row input[type="text"] { flex:2; }
 .subtype-row input[type="number"] { flex:1; }
+.spec-row { display:flex; gap:0.75rem; align-items:center; margin-bottom:0.5rem; }
+.spec-row input[type="text"] { flex:1; }
 
 /* Inline form inputs (e.g. password change in user table) */
 .admin-table input[type=password] { padding:0.3rem 0.5rem; border:1px solid #ddd; border-radius:4px; font-size:0.85rem; }
