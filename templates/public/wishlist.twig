@@ -40,7 +40,16 @@
                 </button>
             </form>
             {% if product.subtypes %}
-            <a href="/{{ lang }}/shop/{{ product.sku }}" class="btn btn-primary wishlist-action">{{ t('wishlist.view_product') }}</a>
+            <form action="/{{ lang }}/cart/add" method="POST" class="wishlist-action wishlist-action--subtypes">
+                <input type="hidden" name="sku" value="{{ product.sku }}">
+                <input type="hidden" name="qty" value="1">
+                <select name="subtype_id" class="subtype-select" aria-label="{{ t('shop.subtype') }}">
+                    {% for subtype in product.subtypes %}
+                    <option value="{{ subtype.id }}">{{ subtype.name }} — {{ subtype.price|number_format(2, '.', ' ') }} Kč</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary">{{ t('shop.add_to_cart') }}</button>
+            </form>
             {% else %}
             <form action="/{{ lang }}/cart/add" method="POST" class="wishlist-action">
                 <input type="hidden" name="sku" value="{{ product.sku }}">
