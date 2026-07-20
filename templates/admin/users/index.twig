@@ -5,13 +5,13 @@
     <h1>{{ t('users.title') }}</h1>
     <a href="/admin/users/new" class="btn btn-primary">{{ t('users.add') }}</a>
 </div>
-<table class="admin-table">
+<table class="admin-table" data-sortable>
     <thead>
         <tr>
-            <th>{{ t('users.col.id') }}</th>
-            <th>{{ t('users.col.email') }}</th>
-            <th>{{ t('users.col.role') }}</th>
-            <th>{{ t('users.col.created') }}</th>
+            <th><button type="button" class="sort-btn" data-sort-type="number">{{ t('users.col.id') }}</button></th>
+            <th><button type="button" class="sort-btn" data-sort-type="text">{{ t('users.col.email') }}</button></th>
+            <th><button type="button" class="sort-btn" data-sort-type="text">{{ t('users.col.role') }}</button></th>
+            <th><button type="button" class="sort-btn" data-sort-type="text">{{ t('users.col.created') }}</button></th>
             <th>{{ t('users.col.actions') }}</th>
         </tr>
     </thead>
