@@ -155,6 +155,16 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 .btn-lg { padding: 1rem 2.5rem; font-size: 1rem; }
 .empty-state { color: var(--muted); font-family: var(--ui-font); padding: 2rem 0; }
 
+/* Product specifications table */
+.product-specs { padding: 0 1.5rem 3rem; }
+.product-specs-heading { font-size: 1.4rem; font-weight: normal; padding-top: 2rem; border-top: 1px solid var(--border); margin-bottom: 1rem; }
+.specs-scroll { overflow-x: auto; }
+.specs-table { width: 100%; border-collapse: collapse; font-family: var(--ui-font); font-size: .9rem; }
+.specs-table th { text-align: left; background: var(--surface-warm); padding: .65rem .9rem; border-bottom: 1px solid var(--border); font-weight: 600; color: var(--text); }
+.specs-table td { padding: .65rem .9rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+.specs-table tr.specs-row-header td { background: var(--surface-warm); font-weight: 600; }
+.spec-swatch { display: inline-block; width: 20px; height: 20px; border-radius: 3px; border: 1px solid var(--border); }
+
 /* Services cards */
 .services-page { padding: 2.5rem 1.5rem; }
 .services-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
@@ -278,6 +288,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 @media (max-width: 768px) {
     .product-detail { grid-template-columns: 1fr; gap: 2rem; padding: 2rem 1rem; }
     .checkout-layout { grid-template-columns: 1fr; gap: 2rem; padding: 2rem 1rem; }
+    .product-specs { padding: 0 1rem 2rem; }
 }
 
 /* Responsive: pagination touch targets */
@@ -291,17 +302,18 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
     .page-hero h1 { font-size: 1.75rem; }
 }
 
-/* Responsive: cart-table stacked cards (phone only) */
+/* Responsive: cart-table / specs-table stacked cards (phone only) */
 @media (max-width: 480px) {
-    .cart-table thead { display: none; }
-    .cart-table, .cart-table tbody, .cart-table tr, .cart-table td { display: block; width: 100%; }
-    .cart-table tr { border: 1px solid var(--border); border-radius: 4px; margin-bottom: 1rem; padding: .5rem .75rem; }
-    .cart-table td {
+    .cart-table thead, .specs-table thead { display: none; }
+    .cart-table, .cart-table tbody, .cart-table tr, .cart-table td,
+    .specs-table, .specs-table tbody, .specs-table tr, .specs-table td { display: block; width: 100%; }
+    .cart-table tr, .specs-table tr { border: 1px solid var(--border); border-radius: 4px; margin-bottom: 1rem; padding: .5rem .75rem; }
+    .cart-table td, .specs-table td {
         display: flex; justify-content: space-between; align-items: center;
         padding: .5rem 0; border-bottom: 1px solid var(--border);
     }
-    .cart-table td:last-child { border-bottom: none; }
-    .cart-table td::before {
+    .cart-table td:last-child, .specs-table td:last-child { border-bottom: none; }
+    .cart-table td::before, .specs-table td::before {
         content: attr(data-label); font-family: var(--ui-font); font-size: .8rem; color: var(--muted); margin-right: 1rem;
     }
 }

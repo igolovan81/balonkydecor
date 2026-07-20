@@ -92,6 +92,41 @@
         </form>
     </div>
 </div>
+
+{% if product.specs %}
+<div class="container product-specs">
+    <h2 class="product-specs-heading">{{ t('shop.specs_title') }}</h2>
+    <div class="specs-scroll">
+        <table class="specs-table">
+            <thead>
+                <tr>
+                    <th>{{ t('shop.specs_attribute_name') }}</th>
+                    <th>{{ t('shop.specs_attribute_value') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for spec in product.specs %}
+                {% if spec.attribute_value is empty %}
+                <tr class="specs-row-header">
+                    <td colspan="2" data-label="">{{ spec.attribute_name }}</td>
+                </tr>
+                {% elseif spec.attribute_value matches '/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/' %}
+                <tr>
+                    <td data-label="{{ t('shop.specs_attribute_name') }}">{{ spec.attribute_name }}</td>
+                    <td data-label="{{ t('shop.specs_attribute_value') }}"><span class="spec-swatch" style="background:{{ spec.attribute_value }};" aria-label="{{ spec.attribute_value }}"></span></td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td data-label="{{ t('shop.specs_attribute_name') }}">{{ spec.attribute_name }}</td>
+                    <td data-label="{{ t('shop.specs_attribute_value') }}">{{ spec.attribute_value }}</td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block scripts %}
