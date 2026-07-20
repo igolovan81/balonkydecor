@@ -56,6 +56,23 @@ class GalleryModelTest extends TestCase
         $this->assertNotEmpty($album['updated_at']);
     }
 
+    public function test_update_album_bumps_updated_at_even_when_other_fields_unchanged(): void
+    {
+        $slug = 'audit-album-' . uniqid();
+        $id   = GalleryModel::createAlbum(['slug' => $slug, 'sort_order' => 1], self::$userId);
+        $before = GalleryModel::findAlbumById($id)['updated_at'];
+
+        sleep(1);
+        // Same slug/sort_order as at creation — simulates a save where only
+        // a translation field changed. MySQL's ON UPDATE CURRENT_TIMESTAMP
+        // only fires when a column value actually changes, so this must
+        // not silently leave updated_at stale.
+        GalleryModel::updateAlbum($id, ['slug' => $slug, 'sort_order' => 1], self::$userId);
+
+        $after = GalleryModel::findAlbumById($id)['updated_at'];
+        $this->assertGreaterThan($before, $after);
+    }
+
     public function test_update_album_changes_updated_by_but_not_created_by(): void
     {
         $id = GalleryModel::createAlbum(['slug' => 'audit-album-' . uniqid(), 'sort_order' => 1], self::$userId);

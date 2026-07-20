@@ -88,7 +88,7 @@ class CategoryModel
     {
         $pdo  = Database::getConnection();
         $stmt = $pdo->prepare(
-            'UPDATE categories SET slug = ?, sort_order = ?, updated_by = ? WHERE id = ?'
+            'UPDATE categories SET slug = ?, sort_order = ?, updated_by = ?, updated_at = NOW() WHERE id = ?'
         );
         $stmt->execute([$data['slug'], (int) ($data['sort_order'] ?? 0), $userId, $id]);
     }

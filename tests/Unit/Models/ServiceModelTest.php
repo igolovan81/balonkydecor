@@ -106,6 +106,22 @@ class ServiceModelTest extends TestCase
         ServiceModel::delete($id);
     }
 
+    public function test_update_bumps_updated_at_even_when_other_fields_unchanged(): void
+    {
+        $id = ServiceModel::create(['price_from' => 500, 'sort_order' => 99], self::$userId);
+        $before = ServiceModel::findById($id)['updated_at'];
+
+        sleep(1);
+        // Same price_from/sort_order as at creation — simulates a save
+        // where only a translation field changed. MySQL's ON UPDATE
+        // CURRENT_TIMESTAMP only fires when a column value actually
+        // changes, so this must not silently leave updated_at stale.
+        ServiceModel::update($id, ['price_from' => 500, 'sort_order' => 99], self::$userId);
+
+        $after = ServiceModel::findById($id)['updated_at'];
+        $this->assertGreaterThan($before, $after);
+    }
+
     public function test_update_changes_updated_by_but_not_created_by(): void
     {
         $id = ServiceModel::create(['price_from' => 500, 'sort_order' => 99], self::$userId);

@@ -177,7 +177,7 @@ class GalleryModel
     public static function updateAlbum(int $id, array $data, int $userId): void
     {
         $pdo  = Database::getConnection();
-        $stmt = $pdo->prepare('UPDATE gallery_albums SET slug = ?, sort_order = ?, updated_by = ? WHERE id = ?');
+        $stmt = $pdo->prepare('UPDATE gallery_albums SET slug = ?, sort_order = ?, updated_by = ?, updated_at = NOW() WHERE id = ?');
         $stmt->execute([$data['slug'], (int) ($data['sort_order'] ?? 0), $userId, $id]);
     }
 

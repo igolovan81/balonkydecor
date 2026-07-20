@@ -70,7 +70,7 @@ class ServiceModel
     public static function update(int $id, array $data, int $userId): void
     {
         $pdo  = Database::getConnection();
-        $stmt = $pdo->prepare('UPDATE services SET price_from = ?, sort_order = ?, updated_by = ? WHERE id = ?');
+        $stmt = $pdo->prepare('UPDATE services SET price_from = ?, sort_order = ?, updated_by = ?, updated_at = NOW() WHERE id = ?');
         $stmt->execute([
             $data['price_from'] !== null && $data['price_from'] !== '' ? (int) $data['price_from'] : null,
             (int) ($data['sort_order'] ?? 0),

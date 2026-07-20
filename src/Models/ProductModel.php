@@ -177,7 +177,8 @@ class ProductModel
         $stockQty  = $stockType === 'limited' ? max(0, (int) ($data['stock_qty'] ?? 0)) : 0;
         $stmt = $pdo->prepare(
             'UPDATE products SET sku = :sku, price = :price, category_id = :category_id, is_active = :is_active,
-                                  stock_type = :stock_type, stock_qty = :stock_qty, updated_by = :updated_by WHERE id = :id'
+                                  stock_type = :stock_type, stock_qty = :stock_qty, updated_by = :updated_by,
+                                  updated_at = NOW() WHERE id = :id'
         );
         $stmt->execute([
             'sku'         => $data['sku'],

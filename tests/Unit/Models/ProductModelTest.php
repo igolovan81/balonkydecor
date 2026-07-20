@@ -558,6 +558,33 @@ class ProductModelTest extends TestCase
         $this->assertNotEmpty($product['updated_at']);
     }
 
+    public function test_update_bumps_updated_at_even_when_other_fields_unchanged(): void
+    {
+        $sku = 'TEST-AUDIT-' . uniqid();
+        $id  = ProductModel::create([
+            'sku'         => $sku,
+            'price'       => 9.99,
+            'category_id' => self::$categoryId,
+        ], self::$userId);
+        $before = ProductModel::findById($id)['updated_at'];
+
+        sleep(1);
+        // Same sku/price/category/etc as at creation — simulates an admin
+        // form save that only changed a translation field, not this row's
+        // own columns. updated_at must still advance: MySQL's ON UPDATE
+        // CURRENT_TIMESTAMP only fires when a column value actually
+        // changes, so a naive UPDATE with identical values would silently
+        // leave the audit timestamp stale even though the admin did save.
+        ProductModel::update($id, [
+            'sku'         => $sku,
+            'price'       => 9.99,
+            'category_id' => self::$categoryId,
+        ], self::$userId);
+
+        $after = ProductModel::findById($id)['updated_at'];
+        $this->assertGreaterThan($before, $after);
+    }
+
     public function test_update_changes_updated_by_but_not_created_by(): void
     {
         $id = ProductModel::create([
