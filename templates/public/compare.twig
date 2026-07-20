@@ -1,0 +1,78 @@
+{% extends "layout/base.twig" %}
+
+{% block title %}{{ t('compare.title') }} — {{ t('site.name') }}{% endblock %}
+{% block meta_desc %}{% endblock %}
+
+{% block head %}<meta name="robots" content="noindex,nofollow">{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container"><h1>{{ t('compare.title') }}</h1></div>
+</section>
+
+<div class="container compare-page">
+    {% if items %}
+    <form action="/{{ lang }}/compare/clear" method="POST" class="compare-clear-form">
+        <button type="submit" class="btn btn-outline">{{ t('compare.clear_list') }}</button>
+    </form>
+    <div class="specs-scroll">
+        <table class="compare-table">
+            <thead>
+                <tr>
+                    <th class="compare-label-col"></th>
+                    {% for product in items %}
+                    <th>
+                        <form action="/{{ lang }}/compare/toggle" method="POST" class="compare-remove-form">
+                            <input type="hidden" name="sku" value="{{ product.sku }}">
+                            <input type="hidden" name="return" value="/{{ lang }}/compare">
+                            <button type="submit" class="btn-remove" aria-label="{{ t('shop.compare_remove') }}">×</button>
+                        </form>
+                        <a href="/{{ lang }}/shop/{{ product.sku }}">
+                            {% if product.images[0] %}
+                                <img src="/assets/uploads/products/{{ product.images[0] }}" alt="{{ product.name }}" class="compare-thumb">
+                            {% else %}
+                                <div class="product-img-placeholder compare-thumb"></div>
+                            {% endif %}
+                        </a>
+                    </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="compare-label-col">{{ t('compare.name') }}</td>
+                    {% for product in items %}
+                    <td><a href="/{{ lang }}/shop/{{ product.sku }}">{{ product.name }}</a></td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="compare-label-col">{{ t('compare.price') }}</td>
+                    {% for product in items %}
+                    <td>{{ product.price|number_format(2, '.', ' ') }} Kč</td>
+                    {% endfor %}
+                </tr>
+                {% for attribute in attributes %}
+                <tr>
+                    <td class="compare-label-col">{{ attribute }}</td>
+                    {% for product in items %}
+                    {% set spec = product.specs|filter(s => s.attribute_name == attribute)|first %}
+                    <td>
+                        {% if spec %}
+                            {% if spec.attribute_value matches '/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/' %}
+                            <span class="spec-swatch" style="background:{{ spec.attribute_value }};" aria-label="{{ spec.attribute_value }}"></span>
+                            {% else %}
+                            {{ spec.attribute_value }}
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="empty-state">{{ t('compare.empty') }}</p>
+    {% endif %}
+</div>
+{% endblock %}
