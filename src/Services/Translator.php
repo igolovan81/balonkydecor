@@ -59,29 +59,22 @@ class Translator
                 continue;
             }
 
-            $missingFields = [];
             foreach ($fields as $field) {
                 $targetValue = trim((string) ($translations[$lang][$field] ?? ''));
                 $sourceValue = trim((string) ($source[$field] ?? ''));
-                if ($targetValue === '' && $sourceValue !== '') {
-                    $missingFields[] = $field;
+                if ($targetValue !== '' || $sourceValue === '') {
+                    continue;
                 }
-            }
 
-            if (!$missingFields) {
-                continue;
-            }
-
-            $texts = array_map(static fn (string $field) => $source[$field], $missingFields);
-
-            try {
-                $translated = self::translate($texts, $sourceLang, $lang, $transport);
-            } catch (\Throwable $e) {
-                continue;
-            }
-
-            foreach ($missingFields as $i => $field) {
-                $translations[$lang][$field] = $translated[$i] ?? '';
+                // Each field is translated in its own request so one over-length or
+                // failing field (MyMemory rejects requests over ~500 chars) can never
+                // abort translation of its sibling fields for this language.
+                try {
+                    $translated = self::translate([$sourceValue], $sourceLang, $lang, $transport);
+                    $translations[$lang][$field] = $translated[0] ?? '';
+                } catch (\Throwable $e) {
+                    continue;
+                }
             }
         }
 

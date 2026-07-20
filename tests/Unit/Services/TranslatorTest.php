@@ -160,4 +160,24 @@ class TranslatorTest extends TestCase
         $this->assertSame('Custom Name', $result['en']['name']);
         $this->assertSame('Description here', $result['en']['description']);
     }
+
+    public function test_autofill_isolates_field_failures_from_siblings(): void
+    {
+        $transport = function (string $url): string {
+            if (str_contains($url, rawurlencode('Popis'))) {
+                return 'not-json';
+            }
+            return json_encode(['responseStatus' => 200, 'responseData' => ['translatedText' => 'Balloons']]);
+        };
+
+        $translations = [
+            'cs' => ['name' => 'Balónky', 'description' => 'Popis'],
+            'en' => ['name' => '', 'description' => ''],
+        ];
+
+        $result = Translator::autoFill($translations, 'cs', ['cs', 'en'], ['name', 'description'], $transport);
+
+        $this->assertSame('Balloons', $result['en']['name']);
+        $this->assertSame('', $result['en']['description']);
+    }
 }
