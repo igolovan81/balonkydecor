@@ -15,6 +15,7 @@ use App\Controllers\Admin\AuthController;
 use App\Controllers\Admin\CategoryController;
 use App\Controllers\Admin\DashboardController;
 use App\Controllers\Admin\GalleryController as AdminGalleryController;
+use App\Controllers\Admin\HeroSlideController;
 use App\Controllers\Admin\NotificationController;
 use App\Controllers\Admin\OrderController as AdminOrderController;
 use App\Controllers\Admin\PageController as AdminPageController;
@@ -49,6 +50,14 @@ $app->group('/admin', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->get('/categories/{id:[0-9]+}/edit',    CategoryController::class . ':editForm');
     $group->post('/categories/{id:[0-9]+}/edit',   CategoryController::class . ':editSubmit');
     $group->post('/categories/{id:[0-9]+}/delete', CategoryController::class . ':delete');
+
+    // Hero slides
+    $group->get('/hero-slides',                     HeroSlideController::class . ':index');
+    $group->get('/hero-slides/new',                 HeroSlideController::class . ':createForm');
+    $group->post('/hero-slides/new',                HeroSlideController::class . ':createSubmit');
+    $group->get('/hero-slides/{id:[0-9]+}/edit',    HeroSlideController::class . ':editForm');
+    $group->post('/hero-slides/{id:[0-9]+}/edit',   HeroSlideController::class . ':editSubmit');
+    $group->post('/hero-slides/{id:[0-9]+}/delete', HeroSlideController::class . ':delete');
 
     // Products
     $group->get('/products',                                              ProductController::class . ':index');

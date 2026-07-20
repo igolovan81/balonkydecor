@@ -1,0 +1,47 @@
+{% extends "layout/admin-base.twig" %}
+{% block title %}{{ t('hero_slides.title') }}{% endblock %}
+{% block content %}
+<div class="admin-topbar">
+    <h1>{{ t('hero_slides.title') }}</h1>
+    <a href="/admin/hero-slides/new" class="btn btn-primary">{{ t('hero_slides.add') }}</a>
+</div>
+<table class="admin-table" data-sortable>
+    <thead>
+        <tr>
+            <th><button type="button" class="sort-btn" data-sort-type="number">{{ t('hero_slides.col.id') }}</button></th>
+            <th>{{ t('hero_slides.col.image') }}</th>
+            <th><button type="button" class="sort-btn" data-sort-type="text">{{ t('hero_slides.col.title') }}</button></th>
+            <th><button type="button" class="sort-btn" data-sort-type="number">{{ t('hero_slides.col.order') }}</button></th>
+            <th><button type="button" class="sort-btn" data-sort-type="number">{{ t('hero_slides.col.active') }}</button></th>
+            <th><button type="button" class="sort-btn" data-sort-type="text">{{ t('hero_slides.col.updated_by') }}</button></th>
+            <th><button type="button" class="sort-btn" data-sort-type="text">{{ t('hero_slides.col.updated') }}</button></th>
+            <th>{{ t('hero_slides.col.actions') }}</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for slide in slides %}
+    <tr>
+        <td>{{ slide.id }}</td>
+        <td>
+            {% if slide.image %}
+            <img src="/assets/uploads/hero/thumb_{{ slide.image }}" class="img-thumb">
+            {% endif %}
+        </td>
+        <td>{{ slide.title ?? '—' }}</td>
+        <td>{{ slide.sort_order }}</td>
+        <td data-sort-value="{{ slide.is_active ? 1 : 0 }}">{{ slide.is_active ? '✓' : '—' }}</td>
+        <td>{{ slide.updated_by_email ?? t('common.audit.unknown_user') }}</td>
+        <td class="audit-meta">{{ slide.updated_at }}</td>
+        <td>
+            <a href="/admin/hero-slides/{{ slide.id }}/edit">{{ t('hero_slides.edit') }}</a> |
+            <form method="POST" action="/admin/hero-slides/{{ slide.id }}/delete" style="display:inline" onsubmit="return confirm('{{ t('hero_slides.confirm_delete') }}')">
+                <button class="btn-link">{{ t('hero_slides.delete') }}</button>
+            </form>
+        </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="8">{{ t('hero_slides.no_slides') }}</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
