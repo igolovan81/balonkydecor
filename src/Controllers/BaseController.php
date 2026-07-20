@@ -2,6 +2,7 @@
 namespace App\Controllers;
 
 use App\Models\Database;
+use App\Services\Compare;
 use App\Services\I18n;
 use App\Services\Seo;
 use App\Twig\I18nExtension;
@@ -19,6 +20,10 @@ abstract class BaseController
         string   $template,
         array    $data = []
     ): Response {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
         /** @var I18n $i18n */
         $i18n = $request->getAttribute('i18n');
         $lang = $request->getAttribute('lang');
@@ -52,6 +57,23 @@ abstract class BaseController
             'facebook_url'         => $settingsMap['facebook_url'] ?? '',
             'instagram_url'        => $settingsMap['instagram_url'] ?? '',
             'whatsapp_url'         => $whatsappDigits !== '' ? 'https://wa.me/' . $whatsappDigits : '',
+            'flash'                => $this->getFlash(),
+            'compare_count'        => Compare::count(),
         ], $data));
+    }
+
+    protected function flash(string $type, string $message, array $params = []): void
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $_SESSION['flash'] = ['type' => $type, 'message' => $message, 'params' => $params];
+    }
+
+    protected function getFlash(): ?array
+    {
+        $flash = $_SESSION['flash'] ?? null;
+        unset($_SESSION['flash']);
+        return $flash;
     }
 }
