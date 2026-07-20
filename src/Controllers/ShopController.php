@@ -4,6 +4,7 @@ namespace App\Controllers;
 use App\Models\CategoryModel;
 use App\Models\ProductModel;
 use App\Services\Compare;
+use App\Services\RecentlyViewed;
 use App\Services\Wishlist;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -17,11 +18,12 @@ class ShopController extends BaseController
         $categoryId = isset($params['category']) ? (int) $params['category'] : null;
 
         return $this->render($request, $response, 'public/shop/index.twig', [
-            'categories'    => CategoryModel::allWithTranslation($lang),
-            'products'      => ProductModel::allActive($lang, $categoryId),
-            'active_cat'    => $categoryId,
-            'wishlist_skus' => Wishlist::skus(),
-            'compare_skus'  => Compare::skus(),
+            'categories'      => CategoryModel::allWithTranslation($lang),
+            'products'        => ProductModel::allActive($lang, $categoryId),
+            'active_cat'      => $categoryId,
+            'wishlist_skus'   => Wishlist::skus(),
+            'compare_skus'    => Compare::skus(),
+            'recently_viewed' => RecentlyViewed::items($lang),
         ]);
     }
 
@@ -34,6 +36,8 @@ class ShopController extends BaseController
             return $response->withStatus(404);
         }
 
+        RecentlyViewed::track($product['sku']);
+
         $subtypePrices = array_column($product['subtypes'], 'price');
 
         return $this->render($request, $response, 'public/shop/product.twig', [
@@ -42,6 +46,7 @@ class ShopController extends BaseController
             'max_subtype_price' => $subtypePrices ? max($subtypePrices) : null,
             'in_wishlist'       => Wishlist::has($product['sku']),
             'in_compare'        => Compare::has($product['sku']),
+            'recently_viewed'   => RecentlyViewed::items($lang, $product['sku']),
         ]);
     }
 }
