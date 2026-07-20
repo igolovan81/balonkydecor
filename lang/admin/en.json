@@ -211,6 +211,8 @@
   "products.form.delete_image": "Delete",
   "products.form.desc_label": "Description",
   "products.form.existing_images": "Existing images",
+  "products.form.legal_notice_hint": "Leave blank to use the category's notice.",
+  "products.form.legal_notice_label": "Legal information and warnings",
   "products.form.meta_desc_label": "SEO description (meta description)",
   "products.form.meta_title_label": "SEO title",
   "products.form.name_label": "Name",

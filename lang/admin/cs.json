@@ -211,6 +211,8 @@
   "products.form.delete_image": "Smazat",
   "products.form.desc_label": "Popis",
   "products.form.existing_images": "Stávající obrázky",
+  "products.form.legal_notice_hint": "Ponechte prázdné pro použití upozornění nastaveného u kategorie.",
+  "products.form.legal_notice_label": "Zákonné informace a varování",
   "products.form.meta_desc_label": "SEO popis (meta description)",
   "products.form.meta_title_label": "SEO titulek",
   "products.form.name_label": "Název",

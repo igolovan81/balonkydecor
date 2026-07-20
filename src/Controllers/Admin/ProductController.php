@@ -10,7 +10,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class ProductController extends AdminBaseController
 {
     private const LANGS                = ['cs', 'en', 'ru', 'uk', 'sk'];
-    private const TRANSLATABLE_FIELDS  = ['name', 'description', 'meta_title', 'meta_desc'];
+    private const TRANSLATABLE_FIELDS  = ['name', 'description', 'meta_title', 'meta_desc', 'legal_notice'];
     private const UPLOAD_DIR           = __DIR__ . '/../../../www/assets/uploads/products';
 
     public function index(Request $request, Response $response, array $args): Response
@@ -240,20 +240,19 @@ class ProductController extends AdminBaseController
             if ($name === '') continue;
             $value = trim($row['value'] ?? '');
 
-            // name and value are auto-filled independently: MyMemory rejects
-            // requests over ~500 chars (long legal/notice text), and if that
-            // failure aborted a single combined call, both fields — and the
-            // whole row — would silently vanish for that language.
-            $tName  = \App\Services\Translator::autoFill([$adminLang => ['name' => $name]], $adminLang, self::LANGS, ['name']);
-            $tValue = \App\Services\Translator::autoFill([$adminLang => ['value' => $value]], $adminLang, self::LANGS, ['value']);
+            $t = \App\Services\Translator::autoFill(
+                [$adminLang => ['name' => $name, 'value' => $value]],
+                $adminLang, self::LANGS, ['name', 'value']
+            );
 
-            $t = [];
+            // Translator::autoFill() now isolates field failures from each other, but
+            // a field can still end up unset if translation fails outright — fall
+            // back to the admin's own text so a row is never missing/blank.
             foreach (self::LANGS as $lang) {
-                $t[$lang] = [
-                    'name'  => $tName[$lang]['name'] ?? $name,
-                    'value' => $tValue[$lang]['value'] ?? $value,
-                ];
+                $t[$lang]['name']  = $t[$lang]['name']  ?? $name;
+                $t[$lang]['value'] = $t[$lang]['value'] ?? $value;
             }
+
             $specs[] = ['t' => $t];
         }
         return $specs;
