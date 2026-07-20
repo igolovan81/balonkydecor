@@ -31,12 +31,13 @@
             </div>
             <div class="form-group">
                 <label>{{ t('products.form.category') }}</label>
-                <select name="category_id">
+                <select name="category_id" id="category-select">
                     {% for cat in categories %}
                     <option value="{{ cat.id }}" {% if product.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
                     {% endfor %}
                 </select>
             </div>
+            <script type="application/json" id="category-legal-notices-data">{{ category_legal_notices|json_encode|raw }}</script>
             <h3>{{ t('products.form.translations') }}</h3>
             <div class="lang-tabs">
                 {% for lang in langs %}
@@ -53,19 +54,25 @@
                     <label>{{ t('products.form.desc_label') }} ({{ lang|upper }})</label>
                     <textarea name="t[{{ lang }}][description]">{{ translations[lang].description ?? '' }}</textarea>
                 </div>
-                <div class="form-group">
-                    <label>{{ t('products.form.legal_notice_label') }} ({{ lang|upper }})</label>
-                    <textarea name="t[{{ lang }}][legal_notice]">{{ translations[lang].legal_notice ?? '' }}</textarea>
-                    <p class="audit-meta" style="margin-top:0.35rem;">{{ t('products.form.legal_notice_hint') }}</p>
-                </div>
-                <div class="form-group">
-                    <label>{{ t('products.form.meta_title_label') }} ({{ lang|upper }})</label>
-                    <input type="text" name="t[{{ lang }}][meta_title]" value="{{ translations[lang].meta_title ?? '' }}" maxlength="255">
-                </div>
-                <div class="form-group">
-                    <label>{{ t('products.form.meta_desc_label') }} ({{ lang|upper }})</label>
-                    <textarea name="t[{{ lang }}][meta_desc]" maxlength="500">{{ translations[lang].meta_desc ?? '' }}</textarea>
-                </div>
+                <details class="form-section-details" open>
+                    <summary>{{ t('products.form.legal_section_title') }} ({{ lang|upper }})</summary>
+                    <div class="form-group">
+                        <textarea name="t[{{ lang }}][legal_notice]" class="product-legal-notice-input" data-lang="{{ lang }}" aria-label="{{ t('products.form.legal_notice_label') }} ({{ lang|upper }})">{{ translations[lang].legal_notice ?? '' }}</textarea>
+                        <p class="audit-meta" style="margin-top:0.35rem;">{{ t('products.form.legal_notice_hint') }}</p>
+                    </div>
+                </details>
+                <details class="form-section-details" open>
+                    <summary>{{ t('products.form.seo_section_title') }} ({{ lang|upper }})</summary>
+                    <p class="audit-meta">{{ t('products.form.seo_section_hint') }}</p>
+                    <div class="form-group">
+                        <label>{{ t('products.form.meta_title_label') }} ({{ lang|upper }})</label>
+                        <input type="text" name="t[{{ lang }}][meta_title]" value="{{ translations[lang].meta_title ?? '' }}" maxlength="255">
+                    </div>
+                    <div class="form-group">
+                        <label>{{ t('products.form.meta_desc_label') }} ({{ lang|upper }})</label>
+                        <textarea name="t[{{ lang }}][meta_desc]" maxlength="500">{{ translations[lang].meta_desc ?? '' }}</textarea>
+                    </div>
+                </details>
                 {% if lang != admin_lang %}
                 <div class="form-group">
                     <button type="button" class="btn btn-secondary translate-btn" data-lang="{{ lang }}">{{ t('products.form.translate_btn') }}</button>
@@ -259,6 +266,42 @@ document.querySelectorAll('.lang-tab').forEach(tab => {
 
     stockTypeSelect.addEventListener('change', syncStockQtyVisibility);
     syncStockQtyVisibility();
+})();
+
+// Prepopulate the legal notice fields from the selected category's default text.
+// Fields the admin hasn't touched keep following the category (data-autofilled);
+// once the admin types into a field it stops being auto-updated so edits are never
+// silently overwritten.
+(function () {
+    const categorySelect = document.getElementById('category-select');
+    const dataScript      = document.getElementById('category-legal-notices-data');
+    const legalTextareas  = document.querySelectorAll('.product-legal-notice-input');
+    if (!categorySelect || !dataScript || !legalTextareas.length) return;
+
+    let legalNoticesByCategory = {};
+    try {
+        legalNoticesByCategory = JSON.parse(dataScript.textContent || '{}');
+    } catch (e) {
+        legalNoticesByCategory = {};
+    }
+
+    function applyCategoryDefaults() {
+        const defaults = legalNoticesByCategory[categorySelect.value] || {};
+        legalTextareas.forEach(ta => {
+            if (ta.value.trim() !== '' && ta.dataset.autofilled !== 'true') return;
+            const defaultText = defaults[ta.dataset.lang] || '';
+            ta.value = defaultText;
+            ta.dataset.autofilled = 'true';
+        });
+    }
+
+    legalTextareas.forEach(ta => {
+        ta.dataset.autofilled = ta.value.trim() === '' ? 'true' : 'false';
+        ta.addEventListener('input', () => { ta.dataset.autofilled = 'false'; });
+    });
+
+    applyCategoryDefaults();
+    categorySelect.addEventListener('change', applyCategoryDefaults);
 })();
 
 // SKU auto-generation from English name (create form only — readonly + unlock button

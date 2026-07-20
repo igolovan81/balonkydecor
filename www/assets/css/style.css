@@ -18,7 +18,7 @@
 /* Breakpoints (custom properties don't work in @media): 768px tablet/nav collapse, 480px phone.
    Responsive rules live next to the component they modify — see .claude/rules/css-styling.md */
 
-a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible {
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, summary:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
 }

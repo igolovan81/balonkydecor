@@ -48,6 +48,13 @@ th[aria-sort="descending"] .sort-btn::after { content:'▼'; opacity:1; color:#3
 .product-form-columns { display:flex; gap:2rem; }
 .product-form-main { flex:2; min-width:0; }
 .product-form-side { flex:1; min-width:0; }
+.form-section-details { border:1px solid #ddd; border-radius:6px; padding:0 0.9rem; margin-bottom:1.25rem; }
+.form-section-details summary { cursor:pointer; font-weight:600; font-size:0.9rem; padding:0.75rem 0; list-style:none; }
+.form-section-details summary::-webkit-details-marker { display:none; }
+.form-section-details summary::before { content:'▸ '; }
+.form-section-details[open] summary::before { content:'▾ '; }
+.form-section-details[open] summary { border-bottom:1px solid #eee; margin-bottom:0.9rem; }
+.form-section-details .form-group:last-child { margin-bottom:0.9rem; }
 @media (max-width:900px) {
   .product-form-columns { flex-direction:column; }
 }
