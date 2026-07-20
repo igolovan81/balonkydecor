@@ -1,0 +1,20 @@
+{% if recently_viewed %}
+<div class="container recently-viewed-section">
+    <h2 class="recently-viewed-heading">{{ t('shop.recently_viewed_title') }}</h2>
+    <div class="recently-viewed-row">
+        {% for product in recently_viewed %}
+        <a href="/{{ lang }}/shop/{{ product.sku }}" class="recently-viewed-card">
+            <div class="product-img">
+                {% if product.images[0] %}
+                    <img src="/assets/uploads/products/{{ product.images[0] }}" alt="{{ product.name }}">
+                {% else %}
+                    <div class="product-img-placeholder"></div>
+                {% endif %}
+            </div>
+            <p class="recently-viewed-name">{{ product.name }}</p>
+            <p class="recently-viewed-price">{{ product.price|number_format(2, '.', ' ') }} Kč</p>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}

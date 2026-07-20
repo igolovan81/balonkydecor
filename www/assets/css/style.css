@@ -152,6 +152,15 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 .product-info h3 { font-size: 1rem; font-weight: normal; margin-bottom: .25rem; }
 .product-price { font-family: var(--ui-font); color: var(--accent); font-size: .95rem; }
 
+/* Recently viewed products (row: product page + homepage) */
+.recently-viewed-section { padding: 2.5rem 1.5rem; }
+.recently-viewed-heading { font-size: 1.4rem; font-weight: normal; margin-bottom: 1rem; }
+.recently-viewed-row { display: flex; gap: 1.25rem; overflow-x: auto; padding-bottom: .5rem; -webkit-overflow-scrolling: touch; }
+.recently-viewed-card { flex: 0 0 160px; text-decoration: none; color: var(--text); }
+.recently-viewed-card .product-img { border-radius: 2px; }
+.recently-viewed-name { font-size: .9rem; margin-top: .5rem; }
+.recently-viewed-price { font-family: var(--ui-font); color: var(--accent); font-size: .85rem; }
+
 /* Product detail */
 .product-detail { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; padding: 3rem 1.5rem; }
 .product-gallery img { width: 100%; border-radius: 2px; }
@@ -298,6 +307,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
         padding: .65rem .75rem;
     }
     .product-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
+    .recently-viewed-card { flex-basis: 130px; }
     .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; }
     .photo-grid { columns: 2; }
 }
