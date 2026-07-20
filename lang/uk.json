@@ -72,6 +72,8 @@
   "shop.all": "Усі",
   "shop.from_price": "від {price} Kč",
   "shop.no_products": "Немає товарів у цій категорії.",
+  "shop.notice_legal_label": "Юридична інформація та попередження",
+  "shop.notice_title": "Повідомлення",
   "shop.qty": "Кількість",
   "shop.specs_attribute_name": "Назва атрибута",
   "shop.specs_attribute_value": "Значення атрибута",

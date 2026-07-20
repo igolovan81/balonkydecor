@@ -72,6 +72,8 @@
   "shop.all": "Všetko",
   "shop.from_price": "od {price} Kč",
   "shop.no_products": "Žiadne produkty v tejto kategórii.",
+  "shop.notice_legal_label": "Právne informácie a upozornenia",
+  "shop.notice_title": "Upozornenie",
   "shop.qty": "Množstvo",
   "shop.specs_attribute_name": "Názov atribútu",
   "shop.specs_attribute_value": "Hodnota atribútu",

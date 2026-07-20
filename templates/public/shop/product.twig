@@ -106,11 +106,7 @@
             </thead>
             <tbody>
                 {% for spec in product.specs %}
-                {% if spec.attribute_value is empty %}
-                <tr class="specs-row-header">
-                    <td colspan="2" data-label="">{{ spec.attribute_name }}</td>
-                </tr>
-                {% elseif spec.attribute_value matches '/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/' %}
+                {% if spec.attribute_value matches '/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/' %}
                 <tr>
                     <td data-label="{{ t('shop.specs_attribute_name') }}">{{ spec.attribute_name }}</td>
                     <td data-label="{{ t('shop.specs_attribute_value') }}"><span class="spec-swatch" style="background:{{ spec.attribute_value }};" aria-label="{{ spec.attribute_value }}"></span></td>
@@ -122,6 +118,30 @@
                 </tr>
                 {% endif %}
                 {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+{% if product.legal_notice %}
+<div class="container product-specs">
+    <div class="specs-scroll">
+        <table class="specs-table">
+            <thead>
+                <tr>
+                    <th>{{ t('shop.specs_attribute_name') }}</th>
+                    <th>{{ t('shop.specs_attribute_value') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="specs-row-header">
+                    <td colspan="2" data-label="">{{ t('shop.notice_title') }}</td>
+                </tr>
+                <tr>
+                    <td data-label="{{ t('shop.specs_attribute_name') }}">{{ t('shop.notice_legal_label') }}</td>
+                    <td data-label="{{ t('shop.specs_attribute_value') }}">{{ product.legal_notice }}</td>
+                </tr>
             </tbody>
         </table>
     </div>

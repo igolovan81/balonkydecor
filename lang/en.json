@@ -72,6 +72,8 @@
   "shop.all": "All",
   "shop.from_price": "from {price} Kč",
   "shop.no_products": "No products in this category.",
+  "shop.notice_legal_label": "Legal information and warnings",
+  "shop.notice_title": "Notice",
   "shop.qty": "Quantity",
   "shop.specs_attribute_name": "Attribute name",
   "shop.specs_attribute_value": "Attribute value",
