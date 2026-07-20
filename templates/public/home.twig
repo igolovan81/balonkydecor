@@ -4,13 +4,41 @@
 {% block meta_desc %}{{ page.meta_desc ?? '' }}{% endblock %}
 
 {% block content %}
-<section class="hero">
-    <div class="container">
-        <h1>{{ t('home.hero_title') }}</h1>
-        <p class="hero-subtitle">{{ t('home.hero_subtitle') }}</p>
-        <a href="/{{ lang }}/shop" class="btn btn-primary">{{ t('home.cta') }}</a>
+{% if hero_slides %}
+<section class="hero-carousel" data-hero-carousel>
+    <div class="container hero-carousel-inner">
+        {% for slide in hero_slides %}
+        <div class="hero-slide {% if loop.first %}active{% endif %}" data-hero-slide>
+            <div class="hero-slide-copy">
+                <h1>{{ slide.title }}</h1>
+                {% if slide.subtitle %}<p class="hero-slide-subtitle">{{ slide.subtitle }}</p>{% endif %}
+                <a href="/{{ lang }}{{ slide.cta_url }}" class="btn btn-primary">{{ slide.cta_label }}</a>
+            </div>
+            <div class="hero-slide-media">
+                {% if slide.image %}
+                <img src="/assets/uploads/hero/{{ slide.image }}" alt="">
+                {% else %}
+                <div class="hero-slide-placeholder"></div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        {% if hero_slides|length > 1 %}
+        <button type="button" class="hero-carousel-arrow hero-carousel-arrow--prev" data-hero-prev aria-label="{{ t('home.hero_prev') }}">‹</button>
+        <button type="button" class="hero-carousel-arrow hero-carousel-arrow--next" data-hero-next aria-label="{{ t('home.hero_next') }}">›</button>
+        <div class="hero-carousel-dots" data-hero-dots>
+            {% for slide in hero_slides %}
+            <button type="button" class="hero-carousel-dot {% if loop.first %}active{% endif %}" data-hero-dot data-index="{{ loop.index0 }}" aria-label="{{ t('home.hero_goto', {n: loop.index}) }}"></button>
+            {% endfor %}
+        </div>
+        {% endif %}
     </div>
 </section>
+{% endif %}
 
 {% include 'public/partials/recently-viewed-row.twig' %}
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script src="/assets/js/hero-carousel.js" defer></script>
 {% endblock %}

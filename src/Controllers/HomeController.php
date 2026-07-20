@@ -1,6 +1,7 @@
 <?php
 namespace App\Controllers;
 
+use App\Models\HeroSlideModel;
 use App\Models\PageModel;
 use App\Services\RecentlyViewed;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -14,6 +15,7 @@ class HomeController extends BaseController
         return $this->render($request, $response, 'public/home.twig', [
             'page'            => PageModel::find('home', $lang),
             'recently_viewed' => RecentlyViewed::items($lang),
+            'hero_slides'     => HeroSlideModel::active($lang),
         ]);
     }
 }
