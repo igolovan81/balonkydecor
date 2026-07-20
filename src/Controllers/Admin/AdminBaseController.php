@@ -31,12 +31,12 @@ abstract class AdminBaseController
         ], $data));
     }
 
-    protected function flash(string $type, string $message): void
+    protected function flash(string $type, string $message, array $params = []): void
     {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
-        $_SESSION['flash'] = ['type' => $type, 'message' => $message];
+        $_SESSION['flash'] = ['type' => $type, 'message' => $message, 'params' => $params];
     }
 
     protected function getFlash(): ?array

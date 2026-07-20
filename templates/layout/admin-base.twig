@@ -57,7 +57,7 @@
     </aside>
     <main class="admin-main">
         {% if flash %}
-            <div class="flash-{{ flash.type }}">{{ t(flash.message) }}</div>
+            <div class="flash-{{ flash.type }}">{{ t(flash.message, flash.params ?? []) }}</div>
         {% endif %}
         {% block content %}{% endblock %}
     </main>

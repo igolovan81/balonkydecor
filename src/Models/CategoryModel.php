@@ -119,6 +119,17 @@ class CategoryModel
         return $result;
     }
 
+    public static function legalNoticesByCategory(): array
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->query('SELECT category_id, lang_code, legal_notice FROM category_t');
+        $result = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $result[$row['category_id']][$row['lang_code']] = $row['legal_notice'] ?? '';
+        }
+        return $result;
+    }
+
     public static function setTranslations(int $id, array $translations): void
     {
         $pdo  = Database::getConnection();

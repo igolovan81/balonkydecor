@@ -44,10 +44,11 @@ class ProductController extends AdminBaseController
     {
         $categories = CategoryModel::allWithTranslation($request->getAttribute('admin_lang', 'cs'));
         return $this->renderAdmin($request, $response, 'admin/products/form.twig', [
-            'product'      => null,
-            'translations' => [],
-            'categories'   => $categories,
-            'langs'        => self::LANGS,
+            'product'                 => null,
+            'translations'            => [],
+            'categories'              => $categories,
+            'langs'                   => self::LANGS,
+            'category_legal_notices'  => CategoryModel::legalNoticesByCategory(),
         ]);
     }
 
@@ -95,7 +96,9 @@ class ProductController extends AdminBaseController
         \App\Services\Notifier::notify(
             'product', $id, $sku, 'created', $userId, $_SESSION['admin_user']['email'] ?? ''
         );
-        $this->flash('success', 'products.flash.created');
+        $adminLang = $request->getAttribute('admin_lang', 'cs');
+        $name      = trim($translations[$adminLang]['name'] ?? '') ?: $sku;
+        $this->flash('success', 'products.flash.created', ['name' => $name, 'sku' => $sku]);
         return $this->redirect($response, '/admin/products');
     }
 
@@ -106,10 +109,11 @@ class ProductController extends AdminBaseController
         $translations = ProductModel::getTranslations((int) $args['id']);
         $categories   = CategoryModel::allWithTranslation($request->getAttribute('admin_lang', 'cs'));
         return $this->renderAdmin($request, $response, 'admin/products/form.twig', [
-            'product'      => $product,
-            'translations' => $translations,
-            'categories'   => $categories,
-            'langs'        => self::LANGS,
+            'product'                 => $product,
+            'translations'            => $translations,
+            'categories'              => $categories,
+            'langs'                   => self::LANGS,
+            'category_legal_notices'  => CategoryModel::legalNoticesByCategory(),
         ]);
     }
 
@@ -138,7 +142,9 @@ class ProductController extends AdminBaseController
         \App\Services\Notifier::notify(
             'product', $id, $sku, 'updated', $userId, $_SESSION['admin_user']['email'] ?? ''
         );
-        $this->flash('success', 'products.flash.updated');
+        $adminLang = $request->getAttribute('admin_lang', 'cs');
+        $name      = trim($body['t'][$adminLang]['name'] ?? '') ?: $sku;
+        $this->flash('success', 'products.flash.updated', ['name' => $name, 'sku' => $sku]);
         return $this->redirect($response, '/admin/products');
     }
 
