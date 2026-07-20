@@ -1,6 +1,7 @@
 <?php
 use App\Controllers\CartController;
 use App\Controllers\CheckoutController;
+use App\Controllers\CompareController;
 use App\Controllers\ContactController;
 use App\Controllers\GalleryController;
 use App\Controllers\HomeController;
@@ -159,6 +160,9 @@ $app->post('/{lang}/cart/remove',     CartController::class    . ':remove');
 $app->post('/{lang}/cart/update',     CartController::class    . ':update');
 $app->get('/{lang}/wishlist',         WishlistController::class . ':index');
 $app->post('/{lang}/wishlist/toggle', WishlistController::class . ':toggle');
+$app->get('/{lang}/compare',          CompareController::class . ':index');
+$app->post('/{lang}/compare/toggle',  CompareController::class . ':toggle');
+$app->post('/{lang}/compare/clear',   CompareController::class . ':clear');
 $app->get('/{lang}/checkout',         CheckoutController::class . ':index');
 $app->post('/{lang}/checkout',        CheckoutController::class . ':submit');
 $app->get('/{lang}/checkout/confirm', CheckoutController::class . ':confirm');
