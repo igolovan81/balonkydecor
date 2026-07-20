@@ -238,11 +238,22 @@ class ProductController extends AdminBaseController
         foreach ($rows as $row) {
             $name = trim($row['name'] ?? '');
             if ($name === '') continue;
+            $value = trim($row['value'] ?? '');
 
-            $t = \App\Services\Translator::autoFill(
-                [$adminLang => ['name' => $name, 'value' => trim($row['value'] ?? '')]],
-                $adminLang, self::LANGS, ['name', 'value']
-            );
+            // name and value are auto-filled independently: MyMemory rejects
+            // requests over ~500 chars (long legal/notice text), and if that
+            // failure aborted a single combined call, both fields — and the
+            // whole row — would silently vanish for that language.
+            $tName  = \App\Services\Translator::autoFill([$adminLang => ['name' => $name]], $adminLang, self::LANGS, ['name']);
+            $tValue = \App\Services\Translator::autoFill([$adminLang => ['value' => $value]], $adminLang, self::LANGS, ['value']);
+
+            $t = [];
+            foreach (self::LANGS as $lang) {
+                $t[$lang] = [
+                    'name'  => $tName[$lang]['name'] ?? $name,
+                    'value' => $tValue[$lang]['value'] ?? $value,
+                ];
+            }
             $specs[] = ['t' => $t];
         }
         return $specs;
