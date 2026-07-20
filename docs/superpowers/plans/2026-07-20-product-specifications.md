@@ -846,7 +846,7 @@ to:
                 <tr class="specs-row-header">
                     <td colspan="2" data-label="">{{ spec.attribute_name }}</td>
                 </tr>
-                {% elseif spec.attribute_value is matches('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/') %}
+                {% elseif spec.attribute_value matches '/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/' %}
                 <tr>
                     <td data-label="{{ t('shop.specs_attribute_name') }}">{{ spec.attribute_name }}</td>
                     <td data-label="{{ t('shop.specs_attribute_value') }}"><span class="spec-swatch" style="background:{{ spec.attribute_value }};" aria-label="{{ spec.attribute_value }}"></span></td>
