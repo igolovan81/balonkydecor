@@ -11,17 +11,17 @@
     <button type="button" class="btn btn-secondary" id="bulk-deactivate-btn" disabled
             data-action="deactivate" data-confirm="{{ t('products.bulk.confirm_deactivate') }}">{{ t('products.bulk.deactivate') }}</button>
 </div>
-<table class="admin-table">
+<table class="admin-table" data-sortable>
     <thead>
         <tr>
             <th><input type="checkbox" id="select-all-checkbox" aria-label="{{ t('products.bulk.select_all') }}"></th>
             <th>{{ t('products.col.image') }}</th>
-            <th>{{ t('products.col.name') }}</th>
-            <th>{{ t('products.col.category') }}</th>
-            <th>{{ t('products.col.price') }}</th>
-            <th>{{ t('products.col.stock') }}</th>
-            <th>{{ t('products.col.active') }}</th>
-            <th>{{ t('products.col.updated') }}</th>
+            <th><button type="button" class="sort-btn" data-sort-type="text">{{ t('products.col.name') }}</button></th>
+            <th><button type="button" class="sort-btn" data-sort-type="text">{{ t('products.col.category') }}</button></th>
+            <th><button type="button" class="sort-btn" data-sort-type="number">{{ t('products.col.price') }}</button></th>
+            <th><button type="button" class="sort-btn" data-sort-type="number">{{ t('products.col.stock') }}</button></th>
+            <th><button type="button" class="sort-btn" data-sort-type="number">{{ t('products.col.active') }}</button></th>
+            <th><button type="button" class="sort-btn" data-sort-type="text">{{ t('products.col.updated') }}</button></th>
             <th>{{ t('products.col.actions') }}</th>
         </tr>
     </thead>
@@ -36,10 +36,10 @@
         </td>
         <td>{{ p.name }}</td>
         <td>{{ p.category_name ?? '—' }}</td>
-        <td>{{ p.price|number_format(2, '.', ' ') }} Kč</td>
-        <td>{{ p.stock_type == 'limited' ? p.stock_qty ~ ' ks' : '—' }}</td>
-        <td>{{ p.is_active ? '✓' : '—' }}</td>
-        <td class="audit-meta">{{ p.updated_by_email ?? t('common.audit.unknown_user') }}<br>{{ p.updated_at }}</td>
+        <td data-sort-value="{{ p.price }}">{{ p.price|number_format(2, '.', ' ') }} Kč</td>
+        <td data-sort-value="{{ p.stock_type == 'limited' ? p.stock_qty : -1 }}">{{ p.stock_type == 'limited' ? p.stock_qty ~ ' ks' : '—' }}</td>
+        <td data-sort-value="{{ p.is_active ? 1 : 0 }}">{{ p.is_active ? '✓' : '—' }}</td>
+        <td class="audit-meta" data-sort-value="{{ p.updated_at }}">{{ p.updated_by_email ?? t('common.audit.unknown_user') }}<br>{{ p.updated_at }}</td>
         <td>
             <a href="/admin/products/{{ p.id }}/edit">{{ t('products.edit') }}</a> |
             <form method="POST" action="/admin/products/{{ p.id }}/clone" style="display:inline">
