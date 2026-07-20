@@ -34,16 +34,25 @@ class ProductModel
         $stmt = $pdo->prepare('
             SELECT p.id, p.category_id, p.sku, p.price, p.stock_type, p.stock_qty,
                    COALESCE(t.name, p.sku) AS name,
-                   t.description, t.meta_title, t.meta_desc
+                   t.description, t.meta_title, t.meta_desc,
+                   t.legal_notice AS product_legal_notice,
+                   ct.legal_notice AS category_legal_notice
             FROM products p
             LEFT JOIN product_t t ON t.product_id = p.id AND t.lang_code = :lang
+            LEFT JOIN category_t ct ON ct.category_id = p.category_id AND ct.lang_code = :lang2
             WHERE p.sku = :sku AND p.is_active = 1
         ');
-        $stmt->execute(['sku' => $sku, 'lang' => $lang]);
+        $stmt->execute(['sku' => $sku, 'lang' => $lang, 'lang2' => $lang]);
         $product = $stmt->fetch();
         if (!$product) {
             return null;
         }
+
+        $product['legal_notice'] = trim((string) ($product['product_legal_notice'] ?? '')) !== ''
+            ? $product['product_legal_notice']
+            : (trim((string) ($product['category_legal_notice'] ?? '')) !== '' ? $product['category_legal_notice'] : null);
+        unset($product['product_legal_notice'], $product['category_legal_notice']);
+
         $imgs = $pdo->prepare('SELECT filename FROM product_images WHERE product_id = ? ORDER BY sort_order, id');
         $imgs->execute([$product['id']]);
         $product['images'] = $imgs->fetchAll(\PDO::FETCH_COLUMN);
@@ -211,7 +220,7 @@ class ProductModel
     public static function getTranslations(int $id): array
     {
         $pdo  = Database::getConnection();
-        $stmt = $pdo->prepare('SELECT lang_code, name, description, meta_title, meta_desc FROM product_t WHERE product_id = ?');
+        $stmt = $pdo->prepare('SELECT lang_code, name, description, meta_title, meta_desc, legal_notice FROM product_t WHERE product_id = ?');
         $stmt->execute([$id]);
         $result = [];
         foreach ($stmt->fetchAll() as $row) {
@@ -224,14 +233,15 @@ class ProductModel
     {
         $pdo  = Database::getConnection();
         $stmt = $pdo->prepare(
-            'INSERT INTO product_t (product_id, lang_code, name, description, meta_title, meta_desc)
-             VALUES (?, ?, ?, ?, ?, ?)
+            'INSERT INTO product_t (product_id, lang_code, name, description, meta_title, meta_desc, legal_notice)
+             VALUES (?, ?, ?, ?, ?, ?, ?)
              ON DUPLICATE KEY UPDATE name = VALUES(name), description = VALUES(description),
-                                     meta_title = VALUES(meta_title), meta_desc = VALUES(meta_desc)'
+                                     meta_title = VALUES(meta_title), meta_desc = VALUES(meta_desc),
+                                     legal_notice = VALUES(legal_notice)'
         );
         foreach ($translations as $lang => $t) {
             if (empty($t['name'])) continue;
-            $stmt->execute([$id, $lang, $t['name'], $t['description'] ?? '', $t['meta_title'] ?? null, $t['meta_desc'] ?? null]);
+            $stmt->execute([$id, $lang, $t['name'], $t['description'] ?? '', $t['meta_title'] ?? null, $t['meta_desc'] ?? null, $t['legal_notice'] ?? null]);
         }
     }
 

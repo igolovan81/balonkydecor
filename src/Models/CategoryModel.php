@@ -110,7 +110,7 @@ class CategoryModel
     public static function getTranslations(int $id): array
     {
         $pdo  = Database::getConnection();
-        $stmt = $pdo->prepare('SELECT lang_code, name, description FROM category_t WHERE category_id = ?');
+        $stmt = $pdo->prepare('SELECT lang_code, name, description, legal_notice FROM category_t WHERE category_id = ?');
         $stmt->execute([$id]);
         $result = [];
         foreach ($stmt->fetchAll() as $row) {
@@ -123,13 +123,14 @@ class CategoryModel
     {
         $pdo  = Database::getConnection();
         $stmt = $pdo->prepare(
-            'INSERT INTO category_t (category_id, lang_code, name, description)
-             VALUES (?, ?, ?, ?)
-             ON DUPLICATE KEY UPDATE name = VALUES(name), description = VALUES(description)'
+            'INSERT INTO category_t (category_id, lang_code, name, description, legal_notice)
+             VALUES (?, ?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE name = VALUES(name), description = VALUES(description),
+                                     legal_notice = VALUES(legal_notice)'
         );
         foreach ($translations as $lang => $t) {
             if (empty($t['name'])) continue;
-            $stmt->execute([$id, $lang, $t['name'], $t['description'] ?? '']);
+            $stmt->execute([$id, $lang, $t['name'], $t['description'] ?? '', $t['legal_notice'] ?? null]);
         }
     }
 }

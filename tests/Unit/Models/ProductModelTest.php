@@ -76,6 +76,14 @@ class ProductModelTest extends TestCase
         return (int) $pdo->lastInsertId();
     }
 
+    private function makeCategory(): int
+    {
+        $pdo  = Database::getConnection();
+        $slug = 'test-cat-' . uniqid();
+        $pdo->prepare('INSERT INTO categories (slug) VALUES (?)')->execute([$slug]);
+        return (int) $pdo->lastInsertId();
+    }
+
     private function skuOf(int $productId): string
     {
         $pdo  = Database::getConnection();
@@ -155,6 +163,58 @@ class ProductModelTest extends TestCase
     {
         $product = ProductModel::findBySku('TEST-SKU-001', 'en');
         $this->assertSame([], $product['specs']);
+    }
+
+    public function test_find_by_sku_uses_product_legal_notice_when_set(): void
+    {
+        $catId = $this->makeCategory();
+        CategoryModel::setTranslations($catId, ['en' => ['name' => 'Cat', 'legal_notice' => 'Category notice']]);
+        $pdo = Database::getConnection();
+        $sku = 'LEGALNOTICE-' . strtoupper(uniqid());
+        $pdo->prepare('INSERT INTO products (category_id, sku, price) VALUES (?, ?, 9.99)')->execute([$catId, $sku]);
+        $id = (int) $pdo->lastInsertId();
+        ProductModel::setTranslations($id, ['en' => ['name' => 'Product', 'legal_notice' => 'Product notice']]);
+
+        $product = ProductModel::findBySku($sku, 'en');
+        $this->assertSame('Product notice', $product['legal_notice']);
+    }
+
+    public function test_find_by_sku_falls_back_to_category_legal_notice(): void
+    {
+        $catId = $this->makeCategory();
+        CategoryModel::setTranslations($catId, ['en' => ['name' => 'Cat', 'legal_notice' => 'Category notice']]);
+        $pdo = Database::getConnection();
+        $sku = 'LEGALNOTICE-' . strtoupper(uniqid());
+        $pdo->prepare('INSERT INTO products (category_id, sku, price) VALUES (?, ?, 9.99)')->execute([$catId, $sku]);
+        $id = (int) $pdo->lastInsertId();
+        ProductModel::setTranslations($id, ['en' => ['name' => 'Product']]);
+
+        $product = ProductModel::findBySku($sku, 'en');
+        $this->assertSame('Category notice', $product['legal_notice']);
+    }
+
+    public function test_find_by_sku_legal_notice_null_when_neither_set(): void
+    {
+        $catId = $this->makeCategory();
+        $pdo = Database::getConnection();
+        $sku = 'LEGALNOTICE-' . strtoupper(uniqid());
+        $pdo->prepare('INSERT INTO products (category_id, sku, price) VALUES (?, ?, 9.99)')->execute([$catId, $sku]);
+        $id = (int) $pdo->lastInsertId();
+        ProductModel::setTranslations($id, ['en' => ['name' => 'Product']]);
+
+        $product = ProductModel::findBySku($sku, 'en');
+        $this->assertNull($product['legal_notice']);
+    }
+
+    public function test_set_translations_stores_legal_notice(): void
+    {
+        $pdo = Database::getConnection();
+        $id  = $pdo->query("SELECT id FROM products WHERE sku='TEST-SKU-001'")->fetch()['id'];
+        ProductModel::setTranslations($id, [
+            'en' => ['name' => 'Test Product', 'legal_notice' => 'Notice text.'],
+        ]);
+        $translations = ProductModel::getTranslations($id);
+        $this->assertSame('Notice text.', $translations['en']['legal_notice']);
     }
 
     public function test_filter_by_category(): void

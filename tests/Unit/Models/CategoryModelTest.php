@@ -39,6 +39,17 @@ class CategoryModelTest extends TestCase
         }
     }
 
+    public function test_set_translations_stores_legal_notice(): void
+    {
+        $pdo = Database::getConnection();
+        $id  = $pdo->query("SELECT id FROM categories WHERE slug='test-cat'")->fetch()['id'];
+        CategoryModel::setTranslations($id, [
+            'en' => ['name' => 'Test Category', 'legal_notice' => 'Test warning text.'],
+        ]);
+        $translations = CategoryModel::getTranslations($id);
+        $this->assertSame('Test warning text.', $translations['en']['legal_notice']);
+    }
+
     public function test_slugify_converts_name_to_kebab_case(): void
     {
         $this->assertSame('summer-party-decorations', CategoryModel::slugify('Summer party decorations'));
