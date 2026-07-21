@@ -41,7 +41,7 @@ Deploy the BalonkyDecor application to WEDOS shared hosting via FTP.
 
 5. After deploy, remind the user:
    - Upload `config/settings.prod.php` via FTP if DB credentials changed or it's a first deploy
-   - Verify the site at `http://balonkydecor.cz/cs/`
+   - Run `/verify` for a full health check (public pages, admin portal, migration status) rather than just spot-checking `http://balonkydecor.cz/cs/`
 
 ## What gets deployed
 

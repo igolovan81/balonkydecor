@@ -33,6 +33,8 @@ check "CS contact"               "$BASE/cs/contact"          200
 check "CS services"              "$BASE/cs/services"         200
 check "CS shipping/payment"      "$BASE/cs/shipping-payment" 200
 check "CS cart"                  "$BASE/cs/cart"             200
+check "CS wishlist"              "$BASE/cs/wishlist"         200
+check "CS compare"               "$BASE/cs/compare"          200
 check "robots.txt"               "$BASE/robots.txt"          200
 check "sitemap.xml"              "$BASE/sitemap.xml"         200
 

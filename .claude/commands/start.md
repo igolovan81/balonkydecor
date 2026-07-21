@@ -35,9 +35,11 @@ Start the full BalonkyDecor dev environment: Docker MySQL + PHP built-in server,
    ```bash
    curl -s -o /dev/null -w "CS homepage: %{http_code}\n"  http://localhost:8080/cs/
    curl -s -o /dev/null -w "Shop:        %{http_code}\n"  http://localhost:8080/cs/shop
+   curl -s -o /dev/null -w "Wishlist:    %{http_code}\n"  http://localhost:8080/cs/wishlist
+   curl -s -o /dev/null -w "Compare:     %{http_code}\n"  http://localhost:8080/cs/compare
    curl -s -o /dev/null -w "Admin login: %{http_code}\n"  http://localhost:8080/admin/login
    ```
-   All three must return `200`.
+   All must return `200`.
 
 5. Tell the user the environment is ready:
    - Site: http://localhost:8080/cs/ (also `/en/`, `/ru/`, `/uk/`, `/sk/`)
