@@ -13,21 +13,26 @@ Multilingual e-commerce website for a Czech helium balloon decoration business. 
 
 **Public site**
 - 5 languages: Czech, Russian, English, Ukrainian, Slovak (`/{lang}/` URL prefix)
-- Product shop with categories and image galleries
-- Shopping cart (session-based)
+- Homepage hero image carousel (admin-managed slides)
+- Product shop with categories, subtypes/specs, and image galleries
+- Shopping cart, wishlist, and product comparison (all session-based)
 - Checkout with customer details and pickup date
 - Online payment via GoPay (with dev bypass when no credentials configured)
-- Gallery, Services page, Contact form
+- Gallery, structured Services listing, Contact form
 
 **Admin panel** (`/admin`)
 - Session-based authentication with bcrypt passwords
 - Language switcher — admin UI available in all 5 languages (preference stored per user)
 - Dashboard with order statistics
-- Products — CRUD, multilingual name/description, image upload (auto-resize)
+- Products — CRUD, multilingual name/description/specs, subtypes, image upload (auto-resize), bulk actions, clone
 - Categories — CRUD with translations
+- Hero slides — CRUD for the homepage carousel (image, CTA, translations)
+- Services — structured CRUD with translations
 - Orders — list with status filter, detail view, status updates
-- Gallery — album and photo management
+- Gallery — album and photo/video management
 - Pages — edit content for Services, Home, Contact in all 5 languages
+- Notifications — in-app history of admin actions
+- Page view analytics — traffic summary, top pages, device/browser breakdown
 - Settings — GoPay credentials, SMTP, site info
 - User management
 
@@ -64,7 +69,15 @@ open http://localhost:8080/cs/
 | `/admin/login` | Login |
 | `/admin` | Dashboard |
 | `/admin/products` | Product management |
+| `/admin/categories` | Category management |
+| `/admin/hero-slides` | Homepage hero carousel slides |
+| `/admin/services` | Services listing management |
+| `/admin/gallery` | Gallery album and photo/video management |
 | `/admin/orders` | Order management |
+| `/admin/pages` | Static page content (Services intro, Home, Contact) |
+| `/admin/notifications` | Admin action history |
+| `/admin/page-views` | Traffic analytics |
+| `/admin/users` | User management |
 | `/admin/settings` | GoPay + SMTP configuration |
 
 ## Configuration
@@ -83,7 +96,7 @@ Tests use a real MySQL database (Docker must be running).
 php vendor/bin/phpunit --testdox
 ```
 
-37 tests covering models, cart service, I18n, and middleware.
+244 tests covering models, services (cart, wishlist, compare, translator, etc.), I18n, and middleware.
 
 ## Deployment
 
@@ -104,9 +117,9 @@ Before deploying to production:
 src/               Application code (Slim 4, PSR-4 autoloaded as App\)
   Controllers/     Public page controllers
   Controllers/Admin/  Admin panel controllers
-  Middleware/      LangMiddleware, AuthMiddleware
+  Middleware/      LangMiddleware, AuthMiddleware, AdminLangMiddleware, PageViewMiddleware
   Models/          Static model classes (PDO)
-  Services/        Cart, GoPay, Mailer, ImageUploader
+  Services/        Cart, Wishlist, Compare, GoPay, Mailer, ImageUploader, Notifier
   Twig/            I18n Twig extension
 templates/         Twig templates
   layout/          base.twig (public), admin-base.twig (admin)
