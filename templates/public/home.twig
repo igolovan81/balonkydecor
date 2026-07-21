@@ -45,5 +45,5 @@
 {% endblock %}
 {% block scripts %}
 {{ parent() }}
-<script src="/assets/js/hero-carousel.js" defer></script>
+<script src="/assets/js/hero-carousel.js?v={{ asset_v('assets/js/hero-carousel.js') }}" defer></script>
 {% endblock %}
