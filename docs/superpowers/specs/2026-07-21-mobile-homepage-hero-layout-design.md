@@ -95,3 +95,13 @@ splitting. The reduced gap tightens the icon row.
 CSS/Twig changes aren't unit-tested per `.claude/rules/unit-testing.md` —
 verified by rendering `http://localhost:8080/cs/` locally and checking the
 header and hero carousel at mobile widths.
+
+## Addendum: "Go to shop" CTA between carousel and recently-viewed
+
+Added a static button in `home.twig` between the `.hero-carousel` section
+and `public/partials/recently-viewed-row.twig`, independent of the
+per-slide, admin-editable hero CTA (`slide.cta_label`/`slide.cta_url`)
+which is left untouched. New key `home.go_to_shop` (all 5 `lang/*.json`
+files), reusing the wording already established for this action in
+`cart.empty_cta`. Links to `/{{ lang }}/shop`, styled with the existing
+`.btn.btn-primary`; new `.home-shop-cta` rule just adds centering/padding.
