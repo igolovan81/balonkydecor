@@ -19,14 +19,14 @@
                 {% else %}
                 <div class="hero-slide-placeholder"></div>
                 {% endif %}
+                {% if hero_slides|length > 1 %}
+                <button type="button" class="hero-carousel-arrow hero-carousel-arrow--prev" data-hero-prev aria-label="{{ t('home.hero_prev') }}">‹</button>
+                <button type="button" class="hero-carousel-arrow hero-carousel-arrow--next" data-hero-next aria-label="{{ t('home.hero_next') }}">›</button>
+                {% endif %}
             </div>
         </div>
         {% endfor %}
         {% if hero_slides|length > 1 %}
-        <div class="hero-carousel-nav">
-            <button type="button" class="hero-carousel-arrow hero-carousel-arrow--prev" data-hero-prev aria-label="{{ t('home.hero_prev') }}">‹</button>
-            <button type="button" class="hero-carousel-arrow hero-carousel-arrow--next" data-hero-next aria-label="{{ t('home.hero_next') }}">›</button>
-        </div>
         <div class="hero-carousel-dots" data-hero-dots>
             {% for slide in hero_slides %}
             <button type="button" class="hero-carousel-dot {% if loop.first %}active{% endif %}" data-hero-dot data-index="{{ loop.index0 }}" aria-label="{{ t('home.hero_goto', {n: loop.index}) }}"></button>

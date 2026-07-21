@@ -2,10 +2,10 @@ document.addEventListener('DOMContentLoaded', function () {
     var carousel = document.querySelector('[data-hero-carousel]');
     if (!carousel) return;
 
-    var slides = carousel.querySelectorAll('[data-hero-slide]');
-    var dots   = carousel.querySelectorAll('[data-hero-dot]');
-    var prev   = carousel.querySelector('[data-hero-prev]');
-    var next   = carousel.querySelector('[data-hero-next]');
+    var slides    = carousel.querySelectorAll('[data-hero-slide]');
+    var dots      = carousel.querySelectorAll('[data-hero-dot]');
+    var prevBtns  = carousel.querySelectorAll('[data-hero-prev]');
+    var nextBtns  = carousel.querySelectorAll('[data-hero-next]');
     if (slides.length < 2) return;
 
     var current  = 0;
@@ -28,8 +28,8 @@ document.addEventListener('DOMContentLoaded', function () {
         timer = null;
     }
 
-    if (prev) prev.addEventListener('click', function () { show(current - 1); startAutoplay(); });
-    if (next) next.addEventListener('click', function () { show(current + 1); startAutoplay(); });
+    prevBtns.forEach(function (btn) { btn.addEventListener('click', function () { show(current - 1); startAutoplay(); }); });
+    nextBtns.forEach(function (btn) { btn.addEventListener('click', function () { show(current + 1); startAutoplay(); }); });
     dots.forEach(function (dot, i) {
         dot.addEventListener('click', function () { show(i); startAutoplay(); });
     });

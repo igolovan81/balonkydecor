@@ -85,14 +85,13 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 .hero-slide.active { display: grid; }
 .hero-slide-copy h1 { font-size: 2.4rem; font-weight: normal; margin-bottom: 1rem; }
 .hero-slide-subtitle { color: var(--muted); font-size: 1.1rem; margin-bottom: 1.5rem; }
-.hero-slide-media { aspect-ratio: 16/10; overflow: hidden; border-radius: 4px; background: var(--border); }
+.hero-slide-media { position: relative; aspect-ratio: 16/10; overflow: hidden; border-radius: 4px; background: var(--border); }
 .hero-slide-media img { width: 100%; height: 100%; object-fit: cover; }
 .hero-slide-placeholder { width: 100%; height: 100%; }
 .hero-carousel-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--surface); color: var(--text); font-size: 1.3rem; line-height: 1; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
 .hero-carousel-arrow:hover { color: var(--accent); }
 .hero-carousel-arrow--prev { left: .75rem; }
 .hero-carousel-arrow--next { right: .75rem; }
-.hero-carousel-nav { display: contents; }
 .hero-carousel-dots { display: flex; justify-content: center; gap: .5rem; margin-top: 1.5rem; }
 .hero-carousel-dot { width: 10px; height: 10px; border-radius: 50%; border: none; background: var(--border); padding: 0; cursor: pointer; }
 .hero-carousel-dot.active { background: var(--accent); }
@@ -102,8 +101,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
     .hero-slide { grid-template-columns: 1fr; gap: 1.25rem; }
     .hero-slide-media { order: -1; }
     .hero-slide-copy h1 { font-size: 1.75rem; }
-    .hero-carousel-arrow { width: 32px; height: 32px; font-size: 1.1rem; position: static; transform: none; }
-    .hero-carousel-nav { display: flex; justify-content: center; gap: 1rem; margin-top: 1rem; }
+    .hero-carousel-arrow { width: 32px; height: 32px; font-size: 1.1rem; }
     .hero-carousel-dots { margin-top: 1rem; }
 }
 
