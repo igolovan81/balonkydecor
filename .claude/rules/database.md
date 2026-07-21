@@ -35,8 +35,10 @@ shared hosting with limited privileges.
 - `products.category_id` is NOT NULL — default to category 1 when none selected.
 - Key/value pairs go in `settings`; new keys need a seed migration **and** an entry in
   `SettingsController::KEYS` to be admin-editable.
-- Current schema is 15 tables (see CLAUDE.md); keep `database/schema.sql` snapshots
-  out of git history decisions — migrations are the source of truth.
+- `database/migrations/` is the source of truth for the current schema — don't
+  hardcode a table count in docs, it drifts with every new feature (26 tables and
+  counting as of `V024__hero_slides.sql`); keep `database/schema.sql` snapshots out
+  of git history decisions.
 
 ## Access patterns
 

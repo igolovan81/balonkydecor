@@ -22,8 +22,9 @@ for canonicals/hreflang by hand.
   ```
   Title pattern is always `Specific — Site Name`.
 - Admin-editable overrides live in the translation tables (`meta_title VARCHAR(255)`,
-  `meta_desc VARCHAR(500)` — e.g. `page_t`, `gallery_album_t`). When adding a new
-  content type, add these columns via migration and surface them in its admin form.
+  `meta_desc VARCHAR(500)` — e.g. `product_t`, `page_t`, `gallery_album_t`). When
+  adding a new content type, add these columns via migration and surface them in its
+  admin form.
 
 ## New public routes
 

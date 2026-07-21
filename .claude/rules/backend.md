@@ -53,9 +53,10 @@ in `src/routes.php`.
 ## Sessions & state
 
 - Session storage lives in `session/` (outside web root). Cart is `$_SESSION['cart']`
-  via the `Cart` service; admin auth is `$_SESSION['admin_user']`; pending checkout is
-  `$_SESSION['pending_order']`. Don't invent new superglobal access — go through the
-  existing services where one exists.
+  via the `Cart` service; `Wishlist`/`Compare` follow the identical pattern via
+  `$_SESSION['wishlist']`/`$_SESSION['compare']`; admin auth is `$_SESSION['admin_user']`;
+  pending checkout is `$_SESSION['pending_order']`. Don't invent new superglobal
+  access — go through the existing services where one exists.
 
 ## Errors & config
 

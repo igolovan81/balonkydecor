@@ -37,8 +37,13 @@ Styling has its own rule: `.claude/rules/css-styling.md`.
 ## Assets & JavaScript
 
 - No build step, no npm, no frameworks. JavaScript is small vanilla files in
-  `www/assets/js/` (currently `nav.js` for the mobile menu), included with
-  `?v={{ asset_v('...') }}` for cache busting — same for CSS.
+  `www/assets/js/` — public: `nav.js` (mobile menu), `hero-carousel.js`,
+  `product-gallery.js`; admin-only: `admin-notifications.js`,
+  `admin-sortable-table.js`. Include with `?v={{ asset_v('...') }}` for cache
+  busting — same for CSS. Skipping this means a stale cached copy can run against
+  updated markup after a deploy (this bit `hero-carousel.js` in practice); `nav.js`
+  and `product-gallery.js` currently lack it and should get it next time they're
+  touched.
 - Prefer solving interactivity with HTML/CSS first (`:hover` + `:focus-within`
   dropdowns, `<details>`, etc.); add JS only when markup can't express it.
 
