@@ -56,7 +56,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 
 /* Responsive: header nav (tablet & phone) */
 @media (max-width: 768px) {
-    .header-inner { position: relative; flex-wrap: wrap; }
+    .header-inner { position: relative; flex-wrap: wrap; gap: 1rem; }
+    .logo { flex-basis: 100%; }
     .cart-link, .wishlist-link, .compare-link { order: 2; margin-left: auto; }
     .nav-toggle {
         order: 3; display: flex; flex-direction: column; justify-content: center; gap: 5px;
@@ -91,16 +92,19 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 .hero-carousel-arrow:hover { color: var(--accent); }
 .hero-carousel-arrow--prev { left: .75rem; }
 .hero-carousel-arrow--next { right: .75rem; }
+.hero-carousel-nav { display: contents; }
 .hero-carousel-dots { display: flex; justify-content: center; gap: .5rem; margin-top: 1.5rem; }
 .hero-carousel-dot { width: 10px; height: 10px; border-radius: 50%; border: none; background: var(--border); padding: 0; cursor: pointer; }
 .hero-carousel-dot.active { background: var(--accent); }
 
 /* Responsive: hero carousel stacks image below copy (tablet) */
 @media (max-width: 768px) {
-    .hero-slide { grid-template-columns: 1fr; }
+    .hero-slide { grid-template-columns: 1fr; gap: 1.25rem; }
     .hero-slide-media { order: -1; }
     .hero-slide-copy h1 { font-size: 1.75rem; }
-    .hero-carousel-arrow { width: 32px; height: 32px; font-size: 1.1rem; }
+    .hero-carousel-arrow { width: 32px; height: 32px; font-size: 1.1rem; position: static; transform: none; }
+    .hero-carousel-nav { display: flex; justify-content: center; gap: 1rem; margin-top: 1rem; }
+    .hero-carousel-dots { margin-top: 1rem; }
 }
 
 /* Buttons */
