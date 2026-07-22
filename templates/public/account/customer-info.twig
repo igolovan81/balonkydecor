@@ -1,0 +1,40 @@
+{% extends "layout/base.twig" %}
+
+{% block title %}{{ t('account.nav_customer_info') }} — {{ t('site.name') }}{% endblock %}
+{% block meta_desc %}{% endblock %}
+{% block head %}<meta name="robots" content="noindex,nofollow">{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container"><h1>{{ t('account.title') }} — {{ t('account.nav_customer_info') }}</h1></div>
+</section>
+<div class="container shop-layout">
+    <aside class="shop-sidebar">
+        {% include 'public/account/_sidebar.twig' %}
+    </aside>
+    <div>
+        {% if error %}
+        <p class="form-error">{{ t(error) }}</p>
+        {% endif %}
+        <form action="/{{ lang }}/account" method="POST" class="contact-form">
+            <div class="form-group">
+                <label for="name">{{ t('account.name') }}</label>
+                <input type="text" id="name" name="name" required value="{{ account.name ?? '' }}">
+            </div>
+            <div class="form-group">
+                <label for="phone">{{ t('account.phone') }}</label>
+                <input type="text" id="phone" name="phone" value="{{ account.phone ?? '' }}">
+            </div>
+            <div class="form-group">
+                <label for="email">{{ t('account.email') }}</label>
+                <input type="email" id="email" name="email" required value="{{ account.email ?? '' }}">
+            </div>
+            <div class="form-group">
+                <label for="current_password">{{ t('account.current_password') }}</label>
+                <input type="password" id="current_password" name="current_password">
+            </div>
+            <button type="submit" class="btn btn-primary">{{ t('account.update_submit') }}</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

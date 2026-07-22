@@ -170,6 +170,7 @@ $app->get('/{lang}/login',            AccountController::class . ':loginForm');
 $app->post('/{lang}/login',           AccountController::class . ':loginSubmit');
 $app->get('/{lang}/logout',           AccountController::class . ':logout');
 $app->get('/{lang}/account',          AccountController::class . ':index');
+$app->post('/{lang}/account',         AccountController::class . ':update');
 $app->get('/{lang}/forgot-password',  AccountController::class . ':forgotForm');
 $app->post('/{lang}/forgot-password', AccountController::class . ':forgotSubmit');
 $app->get('/{lang}/reset-password',   AccountController::class . ':resetForm');

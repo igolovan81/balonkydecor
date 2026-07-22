@@ -98,23 +98,61 @@ class AccountController extends BaseController
 
     public function index(Request $request, Response $response, array $args): Response
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-        $lang = $request->getAttribute('lang');
-        if (empty($_SESSION['customer'])) {
-            return $response->withHeader('Location', "/{$lang}/login")->withStatus(302);
-        }
-
-        $customer = CustomerModel::findById((int) $_SESSION['customer']['id']);
+        $customer = $this->requireLogin($request);
         if (!$customer) {
-            unset($_SESSION['customer']);
+            $lang = $request->getAttribute('lang');
             return $response->withHeader('Location', "/{$lang}/login")->withStatus(302);
         }
 
-        return $this->render($request, $response, 'public/account.twig', [
+        return $this->render($request, $response, 'public/account/customer-info.twig', [
             'account' => $customer,
         ]);
+    }
+
+    public function update(Request $request, Response $response, array $args): Response
+    {
+        $customer = $this->requireLogin($request);
+        $lang     = $request->getAttribute('lang');
+        if (!$customer) {
+            return $response->withHeader('Location', "/{$lang}/login")->withStatus(302);
+        }
+
+        $body            = (array) $request->getParsedBody();
+        $name            = trim($body['name'] ?? '');
+        $phone           = trim($body['phone'] ?? '');
+        $email           = trim($body['email'] ?? '');
+        $currentPassword = $body['current_password'] ?? '';
+
+        if ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return $this->render($request, $response, 'public/account/customer-info.twig', [
+                'account' => array_merge($customer, ['name' => $name, 'phone' => $phone, 'email' => $email]),
+                'error'   => 'account.error_invalid',
+            ]);
+        }
+
+        if ($email !== $customer['email']) {
+            if ($currentPassword === '' || !password_verify($currentPassword, $customer['password_hash'])) {
+                return $this->render($request, $response, 'public/account/customer-info.twig', [
+                    'account' => array_merge($customer, ['name' => $name, 'phone' => $phone, 'email' => $email]),
+                    'error'   => 'account.error_current_password',
+                ]);
+            }
+
+            $existing = CustomerModel::findByEmail($email);
+            if ($existing && (int) $existing['id'] !== (int) $customer['id']) {
+                return $this->render($request, $response, 'public/account/customer-info.twig', [
+                    'account' => array_merge($customer, ['name' => $name, 'phone' => $phone, 'email' => $email]),
+                    'error'   => 'account.error_email_taken',
+                ]);
+            }
+
+            CustomerModel::updateEmail((int) $customer['id'], $email);
+            $_SESSION['customer']['email'] = $email;
+        }
+
+        CustomerModel::updateProfile((int) $customer['id'], $name, $phone);
+        $this->flash('success', 'account.update_success');
+        return $response->withHeader('Location', "/{$lang}/account")->withStatus(302);
     }
 
     public function forgotForm(Request $request, Response $response, array $args): Response
@@ -185,5 +223,21 @@ class AccountController extends BaseController
         CustomerModel::updatePasswordAndClearToken((int) $customer['id'], password_hash($password, PASSWORD_BCRYPT));
         $this->flash('success', 'account.reset_success');
         return $response->withHeader('Location', "/{$lang}/login")->withStatus(302);
+    }
+
+    private function requireLogin(Request $request): ?array
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        if (empty($_SESSION['customer'])) {
+            return null;
+        }
+        $customer = CustomerModel::findById((int) $_SESSION['customer']['id']);
+        if (!$customer) {
+            unset($_SESSION['customer']);
+            return null;
+        }
+        return $customer;
     }
 }
