@@ -77,4 +77,22 @@ class CustomerModelTest extends TestCase
         $this->assertSame($newHash, $customer['password_hash']);
         $this->assertNull(CustomerModel::findByValidResetToken($token));
     }
+
+    public function test_updateProfile_updates_name_and_phone(): void
+    {
+        CustomerModel::updateProfile(self::$customerId, 'Test Name', '+420111222333');
+
+        $customer = CustomerModel::findById(self::$customerId);
+        $this->assertSame('Test Name', $customer['name']);
+        $this->assertSame('+420111222333', $customer['phone']);
+    }
+
+    public function test_updateEmail_updates_email(): void
+    {
+        $newEmail = 'updated-' . uniqid() . '@example.com';
+        CustomerModel::updateEmail(self::$customerId, $newEmail);
+
+        $customer = CustomerModel::findById(self::$customerId);
+        $this->assertSame($newEmail, $customer['email']);
+    }
 }

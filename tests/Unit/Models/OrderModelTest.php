@@ -1,6 +1,7 @@
 <?php
 namespace Tests\Unit\Models;
 
+use App\Models\CustomerModel;
 use App\Models\OrderModel;
 use PHPUnit\Framework\TestCase;
 
@@ -99,5 +100,41 @@ class OrderModelTest extends TestCase
         $this->assertSame($subtypeId, (int) $order['items'][0]['subtype_id']);
         $this->assertSame('Makarons', $order['items'][0]['subtype_name_snapshot']);
         $this->assertSame($productId, (int) $order['items'][0]['product_id']);
+    }
+
+    public function test_forCustomer_only_returns_orders_linked_to_that_customer(): void
+    {
+        $emailA = 'order-customer-a-' . uniqid() . '@example.com';
+        $emailB = 'order-customer-b-' . uniqid() . '@example.com';
+        $hash   = password_hash('testpassword', PASSWORD_BCRYPT);
+        $customerAId = CustomerModel::create($emailA, $hash);
+        $customerBId = CustomerModel::create($emailB, $hash);
+
+        $orderNumber = OrderModel::create(
+            [
+                'customer_name'  => 'Linked Buyer',
+                'customer_email' => $emailA,
+                'customer_phone' => '+420000000001',
+                'pickup_date'    => '2026-12-31',
+                'notes'          => '',
+            ],
+            [
+                'SKU-LINKED' => ['qty' => 1, 'name' => 'Linked Balloon', 'price' => '10.00', 'subtotal' => '10.00'],
+            ],
+            '10.00',
+            $customerAId
+        );
+
+        $ordersA = OrderModel::forCustomer($customerAId);
+        $this->assertCount(1, $ordersA);
+        $this->assertSame($orderNumber, $ordersA[0]['order_number']);
+
+        $this->assertSame([], OrderModel::forCustomer($customerBId));
+    }
+
+    public function test_create_without_customer_id_leaves_order_unlinked(): void
+    {
+        $order = OrderModel::findByNumber(self::$orderNumber);
+        $this->assertNull($order['customer_id']);
     }
 }

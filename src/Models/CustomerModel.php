@@ -51,4 +51,18 @@ class CustomerModel
         $stmt = $pdo->prepare('UPDATE customers SET password_hash = ?, reset_token = NULL, reset_token_expires = NULL WHERE id = ?');
         $stmt->execute([$passwordHash, $id]);
     }
+
+    public static function updateProfile(int $id, string $name, string $phone): void
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare('UPDATE customers SET name = ?, phone = ? WHERE id = ?');
+        $stmt->execute([$name, $phone, $id]);
+    }
+
+    public static function updateEmail(int $id, string $email): void
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare('UPDATE customers SET email = ? WHERE id = ?');
+        $stmt->execute([$email, $id]);
+    }
 }

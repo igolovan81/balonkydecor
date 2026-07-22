@@ -3,18 +3,19 @@ namespace App\Models;
 
 class OrderModel
 {
-    public static function create(array $customer, array $cartItems, string $total): string
+    public static function create(array $customer, array $cartItems, string $total, ?int $customerId = null): string
     {
         $pdo = Database::getConnection();
         $pdo->beginTransaction();
 
         $stmt = $pdo->prepare('
             INSERT INTO orders
-                (order_number, status, customer_name, customer_email,
+                (customer_id, order_number, status, customer_name, customer_email,
                  customer_phone, pickup_date, total_amount, notes)
-            VALUES (?, \'pending\', ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, \'pending\', ?, ?, ?, ?, ?, ?)
         ');
         $stmt->execute([
+            $customerId,
             'PENDING',
             $customer['customer_name'],
             $customer['customer_email'],
@@ -94,5 +95,16 @@ class OrderModel
         $stmt->bindValue(':offset', $offset,  \PDO::PARAM_INT);
         $stmt->execute();
         return ['orders' => $stmt->fetchAll(), 'total' => $total, 'pages' => max(1, (int) ceil($total / $perPage))];
+    }
+
+    public static function forCustomer(int $customerId): array
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare(
+            'SELECT order_number, status, total_amount, created_at
+             FROM orders WHERE customer_id = ? ORDER BY created_at DESC'
+        );
+        $stmt->execute([$customerId]);
+        return $stmt->fetchAll();
     }
 }
