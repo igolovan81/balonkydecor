@@ -38,6 +38,13 @@
             <a href="/{{ lang }}/wishlist" class="wishlist-link">{{ t('nav.wishlist') }}</a>
             <a href="/{{ lang }}/compare" class="compare-link">{{ t('nav.compare') }}{% if compare_count %} ({{ compare_count }}){% endif %}</a>
             <a href="/{{ lang }}/cart" class="cart-link">{{ t('nav.cart') }}</a>
+            {% if customer %}
+            <a href="/{{ lang }}/account" class="account-link">{{ t('nav.account') }}</a>
+            <a href="/{{ lang }}/logout" class="account-link">{{ t('nav.logout') }}</a>
+            {% else %}
+            <a href="/{{ lang }}/login" class="account-link">{{ t('nav.login') }}</a>
+            <a href="/{{ lang }}/register" class="account-link">{{ t('nav.register') }}</a>
+            {% endif %}
             <div class="lang-switcher">
                 {% for code, label in {'cs': 'CZ', 'sk': 'SK', 'en': 'EN', 'uk': 'UA', 'ru': 'RU'} %}
                     <a href="/{{ code }}{{ current_path }}"

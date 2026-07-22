@@ -1,0 +1,30 @@
+{% extends "layout/base.twig" %}
+
+{% block title %}{{ t('account.login_title') }} — {{ t('site.name') }}{% endblock %}
+{% block meta_desc %}{% endblock %}
+{% block head %}<meta name="robots" content="noindex,nofollow">{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container"><h1>{{ t('account.login_title') }}</h1></div>
+</section>
+<div class="container contact-layout">
+    <div class="contact-form-wrap">
+        {% if error %}
+        <p class="form-error">{{ t(error) }}</p>
+        {% endif %}
+        <form action="/{{ lang }}/login" method="POST" class="contact-form">
+            <div class="form-group">
+                <label for="email">{{ t('account.email') }}</label>
+                <input type="email" id="email" name="email" required value="{{ email ?? '' }}">
+            </div>
+            <div class="form-group">
+                <label for="password">{{ t('account.password') }}</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">{{ t('account.login_submit') }}</button>
+        </form>
+        <p><a href="/{{ lang }}/forgot-password">{{ t('account.forgot_link') }}</a></p>
+    </div>
+</div>
+{% endblock %}

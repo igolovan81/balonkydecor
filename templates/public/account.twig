@@ -1,0 +1,18 @@
+{% extends "layout/base.twig" %}
+
+{% block title %}{{ t('account.title') }} — {{ t('site.name') }}{% endblock %}
+{% block meta_desc %}{% endblock %}
+{% block head %}<meta name="robots" content="noindex,nofollow">{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container"><h1>{{ t('account.title') }}</h1></div>
+</section>
+<div class="container contact-layout">
+    <div class="contact-form-wrap">
+        <p>{{ account.email }}</p>
+        <p>{{ t('account.member_since', {date: account.created_at|date('d.m.Y')}) }}</p>
+        <a href="/{{ lang }}/logout" class="btn btn-outline">{{ t('account.logout') }}</a>
+    </div>
+</div>
+{% endblock %}

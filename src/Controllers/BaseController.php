@@ -59,6 +59,7 @@ abstract class BaseController
             'whatsapp_url'         => $whatsappDigits !== '' ? 'https://wa.me/' . $whatsappDigits : '',
             'flash'                => $this->getFlash(),
             'compare_count'        => Compare::count(),
+            'customer'             => $_SESSION['customer'] ?? null,
         ], $data));
     }
 

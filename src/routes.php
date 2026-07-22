@@ -1,4 +1,5 @@
 <?php
+use App\Controllers\AccountController;
 use App\Controllers\CartController;
 use App\Controllers\CheckoutController;
 use App\Controllers\CompareController;
@@ -163,6 +164,12 @@ $app->get('/{lang}/services/archive',         GalleryController::class . ':index
 $app->get('/{lang}/services/archive/{slug}',  GalleryController::class . ':album');
 $app->get('/{lang}/contact',          ContactController::class . ':index');
 $app->post('/{lang}/contact',         ContactController::class . ':send');
+$app->get('/{lang}/register',         AccountController::class . ':registerForm');
+$app->post('/{lang}/register',        AccountController::class . ':registerSubmit');
+$app->get('/{lang}/login',            AccountController::class . ':loginForm');
+$app->post('/{lang}/login',           AccountController::class . ':loginSubmit');
+$app->get('/{lang}/logout',           AccountController::class . ':logout');
+$app->get('/{lang}/account',          AccountController::class . ':index');
 $app->get('/{lang}/cart',             CartController::class    . ':index');
 $app->post('/{lang}/cart/add',        CartController::class    . ':add');
 $app->post('/{lang}/cart/remove',     CartController::class    . ':remove');
