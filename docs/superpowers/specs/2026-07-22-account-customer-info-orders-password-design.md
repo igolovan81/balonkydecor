@@ -60,7 +60,7 @@ design; setting already-null reset-token fields to null again is harmless.)
 `src/Models/OrderModel.php` gains:
 - `forCustomer(int $customerId): array` — `SELECT order_number, status, total_amount,
   created_at FROM orders WHERE customer_id = ? ORDER BY created_at DESC`.
-- `create()` gains a fifth parameter `?int $customerId = null` (appended, so existing
+- `create()` gains a fourth parameter `?int $customerId = null` (appended, so existing
   callers/tests are unaffected), inserted into the new `orders.customer_id` column.
 
 ## Architecture & data flow
