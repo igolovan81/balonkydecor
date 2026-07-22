@@ -1,0 +1,46 @@
+{% extends "layout/base.twig" %}
+
+{% block title %}{{ t('account.nav_orders') }} — {{ t('site.name') }}{% endblock %}
+{% block meta_desc %}{% endblock %}
+{% block head %}<meta name="robots" content="noindex,nofollow">{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container"><h1>{{ t('account.title') }} — {{ t('account.nav_orders') }}</h1></div>
+</section>
+<div class="container shop-layout">
+    <aside class="shop-sidebar">
+        {% include 'public/account/_sidebar.twig' %}
+    </aside>
+    <div>
+        {% if orders %}
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>{{ t('checkout.order_number') }}</th>
+                    <th>{{ t('account.orders_date') }}</th>
+                    <th>{{ t('account.orders_status') }}</th>
+                    <th>{{ t('order.total') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td data-label="{{ t('checkout.order_number') }}">
+                        <a href="/{{ lang }}/order/{{ order.order_number }}">{{ order.order_number }}</a>
+                    </td>
+                    <td data-label="{{ t('account.orders_date') }}">{{ order.created_at|date('d.m.Y') }}</td>
+                    <td data-label="{{ t('account.orders_status') }}">
+                        <span class="order-status order-status--{{ order.status }}">{{ t('order.status.' ~ order.status) }}</span>
+                    </td>
+                    <td data-label="{{ t('order.total') }}">{{ order.total_amount|number_format(2, '.', ' ') }} Kč</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>{{ t('account.orders_empty') }}</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

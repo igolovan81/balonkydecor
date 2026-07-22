@@ -2,6 +2,7 @@
 namespace App\Controllers;
 
 use App\Models\CustomerModel;
+use App\Models\OrderModel;
 use App\Services\Mailer;
 use App\Services\Seo;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -153,6 +154,19 @@ class AccountController extends BaseController
         CustomerModel::updateProfile((int) $customer['id'], $name, $phone);
         $this->flash('success', 'account.update_success');
         return $response->withHeader('Location', "/{$lang}/account")->withStatus(302);
+    }
+
+    public function ordersList(Request $request, Response $response, array $args): Response
+    {
+        $customer = $this->requireLogin($request);
+        if (!$customer) {
+            $lang = $request->getAttribute('lang');
+            return $response->withHeader('Location', "/{$lang}/login")->withStatus(302);
+        }
+
+        return $this->render($request, $response, 'public/account/orders.twig', [
+            'orders' => OrderModel::forCustomer((int) $customer['id']),
+        ]);
     }
 
     public function forgotForm(Request $request, Response $response, array $args): Response

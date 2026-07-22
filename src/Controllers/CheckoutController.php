@@ -56,7 +56,8 @@ class CheckoutController extends BaseController
                 'notes'          => $notes,
             ],
             Cart::items(),
-            Cart::total()
+            Cart::total(),
+            $_SESSION['customer']['id'] ?? null
         );
 
         if (session_status() === PHP_SESSION_NONE) {
