@@ -239,6 +239,47 @@ class AccountController extends BaseController
         return $response->withHeader('Location', "/{$lang}/login")->withStatus(302);
     }
 
+    public function passwordForm(Request $request, Response $response, array $args): Response
+    {
+        $customer = $this->requireLogin($request);
+        if (!$customer) {
+            $lang = $request->getAttribute('lang');
+            return $response->withHeader('Location', "/{$lang}/login")->withStatus(302);
+        }
+
+        return $this->render($request, $response, 'public/account/password.twig');
+    }
+
+    public function passwordSubmit(Request $request, Response $response, array $args): Response
+    {
+        $customer = $this->requireLogin($request);
+        $lang     = $request->getAttribute('lang');
+        if (!$customer) {
+            return $response->withHeader('Location', "/{$lang}/login")->withStatus(302);
+        }
+
+        $body            = (array) $request->getParsedBody();
+        $currentPassword = $body['current_password'] ?? '';
+        $password        = $body['password'] ?? '';
+        $passwordConfirm = $body['password_confirm'] ?? '';
+
+        if ($currentPassword === '' || !password_verify($currentPassword, $customer['password_hash'])) {
+            return $this->render($request, $response, 'public/account/password.twig', [
+                'error' => 'account.error_current_password',
+            ]);
+        }
+
+        if (strlen($password) < 8 || $password !== $passwordConfirm) {
+            return $this->render($request, $response, 'public/account/password.twig', [
+                'error' => 'account.error_password',
+            ]);
+        }
+
+        CustomerModel::updatePasswordAndClearToken((int) $customer['id'], password_hash($password, PASSWORD_BCRYPT));
+        $this->flash('success', 'account.password_success');
+        return $response->withHeader('Location', "/{$lang}/account")->withStatus(302);
+    }
+
     private function requireLogin(Request $request): ?array
     {
         if (session_status() === PHP_SESSION_NONE) {
