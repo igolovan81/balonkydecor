@@ -2,6 +2,8 @@
 namespace App\Controllers;
 
 use App\Models\CustomerModel;
+use App\Services\Mailer;
+use App\Services\Seo;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -113,5 +115,75 @@ class AccountController extends BaseController
         return $this->render($request, $response, 'public/account.twig', [
             'account' => $customer,
         ]);
+    }
+
+    public function forgotForm(Request $request, Response $response, array $args): Response
+    {
+        return $this->render($request, $response, 'public/forgot-password.twig');
+    }
+
+    public function forgotSubmit(Request $request, Response $response, array $args): Response
+    {
+        $lang  = $request->getAttribute('lang');
+        $body  = (array) $request->getParsedBody();
+        $email = trim($body['email'] ?? '');
+
+        $customer = $email !== '' ? CustomerModel::findByEmail($email) : null;
+        if ($customer) {
+            $token = bin2hex(random_bytes(32));
+            CustomerModel::setResetToken((int) $customer['id'], $token, date('Y-m-d H:i:s', time() + 3600));
+
+            $resetUrl = Seo::canonicalUrl($lang, '/reset-password') . '?token=' . $token;
+            $html     = '<p>' . htmlspecialchars($customer['email']) . '</p>'
+                      . '<p><a href="' . htmlspecialchars($resetUrl) . '">' . htmlspecialchars($resetUrl) . '</a></p>';
+            Mailer::send($customer['email'], 'Password reset', $html);
+        }
+
+        return $this->render($request, $response, 'public/forgot-password.twig', [
+            'success' => true,
+        ]);
+    }
+
+    public function resetForm(Request $request, Response $response, array $args): Response
+    {
+        $token    = (string) ($request->getQueryParams()['token'] ?? '');
+        $customer = $token !== '' ? CustomerModel::findByValidResetToken($token) : null;
+
+        if (!$customer) {
+            return $this->render($request, $response, 'public/reset-password.twig', [
+                'error' => 'account.error_reset_token',
+            ]);
+        }
+
+        return $this->render($request, $response, 'public/reset-password.twig', [
+            'token' => $token,
+        ]);
+    }
+
+    public function resetSubmit(Request $request, Response $response, array $args): Response
+    {
+        $lang            = $request->getAttribute('lang');
+        $body            = (array) $request->getParsedBody();
+        $token           = trim($body['token'] ?? '');
+        $password        = $body['password'] ?? '';
+        $passwordConfirm = $body['password_confirm'] ?? '';
+
+        $customer = $token !== '' ? CustomerModel::findByValidResetToken($token) : null;
+        if (!$customer) {
+            return $this->render($request, $response, 'public/reset-password.twig', [
+                'error' => 'account.error_reset_token',
+            ]);
+        }
+
+        if (strlen($password) < 8 || $password !== $passwordConfirm) {
+            return $this->render($request, $response, 'public/reset-password.twig', [
+                'error' => 'account.error_password',
+                'token' => $token,
+            ]);
+        }
+
+        CustomerModel::updatePasswordAndClearToken((int) $customer['id'], password_hash($password, PASSWORD_BCRYPT));
+        $this->flash('success', 'account.reset_success');
+        return $response->withHeader('Location', "/{$lang}/login")->withStatus(302);
     }
 }
