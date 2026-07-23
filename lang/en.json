@@ -74,6 +74,7 @@
   "contact.send": "Send",
   "contact.success": "Thank you! Your message has been sent.",
   "contact.title": "Contact",
+  "email.contact.subject": "Contact form: {name}",
   "footer.follow_us": "Follow us",
   "gallery.back": "← Back to projects",
   "gallery.no_albums": "No completed projects yet.",

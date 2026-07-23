@@ -74,6 +74,7 @@
   "contact.send": "Odeslat",
   "contact.success": "Děkujeme! Vaše zpráva byla odeslána.",
   "contact.title": "Kontakt",
+  "email.contact.subject": "Kontaktní formulář: {name}",
   "footer.follow_us": "Sledujte nás",
   "gallery.back": "← Zpět na realizace",
   "gallery.no_albums": "Zatím žádné realizace.",

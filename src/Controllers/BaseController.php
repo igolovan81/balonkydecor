@@ -24,14 +24,11 @@ abstract class BaseController
             session_start();
         }
 
+        $this->ensureI18nExtension($request);
+
         /** @var I18n $i18n */
         $i18n = $request->getAttribute('i18n');
         $lang = $request->getAttribute('lang');
-
-        $env = $this->twig->getEnvironment();
-        if (!$env->hasExtension(I18nExtension::class)) {
-            $env->addExtension(new I18nExtension($i18n));
-        }
 
         $uri  = $request->getUri()->getPath();
         $path = preg_replace('#^/' . preg_quote($lang, '#') . '#', '', $uri) ?: '/';
@@ -61,6 +58,28 @@ abstract class BaseController
             'compare_count'        => Compare::count(),
             'customer'             => $_SESSION['customer'] ?? null,
         ], $data));
+    }
+
+    /**
+     * Renders an email body from a template without going through a Response.
+     * Registers I18nExtension first (if not already present) so that a later
+     * $this->render() call in the same request doesn't hit Twig's "extensions
+     * already initialized" error — Twig locks its extension set on first use.
+     */
+    protected function fetchEmail(Request $request, string $template, array $data = []): string
+    {
+        $this->ensureI18nExtension($request);
+        return $this->twig->fetch($template, $data);
+    }
+
+    private function ensureI18nExtension(Request $request): void
+    {
+        $env = $this->twig->getEnvironment();
+        if (!$env->hasExtension(I18nExtension::class)) {
+            /** @var I18n $i18n */
+            $i18n = $request->getAttribute('i18n');
+            $env->addExtension(new I18nExtension($i18n));
+        }
     }
 
     protected function flash(string $type, string $message, array $params = []): void

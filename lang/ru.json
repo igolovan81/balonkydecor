@@ -74,6 +74,7 @@
   "contact.send": "Отправить",
   "contact.success": "Спасибо! Ваше сообщение отправлено.",
   "contact.title": "Контакты",
+  "email.contact.subject": "Контактная форма: {name}",
   "footer.follow_us": "Подписывайтесь на нас",
   "gallery.back": "← Назад к архиву",
   "gallery.no_albums": "Пока нет проектов.",
