@@ -80,7 +80,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 
 /* Hero */
 .hero-carousel { position: relative; background: linear-gradient(to bottom,var(--surface),var(--bg)); overflow: hidden; }
-.hero-carousel-inner { position: relative; padding: 3rem 0; }
+.hero-carousel-inner { position: relative; padding-top: 3rem; padding-bottom: 3rem; }
 .hero-slide { display: none; grid-template-columns: 1fr 1fr; align-items: center; gap: 2rem; }
 .hero-slide.active { display: grid; }
 .hero-slide-copy h1 { font-size: 2.4rem; font-weight: normal; margin-bottom: 1rem; }
@@ -390,7 +390,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 /* Responsive: typography, forms, spacing (phone only) */
 @media (max-width: 480px) {
     .container { padding: 0 1rem; }
-    .hero-carousel-inner { padding: 1.5rem 0; }
+    .hero-carousel-inner { padding-top: 1.5rem; padding-bottom: 1.5rem; }
     .hero-slide-copy h1 { font-size: 1.5rem; }
     .hero-slide-subtitle { font-size: .95rem; }
     .page-hero { padding: 1.25rem 0 1rem; }
