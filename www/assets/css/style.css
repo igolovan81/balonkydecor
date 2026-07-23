@@ -46,13 +46,15 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 .lang-switcher a { color: var(--muted); text-decoration: none; }
 .lang-switcher a.active { color: var(--accent); font-weight: bold; }
 
-/* Cart link (extracted from .main-nav so it stays visible when nav collapses) */
-.cart-link, .wishlist-link, .compare-link, .account-link { order: 3; color: var(--text); text-decoration: none; font-family: var(--ui-font); font-size: .9rem; letter-spacing: .03em; white-space: nowrap; }
-.cart-link:hover, .wishlist-link:hover, .compare-link:hover, .account-link:hover { color: var(--accent); }
+/* Icon links: wishlist/compare/cart/account (extracted from .main-nav so they stay visible when nav collapses) */
+.nav-icon-link { order: 3; position: relative; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; color: var(--text); flex-shrink: 0; }
+.nav-icon-link:hover { color: var(--accent); }
+.nav-icon-link svg { width: 20px; height: 20px; }
+.nav-icon-badge { position: absolute; top: 0; right: 0; min-width: 15px; height: 15px; padding: 0 3px; border-radius: 999px; background: var(--accent); color: var(--text-inverse); font-family: var(--ui-font); font-size: .65rem; line-height: 15px; text-align: center; }
 
 /* Nav search box */
 .nav-search { order: 3; display: flex; align-items: center; gap: .35rem; }
-.nav-search input[type="search"] { -webkit-appearance: none; appearance: none; border: 1px solid var(--border); border-radius: 4px; padding: .45rem .7rem; font-family: var(--ui-font); font-size: .85rem; width: clamp(140px, 14vw, 230px); background: var(--surface); color: var(--text); }
+.nav-search input[type="search"] { -webkit-appearance: none; appearance: none; border: 1px solid var(--border); border-radius: 4px; padding: .45rem .7rem; font-family: var(--ui-font); font-size: .85rem; width: clamp(160px, 22vw, 340px); background: var(--surface); color: var(--text); }
 .nav-search input[type="search"]::-webkit-search-cancel-button,
 .nav-search input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; appearance: none; }
 .nav-search button { display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border: 1px solid var(--border); border-radius: 4px; background: none; color: var(--text); cursor: pointer; flex-shrink: 0; }
@@ -67,7 +69,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 @media (max-width: 768px) {
     .header-inner { position: relative; flex-wrap: wrap; gap: 1rem; }
     .logo { flex-basis: 100%; }
-    .cart-link, .wishlist-link, .compare-link, .account-link { order: 2; margin-left: auto; }
+    .nav-icon-link { order: 2; margin-left: auto; }
     .nav-toggle {
         order: 3; display: flex; flex-direction: column; justify-content: center; gap: 5px;
         width: 44px; height: 44px; padding: 0; background: none; border: none; cursor: pointer;
