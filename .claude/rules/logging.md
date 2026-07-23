@@ -1,6 +1,6 @@
 ---
 description: How app/mail logs are structured and observed locally — flat files, no aggregation service, lnav for viewing.
-globs: ["src/Services/AppLogger.php", "src/Services/Mailer.php", "scripts/logs.sh"]
+globs: ["src/Services/AppLogger.php", "src/Services/Mailer.php", "src/Services/SlowQueryLogger.php", "src/Services/TimedStatement.php", "src/Models/Database.php", "scripts/logs.sh"]
 alwaysApply: false
 ---
 
@@ -17,6 +17,26 @@ no SSH/cron/agent access, so logs are plain flat files, same locally and in prod
   raw HTML body until the next timestamped header.
 - In prod, `tmp/` is outside the web root and only reachable by downloading it over
   FTP (`/deploy` is FTP-only, no shell) — there is no live-tail from prod.
+
+## Slow query logging
+
+`Database::getConnection()` sets `PDO::ATTR_STATEMENT_CLASS` to `TimedStatement`
+(`src/Services/TimedStatement.php`), which times every `execute()` call and hands the
+elapsed seconds to `SlowQueryLogger` (`src/Services/SlowQueryLogger.php`). Queries
+under 0.5s are dropped silently; slower ones go to `AppLogger::warning()` — always
+`WARNING` level regardless of severity label — as a normal `app-*.log` line, so no
+lnav format changes were needed to parse it:
+
+```
+[YYYY-MM-DD HH:MM:SS] WARNING Slow query [MINOR|MEDIUM|MAJOR|CRITICAL] N.NNNs: <query> {"severity":"...","seconds":N.NNN}
+```
+
+Thresholds (`SlowQueryLogger::SEVERITIES`): `>=0.5s` MINOR, `>=1.0s` MEDIUM,
+`>=3.0s` MAJOR, `>=6.0s` CRITICAL. This wraps every query transparently — no model or
+controller call site needed to change. Query by severity with, e.g.:
+```sql
+;SELECT log_time, message FROM balonkydecor_app_log WHERE context LIKE '%CRITICAL%'
+```
 
 ## Viewing locally: lnav
 
