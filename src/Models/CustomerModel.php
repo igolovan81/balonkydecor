@@ -65,4 +65,11 @@ class CustomerModel
         $stmt = $pdo->prepare('UPDATE customers SET email = ? WHERE id = ?');
         $stmt->execute([$email, $id]);
     }
+
+    public static function delete(int $id): void
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare('DELETE FROM customers WHERE id = ?');
+        $stmt->execute([$id]);
+    }
 }

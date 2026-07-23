@@ -114,4 +114,14 @@ class CustomerModelTest extends TestCase
         $customer = CustomerModel::findById(self::$customerId);
         $this->assertSame($newEmail, $customer['email']);
     }
+
+    public function test_delete_removes_customer(): void
+    {
+        $email = 'delete-test-' . uniqid() . '@example.com';
+        $id    = CustomerModel::create($email, self::$hash);
+
+        CustomerModel::delete($id);
+
+        $this->assertNull(CustomerModel::findById($id));
+    }
 }
