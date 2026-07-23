@@ -174,6 +174,7 @@ $app->post('/{lang}/account',         AccountController::class . ':update');
 $app->get('/{lang}/account/orders',   AccountController::class . ':ordersList');
 $app->get('/{lang}/account/password',  AccountController::class . ':passwordForm');
 $app->post('/{lang}/account/password', AccountController::class . ':passwordSubmit');
+$app->post('/{lang}/account/delete',   AccountController::class . ':deleteAccount');
 $app->get('/{lang}/forgot-password',  AccountController::class . ':forgotForm');
 $app->post('/{lang}/forgot-password', AccountController::class . ':forgotSubmit');
 $app->get('/{lang}/reset-password',   AccountController::class . ':resetForm');
