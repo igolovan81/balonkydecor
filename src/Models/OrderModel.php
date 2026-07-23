@@ -107,4 +107,50 @@ class OrderModel
         $stmt->execute([$customerId]);
         return $stmt->fetchAll();
     }
+
+    public static function dashboardStats(): array
+    {
+        $pdo = Database::getConnection();
+        return [
+            'orders_today'   => (int) $pdo->query("SELECT COUNT(*) FROM orders WHERE DATE(created_at) = CURDATE()")->fetchColumn(),
+            'orders_pending' => (int) $pdo->query("SELECT COUNT(*) FROM orders WHERE status = 'pending'")->fetchColumn(),
+            'orders_total'   => (int) $pdo->query("SELECT COUNT(*) FROM orders")->fetchColumn(),
+            'gopay_count'    => (int) $pdo->query("SELECT COUNT(*) FROM orders WHERE gopay_payment_id IS NOT NULL")->fetchColumn(),
+        ];
+    }
+
+    public static function statusBreakdown(): array
+    {
+        $pdo    = Database::getConnection();
+        $counts = array_fill_keys(['pending', 'paid', 'ready', 'completed', 'cancelled'], 0);
+        $stmt   = $pdo->query('SELECT status, COUNT(*) AS c FROM orders GROUP BY status');
+        foreach ($stmt->fetchAll() as $row) {
+            $counts[$row['status']] = (int) $row['c'];
+        }
+        return $counts;
+    }
+
+    public static function revenueByDay(int $days = 30): array
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare(
+            'SELECT DATE(created_at) AS day, SUM(total_amount) AS total
+             FROM orders
+             WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL :days DAY)
+             GROUP BY DATE(created_at)'
+        );
+        $stmt->bindValue(':days', $days - 1, \PDO::PARAM_INT);
+        $stmt->execute();
+        $byDay = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $byDay[$row['day']] = (float) $row['total'];
+        }
+
+        $result = [];
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $date     = date('Y-m-d', strtotime("-{$i} days"));
+            $result[] = ['date' => $date, 'total' => $byDay[$date] ?? 0.0];
+        }
+        return $result;
+    }
 }

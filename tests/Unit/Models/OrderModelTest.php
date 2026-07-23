@@ -137,4 +137,75 @@ class OrderModelTest extends TestCase
         $order = OrderModel::findByNumber(self::$orderNumber);
         $this->assertNull($order['customer_id']);
     }
+
+    public function test_dashboardStats_reflects_new_order(): void
+    {
+        $before = OrderModel::dashboardStats();
+
+        OrderModel::create(
+            [
+                'customer_name'  => 'Dashboard Stats Buyer',
+                'customer_email' => 'dash-stats-' . uniqid() . '@example.com',
+                'customer_phone' => '+420000000002',
+                'pickup_date'    => '2026-12-31',
+                'notes'          => '',
+            ],
+            ['SKU-DASH-STATS' => ['qty' => 1, 'name' => 'Dash Stats Balloon', 'price' => '5.00', 'subtotal' => '5.00']],
+            '5.00'
+        );
+
+        $after = OrderModel::dashboardStats();
+
+        $this->assertSame($before['orders_today'] + 1, $after['orders_today']);
+        $this->assertSame($before['orders_pending'] + 1, $after['orders_pending']);
+        $this->assertSame($before['orders_total'] + 1, $after['orders_total']);
+        $this->assertSame($before['gopay_count'], $after['gopay_count']);
+    }
+
+    public function test_statusBreakdown_has_all_five_statuses_and_reflects_new_order(): void
+    {
+        $before = OrderModel::statusBreakdown();
+
+        OrderModel::create(
+            [
+                'customer_name'  => 'Status Breakdown Buyer',
+                'customer_email' => 'status-breakdown-' . uniqid() . '@example.com',
+                'customer_phone' => '+420000000003',
+                'pickup_date'    => '2026-12-31',
+                'notes'          => '',
+            ],
+            ['SKU-STATUS-BREAKDOWN' => ['qty' => 1, 'name' => 'Status Balloon', 'price' => '5.00', 'subtotal' => '5.00']],
+            '5.00'
+        );
+
+        $after = OrderModel::statusBreakdown();
+
+        $this->assertSame(['pending', 'paid', 'ready', 'completed', 'cancelled'], array_keys($after));
+        $this->assertSame($before['pending'] + 1, $after['pending']);
+    }
+
+    public function test_revenueByDay_includes_todays_order_and_zero_fills_range(): void
+    {
+        $today  = date('Y-m-d');
+        $before = OrderModel::revenueByDay(7);
+        $beforeToday = end($before)['total'];
+
+        OrderModel::create(
+            [
+                'customer_name'  => 'Revenue Buyer',
+                'customer_email' => 'revenue-' . uniqid() . '@example.com',
+                'customer_phone' => '+420000000004',
+                'pickup_date'    => '2026-12-31',
+                'notes'          => '',
+            ],
+            ['SKU-REVENUE' => ['qty' => 1, 'name' => 'Revenue Balloon', 'price' => '12.34', 'subtotal' => '12.34']],
+            '12.34'
+        );
+
+        $after = OrderModel::revenueByDay(7);
+
+        $this->assertCount(7, $after);
+        $this->assertSame($today, end($after)['date']);
+        $this->assertEqualsWithDelta($beforeToday + 12.34, end($after)['total'], 0.001);
+    }
 }
