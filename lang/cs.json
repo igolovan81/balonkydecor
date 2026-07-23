@@ -77,6 +77,8 @@
   "email.contact.subject": "Kontaktní formulář: {name}",
   "email.order_paid.customer": "Zákazník",
   "email.order_paid.subject": "Zaplacená objednávka {number}",
+  "email.password_reset.intro": "Pro nastavení nového hesla klikněte na odkaz níže:",
+  "email.password_reset.subject": "Obnovení hesla",
   "footer.follow_us": "Sledujte nás",
   "gallery.back": "← Zpět na realizace",
   "gallery.no_albums": "Zatím žádné realizace.",

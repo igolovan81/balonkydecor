@@ -77,6 +77,8 @@
   "email.contact.subject": "Contact form: {name}",
   "email.order_paid.customer": "Customer",
   "email.order_paid.subject": "Paid order {number}",
+  "email.password_reset.intro": "Click the link below to set a new password:",
+  "email.password_reset.subject": "Password reset",
   "footer.follow_us": "Follow us",
   "gallery.back": "← Back to projects",
   "gallery.no_albums": "No completed projects yet.",

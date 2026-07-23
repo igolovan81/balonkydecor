@@ -77,6 +77,8 @@
   "email.contact.subject": "Контактна форма: {name}",
   "email.order_paid.customer": "Клієнт",
   "email.order_paid.subject": "Оплачене замовлення {number}",
+  "email.password_reset.intro": "Перейдіть за посиланням нижче, щоб встановити новий пароль:",
+  "email.password_reset.subject": "Відновлення пароля",
   "footer.follow_us": "Підписуйтесь на нас",
   "gallery.back": "← Назад до архіву",
   "gallery.no_albums": "Поки немає проєктів.",

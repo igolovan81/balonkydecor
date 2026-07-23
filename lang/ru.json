@@ -77,6 +77,8 @@
   "email.contact.subject": "Контактная форма: {name}",
   "email.order_paid.customer": "Клиент",
   "email.order_paid.subject": "Оплаченный заказ {number}",
+  "email.password_reset.intro": "Перейдите по ссылке ниже, чтобы задать новый пароль:",
+  "email.password_reset.subject": "Восстановление пароля",
   "footer.follow_us": "Подписывайтесь на нас",
   "gallery.back": "← Назад к архиву",
   "gallery.no_albums": "Пока нет проектов.",

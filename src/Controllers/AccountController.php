@@ -3,6 +3,7 @@ namespace App\Controllers;
 
 use App\Models\CustomerModel;
 use App\Models\OrderModel;
+use App\Services\I18n;
 use App\Services\Mailer;
 use App\Services\Seo;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -176,7 +177,9 @@ class AccountController extends BaseController
 
     public function forgotSubmit(Request $request, Response $response, array $args): Response
     {
-        $lang  = $request->getAttribute('lang');
+        $lang = $request->getAttribute('lang');
+        /** @var I18n $i18n */
+        $i18n  = $request->getAttribute('i18n');
         $body  = (array) $request->getParsedBody();
         $email = trim($body['email'] ?? '');
 
@@ -186,9 +189,11 @@ class AccountController extends BaseController
             CustomerModel::setResetToken((int) $customer['id'], $token, date('Y-m-d H:i:s', time() + 3600));
 
             $resetUrl = Seo::canonicalUrl($lang, '/reset-password') . '?token=' . $token;
-            $html     = '<p>' . htmlspecialchars($customer['email']) . '</p>'
-                      . '<p><a href="' . htmlspecialchars($resetUrl) . '">' . htmlspecialchars($resetUrl) . '</a></p>';
-            Mailer::send($customer['email'], 'Password reset', $html);
+            $html     = $this->fetchEmail($request, 'emails/password-reset.twig', [
+                't'         => ['intro' => $i18n->t('email.password_reset.intro')],
+                'reset_url' => $resetUrl,
+            ]);
+            Mailer::send($customer['email'], $i18n->t('email.password_reset.subject'), $html);
         }
 
         return $this->render($request, $response, 'public/forgot-password.twig', [
