@@ -16,11 +16,14 @@ class ShopController extends BaseController
         $lang       = $request->getAttribute('lang');
         $params     = $request->getQueryParams();
         $categoryId = isset($params['category']) ? (int) $params['category'] : null;
+        $query      = isset($params['q']) ? trim((string) $params['q']) : '';
+        $query      = $query !== '' ? $query : null;
 
         return $this->render($request, $response, 'public/shop/index.twig', [
             'categories'      => CategoryModel::allWithTranslation($lang),
-            'products'        => ProductModel::allActive($lang, $categoryId),
+            'products'        => ProductModel::allActive($lang, $categoryId, $query),
             'active_cat'      => $categoryId,
+            'query'           => $query,
             'wishlist_skus'   => Wishlist::skus(),
             'compare_skus'    => Compare::skus(),
             'recently_viewed' => RecentlyViewed::items($lang),

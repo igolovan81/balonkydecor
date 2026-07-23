@@ -14,11 +14,11 @@
     <aside class="shop-sidebar">
         {% if categories %}
         <div class="cat-filter-list">
-            <a href="/{{ lang }}/shop" class="cat-filter {{ active_cat is null ? 'active' : '' }}">
+            <a href="/{{ lang }}/shop{{ query ? '?q=' ~ query|url_encode : '' }}" class="cat-filter {{ active_cat is null ? 'active' : '' }}">
                 {{ t('shop.all') }}
             </a>
             {% for cat in categories %}
-            <a href="/{{ lang }}/shop?category={{ cat.id }}"
+            <a href="/{{ lang }}/shop?category={{ cat.id }}{{ query ? '&q=' ~ query|url_encode : '' }}"
                class="cat-filter {{ active_cat == cat.id ? 'active' : '' }}">
                 {{ cat.name }}
             </a>
@@ -30,6 +30,9 @@
     {% endif %}
 
     <main class="shop-main">
+        {% if query %}
+        <p class="shop-search-heading">{{ t('shop.search_results_for', {query: query}) }}</p>
+        {% endif %}
         {% if products %}
         <div class="product-grid">
             {% for product in products %}
@@ -69,7 +72,7 @@
             {% endfor %}
         </div>
         {% else %}
-        <p class="empty-state">{{ t('shop.no_products') }}</p>
+        <p class="empty-state">{{ query ? t('shop.no_results_for_query', {query: query}) : t('shop.no_products') }}</p>
         {% endif %}
     </main>
 </div>
