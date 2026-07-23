@@ -28,7 +28,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 
 /* Header */
 .site-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 0; }
-.header-inner { display: flex; align-items: center; gap: 2rem; max-width: 1300px; }
+.header-inner { display: flex; align-items: center; gap: 2rem; }
 .logo { font-size: 1.4rem; color: var(--accent); text-decoration: none; letter-spacing: .04em; font-weight: bold; order: 1; }
 .main-nav { display: flex; gap: 1.5rem; flex: 1; order: 2; }
 .main-nav a { color: var(--text); text-decoration: none; font-family: var(--ui-font); font-size: .9rem; letter-spacing: .03em; }
