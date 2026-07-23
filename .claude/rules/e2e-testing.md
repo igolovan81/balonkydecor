@@ -1,5 +1,5 @@
 ---
-description: E2E testing conventions — Playwright page objects, @smoke vs local-only tagging, prod-safety rules, and the admin DB fixture pattern.
+description: E2E testing conventions — Playwright page objects/workflows, @smoke vs local-only tagging, prod-safety rules, DB fixtures, and testing server behavior directly via page.request.
 globs: ["tests/e2e/**/*.ts", "playwright.config.ts"]
 alwaysApply: false
 ---
@@ -8,7 +8,8 @@ alwaysApply: false
 
 Playwright, TypeScript, no build step (dev tooling only — not deployed). Config is
 `playwright.config.ts`; specs live in `tests/e2e/*.spec.ts`; page objects live in
-`tests/e2e/pages/`; DB fixtures live in `tests/e2e/helpers/`.
+`tests/e2e/pages/`; shared assertion-bearing flows live in `tests/e2e/workflows/`;
+DB fixtures live in `tests/e2e/helpers/`.
 
 ## Page objects
 
@@ -51,14 +52,15 @@ Playwright, TypeScript, no build step (dev tooling only — not deployed). Confi
   rely on the GoPay dev bypass, which only exists when `gopay_go_id` is unset.
 - `npm run test:e2e` (local, full suite) vs `npm run test:e2e:prod` (`--grep @smoke`
   against `https://balonkydecor.cz`). **Never** widen prod's `--grep` filter to catch
-  `cart.spec.ts`/`checkout.spec.ts`/`account.spec.ts`/`admin-order-flow.spec.ts` —
-  against real GoPay credentials those would submit a real payment or create/delete
-  real rows. See `.claude/commands/e2e.md` for the full run procedure (local vs prod)
-  before changing scripts or CI-style automation around these tests.
+  `cart.spec.ts`/`checkout.spec.ts`/`account.spec.ts`/`admin-order-flow.spec.ts`/
+  `admin-product-clone.spec.ts` — against real GoPay credentials or real admin data
+  those would submit a real payment or create/delete real rows. See
+  `.claude/commands/e2e.md` for the full run procedure (local vs prod) before
+  changing scripts or CI-style automation around these tests.
 - New tests default to local-only (no tag) unless they are genuinely read-only and
   safe to run against the live site — then tag `@smoke`.
 
-## Admin/editor fixtures
+## DB fixtures
 
 - No seeded admin/editor account exists in any environment, and `/admin/setup` only
   works when the `users` table is empty (it isn't, once real usage starts). Tests
@@ -66,12 +68,27 @@ Playwright, TypeScript, no build step (dev tooling only — not deployed). Confi
   `tests/e2e/helpers/admin-fixture.ts`, which shells out directly to the same Docker
   MySQL container (`docker compose exec db mysql ...`) other local workflows use —
   mirroring the `uniqid()`-fixture convention from `.claude/rules/unit-testing.md`.
+- Same pattern for products: `createTempProduct()`/`deleteTempProduct()`/
+  `productExistsWithSku()` in `tests/e2e/helpers/product-fixture.ts` insert/remove a
+  throwaway row directly via SQL rather than going through the admin
+  create-product form. This isn't just convenience — posting through
+  `AdminProductController`'s real create path calls `Translator::autoFill()` for
+  every blank language, which would hit the real MyMemory API on every test run.
+  Prefer a direct-SQL fixture over the real controller path whenever the controller
+  action has a side effect like that (email send, external API call, etc.), not
+  just for admin/product rows specifically.
+- Deleting the parent row is enough when child tables cascade: `products.id` →
+  `product_t`/`product_images`/`product_subtypes`/`product_specs` are all `ON
+  DELETE CASCADE` (`database/migrations/V001`, `V021`, `V022`), so
+  `deleteTempProduct(id)` alone cleans up anything a test action (e.g. a clone/split)
+  minted from that product too. Check the migration before adding manual cleanup
+  for a new child table — it may already be unnecessary.
 - That helper uses `execFileSync` (argv array, no shell), not `execSync` — a bcrypt
   hash contains literal `$` characters that a shell would try to expand as variables
   inside a double-quoted `-e` argument. Keep new DB-shelling fixtures on
   `execFileSync` for the same reason.
 - Always delete what you create: wrap the test body in `try`/`finally` and call
-  `deleteTempEditor(email)` in `finally`, even on assertion failure.
+  the matching `deleteTemp*()` in `finally`, even on assertion failure.
 
 ## Selectors & assertions
 
@@ -83,6 +100,44 @@ Playwright, TypeScript, no build step (dev tooling only — not deployed). Confi
   after every navigating action — the existing specs check the URL after nearly every
   step, not just at the end; keep that density when adding new flows so a broken
   redirect fails at the step that broke, not three steps later.
+- To find one row/card among several that share the same generic markup, scope by
+  an element that row uniquely contains, via Playwright's `has` locator option
+  (e.g. `AdminProductListPage.rowFor()`: `page.locator('tr', { has: page.locator(
+  'a[href="/admin/products/${id}/edit"]') })`, or `ShopPage.addToCartForm()` scoping
+  by a hidden `sku` input) — not the raw `:has()` CSS pseudo-class, which isn't used
+  anywhere else in this codebase.
+- When an action navigates from a URL to a *new* URL matching the same regex shape
+  (e.g. `/admin/products/{id}/edit` → `/admin/products/{newId}/edit` after a
+  clone/split action), don't just `expect(page).toHaveURL(/.../)` — the pre-click
+  URL already matches. Use `page.waitForURL(url => url.pathname !== oldPath)` first
+  so a subsequent `page.url()` read (e.g. into `AdminProductFormPage.idFromUrl()`)
+  can't race and silently return the old id.
+
+## Testing server-side behavior directly with `page.request`
+
+For behavior that isn't reachable (or is awkward to reach) through the rendered
+UI — a tampered value outside a `<select>`'s fixed options, an unauthenticated
+POST, a nonexistent-entity request — issue the HTTP call directly instead of
+routing it through a form:
+
+```ts
+const response = await page.request.post(`/admin/orders/${orderNumber}/status`, {
+  form: { status: 'shipped-by-drone' },
+});
+```
+
+- Checking a redirect target without following it: pass `maxRedirects: 0` and read
+  `response.headers()['location']` — used for "unauthenticated request → redirected
+  to `/admin/login`, and nothing was created/changed" cases in both
+  `admin-order-flow.spec.ts` and `admin-product-clone.spec.ts`.
+- Checking a 404: `page.goto()` or `page.request.get()` both work — `expect(response
+  ?.status()).toBe(404)`; use whichever the rest of that test already needs (a full
+  navigation vs. a bare status check).
+- After a request-level mutation attempt, still assert the *end state* through a
+  page object (e.g. re-`goto()` the admin order page and check
+  `statusSelect` still holds the old value) — the point of these tests is proving
+  the server rejected the change, not just that the HTTP call returned a particular
+  status.
 
 ## What not to test here
 
