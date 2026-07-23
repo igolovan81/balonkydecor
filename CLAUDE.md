@@ -52,7 +52,7 @@ src/
     PageViewMiddleware.php    # Records each public request via PageViewModel::record()
   Models/                    # Static model classes (PDO singleton)
   Services/
-    AppLogger.php            # PSR-3 file logger (tmp/app.log), wired into Slim's error middleware
+    AppLogger.php            # PSR-3 file logger (tmp/app.log); prunes by config's log_retention (e.g. "3m")
     Cart.php                 # Session-backed cart
     Wishlist.php             # Session-backed wishlist (mirrors Cart)
     Compare.php              # Session-backed product comparison (mirrors Cart, capped list)

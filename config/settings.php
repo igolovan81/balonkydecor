@@ -15,4 +15,5 @@ return [
     'thumb_width'     => 400,
     'image_max_width' => 1600,
     'migrate_token'   => '8b1b4af4ff83a007dda3fc43ab1c7f43372884714905281f9d1e61cc46c3a781',
+    'log_retention'   => '3m',   // tmp/app.log retention: <N>d (days), <N>w (weeks), or <N>m (months, 30-day)
 ];
