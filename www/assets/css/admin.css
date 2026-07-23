@@ -5,6 +5,7 @@ body.admin-body { display:flex; min-height:100vh; margin:0; background:#f5f5f5; 
 .admin-nav { display:flex; flex-direction:column; padding:1rem 0; }
 .admin-nav a { color:#c0c0d0; text-decoration:none; padding:0.6rem 1.25rem; font-size:0.9rem; transition:background 0.15s; }
 .admin-nav a:hover, .admin-nav a.active { background:#2a2a4e; color:#fff; }
+.admin-nav-heading { padding:0.9rem 1.25rem 0.3rem; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#6a6a94; }
 .admin-main { flex:1; padding:2rem; overflow:auto; }
 
 /* Top bar */
@@ -101,6 +102,12 @@ body.admin-login-page { background:#1a1a2e; display:flex; align-items:center; ju
 .stat-card { background:#fff; border-radius:8px; padding:1.25rem; box-shadow:0 1px 4px rgba(0,0,0,.08); }
 .stat-card .stat-value { font-size:2rem; font-weight:700; color:#e91e8c; }
 .stat-card .stat-label { font-size:0.85rem; color:#666; margin-top:0.25rem; }
+.stat-card--link { display:block; text-decoration:none; color:inherit; transition:box-shadow 0.15s; }
+.stat-card--link:hover, .stat-card--link:focus-visible { box-shadow:0 2px 12px rgba(0,0,0,.18); }
+
+/* Dashboard trend charts (plain CSS bars, no charting library) */
+.chart-bars { display:flex; align-items:flex-end; gap:3px; height:120px; margin-bottom:2rem; }
+.chart-bar { flex:1; background:#e91e8c; border-radius:2px 2px 0 0; min-height:2px; }
 
 /* Image thumbnails */
 .img-thumb { width:60px; height:60px; object-fit:cover; border-radius:4px; }
