@@ -138,6 +138,6 @@ class PaymentController extends BaseController
         ]);
         $subject = $i18n->t('email.order_paid.subject', ['number' => $order['order_number']]);
 
-        Mailer::send($contactEmail, $subject, $html);
+        Mailer::send($contactEmail, $subject, $html, $order['customer_email']);
     }
 }
