@@ -12,7 +12,14 @@
     <tbody>
     {% for n in notifications %}
     <tr>
-        <td>{% if n.url %}<a href="{{ n.url }}" class="notif-msg-link">{{ n.message }}</a>{% else %}{{ n.message }}{% endif %}</td>
+        <td>
+            {% if n.url %}<a href="{{ n.url }}" class="notif-msg-link">{{ n.message }}</a>{% else %}{{ n.message }}{% endif %}
+            {% if n.restore_url %}
+            <form method="POST" action="{{ n.restore_url }}" style="display:inline">
+                <button type="submit" class="btn-link">{{ t('notifications.restore') }}</button>
+            </form>
+            {% endif %}
+        </td>
         <td>{{ n.created_at }}</td>
     </tr>
     {% else %}

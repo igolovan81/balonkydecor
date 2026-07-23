@@ -1,6 +1,7 @@
 <?php
 namespace App\Controllers\Admin;
 
+use App\Models\CustomerModel;
 use App\Models\NotificationModel;
 use App\Services\I18n;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -21,7 +22,7 @@ class NotificationController extends AdminBaseController
         $data   = NotificationModel::forUser($userId, $page, 20);
         $i18n   = $request->getAttribute('admin_i18n');
 
-        $notifications = array_map(fn(array $row) => $this->formatNotification($row, $i18n), $data['items']);
+        $notifications = array_map(fn(array $row) => $this->formatNotification($row, $i18n, true), $data['items']);
 
         return $this->renderAdmin($request, $response, 'admin/notifications/index.twig', [
             'notifications' => $notifications,
@@ -49,7 +50,7 @@ class NotificationController extends AdminBaseController
         return $response->withHeader('Content-Type', 'application/json');
     }
 
-    private function formatNotification(array $row, ?I18n $i18n): array
+    private function formatNotification(array $row, ?I18n $i18n, bool $includeRestore = false): array
     {
         $key     = "notifications.msg.{$row['entity_type']}_{$row['action']}";
         $message = $i18n ? $i18n->t($key, ['actor' => $row['actor_label'], 'label' => $row['entity_label']]) : $key;
@@ -59,11 +60,20 @@ class NotificationController extends AdminBaseController
             $url = '/admin/' . self::ENTITY_URL_SEGMENT[$row['entity_type']] . '/' . $row['entity_id'] . '/edit';
         }
 
+        $restoreUrl = null;
+        if ($includeRestore && $row['entity_type'] === 'customer' && $row['action'] === 'deleted') {
+            $customer = CustomerModel::findById((int) $row['entity_id']);
+            if ($customer && $customer['deleted_at'] !== null) {
+                $restoreUrl = '/admin/customers/' . $row['entity_id'] . '/restore';
+            }
+        }
+
         return [
-            'id'         => (int) $row['id'],
-            'message'    => $message,
-            'url'        => $url,
-            'created_at' => $row['created_at'],
+            'id'          => (int) $row['id'],
+            'message'     => $message,
+            'url'         => $url,
+            'restore_url' => $restoreUrl,
+            'created_at'  => $row['created_at'],
         ];
     }
 }

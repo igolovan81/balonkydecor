@@ -115,13 +115,27 @@ class CustomerModelTest extends TestCase
         $this->assertSame($newEmail, $customer['email']);
     }
 
-    public function test_delete_removes_customer(): void
+    public function test_delete_soft_deletes_customer(): void
     {
         $email = 'delete-test-' . uniqid() . '@example.com';
         $id    = CustomerModel::create($email, self::$hash);
 
         CustomerModel::delete($id);
 
-        $this->assertNull(CustomerModel::findById($id));
+        $customer = CustomerModel::findById($id);
+        $this->assertNotNull($customer);
+        $this->assertNotNull($customer['deleted_at']);
+    }
+
+    public function test_restore_clears_deleted_at(): void
+    {
+        $email = 'restore-test-' . uniqid() . '@example.com';
+        $id    = CustomerModel::create($email, self::$hash);
+        CustomerModel::delete($id);
+
+        CustomerModel::restore($id);
+
+        $customer = CustomerModel::findById($id);
+        $this->assertNull($customer['deleted_at']);
     }
 }

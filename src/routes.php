@@ -14,6 +14,7 @@ use App\Controllers\ShopController;
 use App\Controllers\WishlistController;
 use App\Controllers\Admin\AuthController;
 use App\Controllers\Admin\CategoryController;
+use App\Controllers\Admin\CustomerController;
 use App\Controllers\Admin\DashboardController;
 use App\Controllers\Admin\GalleryController as AdminGalleryController;
 use App\Controllers\Admin\HeroSlideController;
@@ -101,6 +102,9 @@ $app->group('/admin', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->get('/notifications',              NotificationController::class . ':index');
     $group->get('/notifications/unread-count', NotificationController::class . ':unreadCount');
     $group->post('/notifications/open',        NotificationController::class . ':open');
+
+    // Customers
+    $group->post('/customers/{id:[0-9]+}/restore', CustomerController::class . ':restore');
 
     // Pages
     $group->get('/pages',              AdminPageController::class . ':index');

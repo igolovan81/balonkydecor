@@ -77,7 +77,7 @@ class AccountController extends BaseController
         $password = $body['password'] ?? '';
 
         $customer = CustomerModel::findByEmail($email);
-        if (!$customer || !password_verify($password, $customer['password_hash'])) {
+        if (!$customer || $customer['deleted_at'] !== null || !password_verify($password, $customer['password_hash'])) {
             return $this->render($request, $response, 'public/login.twig', [
                 'error' => 'account.error_login',
                 'email' => $email,
@@ -336,7 +336,7 @@ class AccountController extends BaseController
             return null;
         }
         $customer = CustomerModel::findById((int) $_SESSION['customer']['id']);
-        if (!$customer) {
+        if (!$customer || $customer['deleted_at'] !== null) {
             unset($_SESSION['customer']);
             return null;
         }

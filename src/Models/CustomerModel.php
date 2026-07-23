@@ -69,7 +69,14 @@ class CustomerModel
     public static function delete(int $id): void
     {
         $pdo  = Database::getConnection();
-        $stmt = $pdo->prepare('DELETE FROM customers WHERE id = ?');
+        $stmt = $pdo->prepare('UPDATE customers SET deleted_at = NOW() WHERE id = ?');
+        $stmt->execute([$id]);
+    }
+
+    public static function restore(int $id): void
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare('UPDATE customers SET deleted_at = NULL WHERE id = ?');
         $stmt->execute([$id]);
     }
 }
