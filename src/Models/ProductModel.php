@@ -5,7 +5,7 @@ class ProductModel
 {
     private const LOW_STOCK_THRESHOLD = 5;
 
-    public static function allActive(string $lang, ?int $categoryId = null): array
+    public static function allActive(string $lang, ?int $categoryId = null, ?string $query = null): array
     {
         $pdo    = Database::getConnection();
         $sql    = '
@@ -23,6 +23,11 @@ class ProductModel
         if ($categoryId !== null) {
             $sql .= ' AND p.category_id = :cat';
             $params['cat'] = $categoryId;
+        }
+        if ($query !== null) {
+            $sql .= ' AND (t.name LIKE :q1 OR p.sku LIKE :q2)';
+            $params['q1'] = '%' . $query . '%';
+            $params['q2'] = '%' . $query . '%';
         }
         $sql .= ' ORDER BY p.sort_order, p.id';
         $stmt = $pdo->prepare($sql);

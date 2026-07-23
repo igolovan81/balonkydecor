@@ -227,6 +227,59 @@ class ProductModelTest extends TestCase
         }
     }
 
+    public function test_all_active_filters_by_search_query_matching_name(): void
+    {
+        $unique = 'Zebra-' . uniqid();
+        $matchId = $this->makeProduct();
+        ProductModel::setTranslations($matchId, ['en' => ['name' => 'Balloon ' . $unique]]);
+        $otherId = $this->makeProduct();
+        ProductModel::setTranslations($otherId, ['en' => ['name' => 'Unrelated Balloon']]);
+
+        $this->assertNotNull($this->activeRow(null, $unique, $matchId));
+        $this->assertNull($this->activeRow(null, $unique, $otherId));
+    }
+
+    public function test_all_active_filters_by_search_query_matching_sku(): void
+    {
+        $productId = $this->makeProduct();
+        $sku       = $this->skuOf($productId);
+
+        $this->assertNotNull($this->activeRow(null, $sku, $productId));
+    }
+
+    public function test_all_active_filters_by_search_query_and_category_combined(): void
+    {
+        $unique = 'Griffin-' . uniqid();
+        $catA   = $this->makeCategory();
+        $catB   = $this->makeCategory();
+        $pdo    = Database::getConnection();
+
+        $skuA = 'COMBO-' . strtoupper(uniqid());
+        $pdo->prepare('INSERT INTO products (category_id, sku, price) VALUES (?, ?, 9.99)')->execute([$catA, $skuA]);
+        $idA = (int) $pdo->lastInsertId();
+        ProductModel::setTranslations($idA, ['en' => ['name' => 'Balloon ' . $unique]]);
+
+        $skuB = 'COMBO-' . strtoupper(uniqid());
+        $pdo->prepare('INSERT INTO products (category_id, sku, price) VALUES (?, ?, 9.99)')->execute([$catB, $skuB]);
+        $idB = (int) $pdo->lastInsertId();
+        ProductModel::setTranslations($idB, ['en' => ['name' => 'Balloon ' . $unique]]);
+
+        // Both idA and idB match the query text, but only idA is in catA —
+        // proves category + query combine via AND, not OR.
+        $this->assertNotNull($this->activeRow($catA, $unique, $idA));
+        $this->assertNull($this->activeRow($catA, $unique, $idB));
+    }
+
+    private function activeRow(?int $categoryId, ?string $query, int $productId): ?array
+    {
+        foreach (ProductModel::allActive('en', $categoryId, $query) as $row) {
+            if ((int) $row['id'] === $productId) {
+                return $row;
+            }
+        }
+        return null;
+    }
+
     public function test_all_active_reports_min_subtype_price_for_products_with_subtypes(): void
     {
         $productId = $this->makeProduct();
