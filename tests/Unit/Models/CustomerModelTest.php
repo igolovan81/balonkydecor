@@ -2,6 +2,7 @@
 namespace Tests\Unit\Models;
 
 use App\Models\CustomerModel;
+use App\Models\Database;
 use PHPUnit\Framework\TestCase;
 
 class CustomerModelTest extends TestCase
@@ -137,5 +138,87 @@ class CustomerModelTest extends TestCase
 
         $customer = CustomerModel::findById($id);
         $this->assertNull($customer['deleted_at']);
+    }
+
+    public function test_dashboardStats_reflects_new_customer(): void
+    {
+        $before = CustomerModel::dashboardStats();
+
+        CustomerModel::create('dash-stats-' . uniqid() . '@example.com', self::$hash);
+
+        $after = CustomerModel::dashboardStats();
+
+        $this->assertSame($before['total'] + 1, $after['total']);
+        $this->assertSame($before['new_this_week'] + 1, $after['new_this_week']);
+        $this->assertSame($before['new_this_month'] + 1, $after['new_this_month']);
+    }
+
+    public function test_dashboardStats_excludes_soft_deleted_customers(): void
+    {
+        $id = CustomerModel::create('dash-stats-deleted-' . uniqid() . '@example.com', self::$hash);
+
+        $before = CustomerModel::dashboardStats();
+        CustomerModel::delete($id);
+        $after = CustomerModel::dashboardStats();
+
+        $this->assertSame($before['total'] - 1, $after['total']);
+    }
+
+    public function test_signupsByDay_includes_todays_signup_and_zero_fills_range(): void
+    {
+        $today       = date('Y-m-d');
+        $before      = CustomerModel::signupsByDay(7);
+        $beforeToday = end($before)['count'];
+
+        CustomerModel::create('signup-day-' . uniqid() . '@example.com', self::$hash);
+
+        $after = CustomerModel::signupsByDay(7);
+
+        $this->assertCount(7, $after);
+        $this->assertSame($today, end($after)['date']);
+        $this->assertSame($beforeToday + 1, end($after)['count']);
+    }
+
+    public function test_signupsByDay_excludes_soft_deleted_customers(): void
+    {
+        $before      = CustomerModel::signupsByDay(7);
+        $beforeToday = end($before)['count'];
+
+        $id = CustomerModel::create('signup-deleted-' . uniqid() . '@example.com', self::$hash);
+        CustomerModel::delete($id);
+
+        $after = CustomerModel::signupsByDay(7);
+        $this->assertSame($beforeToday, end($after)['count']);
+    }
+
+    public function test_recent_orders_by_created_at_descending(): void
+    {
+        $pdo = Database::getConnection();
+
+        $oldEmail = 'recent-old-' . uniqid() . '@example.com';
+        $oldId    = CustomerModel::create($oldEmail, self::$hash);
+        $pdo->prepare('UPDATE customers SET created_at = NOW() - INTERVAL 1 DAY WHERE id = ?')->execute([$oldId]);
+
+        $newEmail = 'recent-new-' . uniqid() . '@example.com';
+        CustomerModel::create($newEmail, self::$hash);
+
+        $rows   = CustomerModel::recent(1000000);
+        $emails = array_column($rows, 'email');
+        $oldPos = array_search($oldEmail, $emails);
+        $newPos = array_search($newEmail, $emails);
+
+        $this->assertNotFalse($oldPos);
+        $this->assertNotFalse($newPos);
+        $this->assertLessThan($oldPos, $newPos);
+    }
+
+    public function test_recent_excludes_soft_deleted_customers(): void
+    {
+        $email = 'recent-deleted-' . uniqid() . '@example.com';
+        $id    = CustomerModel::create($email, self::$hash);
+        CustomerModel::delete($id);
+
+        $emails = array_column(CustomerModel::recent(1000000), 'email');
+        $this->assertNotContains($email, $emails);
     }
 }

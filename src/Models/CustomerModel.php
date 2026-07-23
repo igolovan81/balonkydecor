@@ -79,4 +79,50 @@ class CustomerModel
         $stmt = $pdo->prepare('UPDATE customers SET deleted_at = NULL WHERE id = ?');
         $stmt->execute([$id]);
     }
+
+    public static function dashboardStats(): array
+    {
+        $pdo = Database::getConnection();
+        return [
+            'total'          => (int) $pdo->query('SELECT COUNT(*) FROM customers WHERE deleted_at IS NULL')->fetchColumn(),
+            'new_this_week'  => (int) $pdo->query("SELECT COUNT(*) FROM customers WHERE deleted_at IS NULL AND created_at >= NOW() - INTERVAL 7 DAY")->fetchColumn(),
+            'new_this_month' => (int) $pdo->query("SELECT COUNT(*) FROM customers WHERE deleted_at IS NULL AND created_at >= NOW() - INTERVAL 30 DAY")->fetchColumn(),
+        ];
+    }
+
+    public static function signupsByDay(int $days = 30): array
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare(
+            'SELECT DATE(created_at) AS day, COUNT(*) AS c
+             FROM customers
+             WHERE deleted_at IS NULL AND created_at >= DATE_SUB(CURDATE(), INTERVAL :days DAY)
+             GROUP BY DATE(created_at)'
+        );
+        $stmt->bindValue(':days', $days - 1, \PDO::PARAM_INT);
+        $stmt->execute();
+        $byDay = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $byDay[$row['day']] = (int) $row['c'];
+        }
+
+        $result = [];
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $date     = date('Y-m-d', strtotime("-{$i} days"));
+            $result[] = ['date' => $date, 'count' => $byDay[$date] ?? 0];
+        }
+        return $result;
+    }
+
+    public static function recent(int $limit = 10): array
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare(
+            'SELECT id, email, name, phone, created_at FROM customers
+             WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT :limit'
+        );
+        $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }
