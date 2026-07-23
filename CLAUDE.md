@@ -23,6 +23,12 @@ php -S localhost:8080 -t www
 
 # Run e2e tests (requires Docker MySQL + Node.js; local server is managed by Playwright)
 npm run test:e2e
+
+# PHPUnit code coverage (requires the PCOV extension: pecl install pcov)
+./scripts/coverage.sh
+
+# Static diff: which src/routes.php routes are never .goto()'d/page.request()'d in tests/e2e
+npm run test:e2e:route-coverage
 ```
 
 The `/start` Claude command runs the full local startup (MySQL + server + local migrations + smoke check); `/deploy` and `/verify` handle production (see Deployment); `/e2e` runs the Playwright suite (local full suite or `@smoke`-only against prod); `/logs` opens local or downloaded-prod logs in `lnav`.
@@ -36,8 +42,8 @@ Detailed coding conventions are in `.claude/rules/` — autoloaded by Claude Cod
 - `.claude/rules/backend.md` — Slim 4 route registration order, controller render/flash/redirect patterns, static PDO models, services with dev fallbacks, sessions, config handling
 - `.claude/rules/frontend.md` — Twig layout inheritance, `t()` translations across all 5 language files, lang-prefixed links, no-build vanilla JS, accessibility requirements
 - `.claude/rules/css-styling.md` — Design tokens in `:root`, 768px/480px breakpoints, flat kebab-case naming with `--modifier` variants, focus/keyboard accessibility, inline SVG assets
-- `.claude/rules/unit-testing.md` — TDD, real Docker MySQL instead of mocks, `uniqid()`/`INSERT IGNORE` fixture patterns for the shared dev DB, test naming and assertion style
-- `.claude/rules/e2e-testing.md` — Playwright page objects in `tests/e2e/pages/`, shared assertion-bearing flows in `tests/e2e/workflows/`, `@smoke` vs local-only test tagging, prod-safety rules, admin/editor/product DB fixture pattern, testing server behavior directly via `page.request`
+- `.claude/rules/unit-testing.md` — TDD, real Docker MySQL instead of mocks, `uniqid()`/`INSERT IGNORE` fixture patterns for the shared dev DB, test naming and assertion style, PCOV coverage via `scripts/coverage.sh`
+- `.claude/rules/e2e-testing.md` — Playwright page objects in `tests/e2e/pages/`, shared assertion-bearing flows in `tests/e2e/workflows/`, `@smoke` vs local-only test tagging, prod-safety rules, admin/editor/product DB fixture pattern, testing server behavior directly via `page.request`, static route-coverage diffing via `scripts/e2e-route-coverage.js`
 - `.claude/rules/database.md` — `V0NN__` migration workflow (never edit applied ones), `*_t`/`lang_code` translation tables, idempotent seeds, prepared statements, WEDOS privilege caveats
 - `.claude/rules/seo.md` — `title`/`meta_desc` template blocks with DB overrides, canonical/hreflang via `Seo` service, sitemap registration for new routes, 404 rules, JSON-LD escaping
 - `.claude/rules/logging.md` — `AppLogger`/`Mailer` flat-file log formats, slow-query logging via `TimedStatement`/`SlowQueryLogger`, no aggregation service (WEDOS has no shell/cron), viewing locally with `lnav` via `scripts/logs.sh`

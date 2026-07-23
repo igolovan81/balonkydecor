@@ -50,3 +50,24 @@ tolerate leftover rows from previous runs:
   localhost:8080 -t www` + curl/screenshot), not with unit tests.
 - Controllers are currently untested; if controller logic grows complex, extract it
   into a testable service/model method instead of building an HTTP test harness.
+
+## Coverage
+
+- The **PCOV** extension (`pecl install pcov`) is the coverage driver — chosen over
+  Xdebug because it's faster and this project has no step-debugging workflow that
+  would need Xdebug anyway. `phpunit.xml`'s `<source><include><directory>src</directory>
+  </include></source>` block tells PHPUnit 11 what to measure (everything under `src/`,
+  including untested controllers — so the reported percentage is expected to look low;
+  that's controllers being untested per this file's convention, not a bug).
+- Run `./scripts/coverage.sh` — starts Docker if needed, runs the full suite with
+  `--coverage-html=tmp/coverage-html` and `--coverage-text=tmp/coverage.txt` (both
+  gitignored). Extra args pass through, e.g. `./scripts/coverage.sh
+  tests/Unit/Models/ProductModelTest.php` for one file's coverage.
+- The script runs with `-d memory_limit=1G`, not PHP's default 128M — this is a
+  workaround for the shared dev DB's accumulated leftover test-fixture rows (see
+  "Test data in the shared DB" above) making `SitemapTest` OOM at the default limit
+  by the time it iterates every product; it isn't something coverage collection
+  itself needs. If plain `php vendor/bin/phpunit` (no coverage) also OOMs on
+  `SitemapTest`, that's this same pre-existing DB-bloat issue, not a coverage
+  regression — worth a cleanup pass on the `products` table if it gets bad enough
+  to block routine runs, independent of this coverage tooling.

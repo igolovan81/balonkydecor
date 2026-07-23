@@ -5,7 +5,8 @@
   "scripts": {
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:prod": "E2E_BASE_URL=https://balonkydecor.cz playwright test --grep @smoke"
+    "test:e2e:prod": "E2E_BASE_URL=https://balonkydecor.cz playwright test --grep @smoke",
+    "test:e2e:route-coverage": "node scripts/e2e-route-coverage.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0"

@@ -139,6 +139,21 @@ const response = await page.request.post(`/admin/orders/${orderNumber}/status`, 
   the server rejected the change, not just that the HTTP call returned a particular
   status.
 
+## Estimating route coverage
+
+- `node scripts/e2e-route-coverage.js` (or `npm run test:e2e:route-coverage`)
+  statically diffs every route declared in `src/routes.php` against `.goto(...)`/
+  `page.request.<method>(...)` calls found anywhere under `tests/e2e/**/*.ts`. It's
+  instant (no Docker, no Playwright run) but has one real blind spot: routes only
+  reached by clicking a submit button whose `<form action="...">` lives in a Twig
+  template — e.g. `POST /{lang}/cart/add` — are invisible to it and will print as
+  "not referenced" even when a passing spec exercises them via a real click. Treat
+  its output as "definitely not hit via direct navigation/API call," not "untested";
+  cross-check anything it flags against the actual spec file before adding coverage
+  for it. Getting a true per-route hit count (including form-submitted POSTs) would
+  need capturing real network requests during a Playwright run instead of static
+  scanning — a heavier option, not what this script does.
+
 ## What not to test here
 
 - Don't unit-test page object methods in isolation — they have no logic beyond

@@ -6,6 +6,8 @@
 /config/settings.local.php
 /tmp/twig_cache/
 /tmp/*.log
+/tmp/coverage.txt
+/tmp/coverage-html/
 www/assets/uploads/*
 !www/assets/uploads/.gitkeep
 .superpowers/
