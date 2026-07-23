@@ -1,4 +1,8 @@
 import { test, expect } from '@playwright/test';
+import { ProductPage } from './pages/ProductPage';
+import { CartPage } from './pages/CartPage';
+import { CheckoutPage } from './pages/CheckoutPage';
+import { OrderPage } from './pages/OrderPage';
 
 // Local-only: NOT tagged @smoke, and must never run against production.
 // It creates a real order and, wherever GoPay credentials are actually
@@ -8,22 +12,26 @@ import { test, expect } from '@playwright/test';
 const DEMO_SKU = 'NAR-SADA-KLASIK';
 
 test('full checkout flow completes via the GoPay dev bypass', async ({ page }) => {
-  await page.goto(`/cs/shop/${DEMO_SKU}`);
-  await page.locator('.add-to-cart-form button[type="submit"]').click();
+  const product = new ProductPage(page);
+  await product.goto(DEMO_SKU);
+  await product.addToCart();
   await expect(page).toHaveURL(/\/cs\/cart$/);
 
-  await page.locator(`a[href="/cs/checkout"]`).click();
+  const cart = new CartPage(page);
+  await cart.goToCheckout();
   await expect(page).toHaveURL(/\/cs\/checkout$/);
 
-  await page.locator('input[name="customer_name"]').fill('Playwright Test');
-  await page.locator('input[name="customer_email"]').fill(`playwright-${Date.now()}@example.com`);
-  await page.locator('input[name="customer_phone"]').fill('+420123456789');
-  await page.locator('form.contact-form button[type="submit"]').click();
-
+  const checkout = new CheckoutPage(page);
+  await checkout.fillCustomerDetails({
+    name: 'Playwright Test',
+    email: `playwright-${Date.now()}@example.com`,
+    phone: '+420123456789',
+  });
   await expect(page).toHaveURL(/\/cs\/checkout\/confirm$/);
 
-  await page.locator('button', { hasText: /platit|pay/i }).click();
+  await checkout.pay();
 
   await expect(page).toHaveURL(/\/cs\/order\/\S+$/);
-  await expect(page.locator('.order-status')).toBeVisible();
+  const order = new OrderPage(page);
+  await expect(order.status).toBeVisible();
 });
