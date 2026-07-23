@@ -90,13 +90,23 @@ All runtime settings live in the `settings` database table and are editable via 
 
 ## Testing
 
-Tests use a real MySQL database (Docker must be running).
+**Unit tests** use a real MySQL database (Docker must be running).
 
 ```bash
 php vendor/bin/phpunit --testdox
 ```
 
 244 tests covering models, services (cart, wishlist, compare, translator, etc.), I18n, and middleware.
+
+**End-to-end tests** use [Playwright](https://playwright.dev) against a real browser and the PHP built-in server. Requires Docker MySQL running and Node.js installed locally (dev tooling only — not part of the deployed site or the "no build step" public JS).
+
+```bash
+npm install               # first time only
+npx playwright install chromium   # first time only, downloads the browser
+npm run test:e2e
+```
+
+Playwright's `webServer` config starts `php -S localhost:8080 -t www` automatically (or reuses one already running). Tests live in `tests/e2e/` and cover the public golden path: homepage/nav, language switching, 404s, add-to-cart, and full checkout via the GoPay dev bypass.
 
 ## Deployment
 

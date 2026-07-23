@@ -42,6 +42,12 @@ mirror --reverse --delete --verbose \
   --exclude '^docker-compose\.yml$' \
   --exclude '^phpunit\.xml$' \
   --exclude '^composer\.(json|lock)$' \
+  --exclude '^package(-lock)?\.json$' \
+  --exclude '^node_modules/' \
+  --exclude '^playwright\.config\.ts$' \
+  --exclude '^tsconfig\.json$' \
+  --exclude '^playwright-report/' \
+  --exclude '^test-results/' \
   --exclude '^(CLAUDE|README)\.md$' \
   --exclude '^tests/' \
   --exclude '^scripts/' \
