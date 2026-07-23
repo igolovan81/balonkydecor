@@ -75,6 +75,8 @@
   "contact.success": "Thank you! Your message has been sent.",
   "contact.title": "Contact",
   "email.contact.subject": "Contact form: {name}",
+  "email.order_paid.customer": "Customer",
+  "email.order_paid.subject": "Paid order {number}",
   "footer.follow_us": "Follow us",
   "gallery.back": "← Back to projects",
   "gallery.no_albums": "No completed projects yet.",

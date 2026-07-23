@@ -1,0 +1,24 @@
+<p><strong>{{ t.order }}:</strong> {{ order.order_number }}</p>
+<p><strong>{{ t.customer }}:</strong> {{ order.customer_name }}</p>
+<p><strong>{{ t.email }}:</strong> {{ order.customer_email }}</p>
+<p><strong>{{ t.phone }}:</strong> {{ order.customer_phone }}</p>
+{% if order.pickup_date %}<p><strong>{{ t.pickup_date }}:</strong> {{ order.pickup_date }}</p>{% endif %}
+{% if order.notes %}
+<p><strong>{{ t.notes }}:</strong></p>
+<p style="white-space: pre-line;">{{ order.notes }}</p>
+{% endif %}
+<table border="1" cellpadding="6" cellspacing="0">
+    <thead>
+        <tr><th>{{ t.item }}</th><th>{{ t.qty }}</th><th>{{ t.unit_price }}</th></tr>
+    </thead>
+    <tbody>
+    {% for item in order.items %}
+        <tr>
+            <td>{{ item.product_name_snapshot }}{% if item.subtype_name_snapshot %} — {{ item.subtype_name_snapshot }}{% endif %}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.unit_price|number_format(2, '.', ' ') }} Kč</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<p><strong>{{ t.total }}:</strong> {{ order.total_amount|number_format(2, '.', ' ') }} Kč</p>

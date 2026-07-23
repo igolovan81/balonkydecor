@@ -4,6 +4,7 @@ namespace App\Controllers;
 use App\Models\Database;
 use App\Models\OrderModel;
 use App\Services\GoPay;
+use App\Services\I18n;
 use App\Services\Mailer;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -32,7 +33,7 @@ class PaymentController extends BaseController
         if (!$gopay) {
             if ($order['status'] !== 'paid') {
                 OrderModel::updateStatus($orderNumber, 'paid');
-                $this->notifyOrderPaid($orderNumber);
+                $this->notifyOrderPaid($request, $orderNumber);
             }
             return $response
                 ->withHeader('Location', "/{$lang}/order/{$orderNumber}")
@@ -70,7 +71,7 @@ class PaymentController extends BaseController
                     if ($order) {
                         if ($order['status'] !== 'paid') {
                             OrderModel::updateStatus($order['order_number'], 'paid', $paymentId);
-                            $this->notifyOrderPaid($order['order_number']);
+                            $this->notifyOrderPaid($request, $order['order_number']);
                         }
                         return $response
                             ->withHeader('Location', "/{$lang}/order/{$order['order_number']}")
@@ -97,7 +98,7 @@ class PaymentController extends BaseController
                     $order = OrderModel::findByGopayId($paymentId);
                     if ($order && $order['status'] !== 'paid') {
                         OrderModel::updateStatus($order['order_number'], 'paid', $paymentId);
-                        $this->notifyOrderPaid($order['order_number']);
+                        $this->notifyOrderPaid($request, $order['order_number']);
                     }
                 }
             }
@@ -106,7 +107,7 @@ class PaymentController extends BaseController
         return $response->withStatus(200);
     }
 
-    private function notifyOrderPaid(string $orderNumber): void
+    private function notifyOrderPaid(Request $request, string $orderNumber): void
     {
         $order = OrderModel::findByNumber($orderNumber);
         if (!$order) {
@@ -119,29 +120,24 @@ class PaymentController extends BaseController
             return;
         }
 
-        $rows = '';
-        foreach ($order['items'] as $item) {
-            $subtype = $item['subtype_name_snapshot']
-                ? ' — ' . htmlspecialchars($item['subtype_name_snapshot'])
-                : '';
-            $rows .= '<tr>'
-                . '<td>' . htmlspecialchars($item['product_name_snapshot']) . $subtype . '</td>'
-                . '<td>' . (int) $item['quantity'] . '</td>'
-                . '<td>' . htmlspecialchars((string) $item['unit_price']) . ' Kč</td>'
-                . '</tr>';
-        }
+        $i18n = new I18n('cs', __DIR__ . '/../../lang');
+        $html = $this->fetchEmail($request, 'emails/order-paid.twig', [
+            't' => [
+                'order'       => $i18n->t('order.title'),
+                'customer'    => $i18n->t('email.order_paid.customer'),
+                'email'       => $i18n->t('account.email'),
+                'phone'       => $i18n->t('checkout.phone'),
+                'pickup_date' => $i18n->t('checkout.pickup_date'),
+                'notes'       => $i18n->t('checkout.notes'),
+                'item'        => $i18n->t('order.product'),
+                'qty'         => $i18n->t('order.qty'),
+                'unit_price'  => $i18n->t('order.unit_price'),
+                'total'       => $i18n->t('order.total'),
+            ],
+            'order' => $order,
+        ]);
+        $subject = $i18n->t('email.order_paid.subject', ['number' => $order['order_number']]);
 
-        $html = '<p><strong>Order:</strong> ' . htmlspecialchars($order['order_number']) . '</p>'
-              . '<p><strong>Customer:</strong> ' . htmlspecialchars($order['customer_name']) . '</p>'
-              . '<p><strong>Email:</strong> ' . htmlspecialchars($order['customer_email']) . '</p>'
-              . '<p><strong>Phone:</strong> ' . htmlspecialchars($order['customer_phone']) . '</p>'
-              . ($order['pickup_date'] ? '<p><strong>Pickup date:</strong> ' . htmlspecialchars($order['pickup_date']) . '</p>' : '')
-              . ($order['notes'] ? '<p><strong>Notes:</strong> ' . nl2br(htmlspecialchars($order['notes'])) . '</p>' : '')
-              . '<table border="1" cellpadding="6" cellspacing="0"><thead><tr><th>Item</th><th>Qty</th><th>Unit price</th></tr></thead><tbody>'
-              . $rows
-              . '</tbody></table>'
-              . '<p><strong>Total:</strong> ' . htmlspecialchars((string) $order['total_amount']) . ' Kč</p>';
-
-        Mailer::send($contactEmail, "Paid order {$order['order_number']}", $html);
+        Mailer::send($contactEmail, $subject, $html);
     }
 }

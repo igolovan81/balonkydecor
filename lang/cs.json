@@ -75,6 +75,8 @@
   "contact.success": "Děkujeme! Vaše zpráva byla odeslána.",
   "contact.title": "Kontakt",
   "email.contact.subject": "Kontaktní formulář: {name}",
+  "email.order_paid.customer": "Zákazník",
+  "email.order_paid.subject": "Zaplacená objednávka {number}",
   "footer.follow_us": "Sledujte nás",
   "gallery.back": "← Zpět na realizace",
   "gallery.no_albums": "Zatím žádné realizace.",
