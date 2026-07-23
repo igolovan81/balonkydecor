@@ -43,6 +43,21 @@
             </div>
             <button type="submit" class="btn btn-primary">{{ t('account.update_submit') }}</button>
         </form>
+
+        <hr>
+        <h2>{{ t('account.delete_account') }}</h2>
+        <p>{{ t('account.delete_warning') }}</p>
+        {% if delete_error %}
+        <p class="form-error">{{ t(delete_error) }}</p>
+        {% endif %}
+        <form action="/{{ lang }}/account/delete" method="POST" class="contact-form"
+              onsubmit="return confirm('{{ t('account.delete_confirm') }}')">
+            <div class="form-group">
+                <label for="delete_current_password">{{ t('account.current_password') }}</label>
+                <input type="password" id="delete_current_password" name="current_password" required>
+            </div>
+            <button type="submit" class="btn btn-danger">{{ t('account.delete_account') }}</button>
+        </form>
     </div>
 </div>
 {% endblock %}
