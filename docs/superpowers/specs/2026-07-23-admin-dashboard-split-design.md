@@ -62,9 +62,10 @@ Replaces the current 4-stat-card + recent-orders-table body. Reuses `.stat-grid`
   ordered by count descending
 - Top sellers: top 10 products by total quantity sold, joined from `order_items`
   (product name via `product_name_snapshot`, so it still resolves for deleted products)
-- Recently added products: last 10 by `created_at` — note this is "recently **added**,"
-  not "recently edited," since `products` has no `updated_at` column and adding one is
-  out of scope for this change
+- Recent product activity: last 10 products ordered by `updated_at` descending
+  (`products.updated_at`, added in `V014__category_product_audit.sql`, defaults to the
+  insert time and bumps `ON UPDATE CURRENT_TIMESTAMP`, so this naturally covers both
+  newly added and recently edited products)
 
 ### Customers dashboard (`CustomerDashboardController::index`, `admin/dashboard-customers.twig`)
 
@@ -103,8 +104,8 @@ controller calls its model, no inline SQL in controllers (matches
 - `ProductModel`
   - `dashboardStats(): array` — `active_count`, `low_stock_count`
   - `topSellers(int $limit = 10): array` — `['name' => ..., 'qty_sold' => ...]`
-  - `recentlyAdded(int $limit = 10): array` — id, sku, name (current admin lang, joined
-    via `product_t`), `created_at`
+  - `recentActivity(int $limit = 10): array` — id, sku, name (current admin lang, joined
+    via `product_t`), `updated_at`, ordered by `updated_at DESC`
 - `CategoryModel`
   - `withProductCounts(string $lang): array` — category name (translated) + product count
 - `CustomerModel`
@@ -159,7 +160,6 @@ Per `.claude/rules/unit-testing.md`: TDD, real Docker MySQL, no mocks.
 
 - A full customer list/search/detail admin page (only a 10-row recent-registrations
   table is in scope here)
-- A `products.updated_at` column / true "recently edited" tracking
 - Configurable low-stock threshold (hardcoded constant for now)
 - Any change to the public-facing site, checkout flow, or existing `/admin/orders`,
   `/admin/products`, `/admin/categories` CRUD pages
