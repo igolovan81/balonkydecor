@@ -30,7 +30,7 @@ Registers a global `t()` function in Twig backed by an `I18n` instance. Both `Ba
 
 ### Language selection
 
-URLs use a `/{lang}/` prefix: `/cs/shop`, `/en/blog`, `/uk/checkout`.
+URLs use a `/{lang}/` prefix: `/cs/shop`, `/en/gallery`, `/uk/checkout`.
 
 `LangMiddleware` (applied to all routes) extracts the first path segment and validates it against the supported list. Unknown or missing segments default to `cs`. The resolved `lang` string and an `I18n` instance are attached to the PSR-7 request as attributes.
 
@@ -47,7 +47,7 @@ The root `/` redirects to `/{default_lang}/`.
 
 ### Translation files
 
-Location: `lang/{lang}.json` — one file per language, 68 keys each.
+Location: `lang/{lang}.json` — one file per language, 153 keys each.
 
 All five files must have **identical key sets**. Keys are sorted alphabetically.
 
@@ -55,17 +55,22 @@ Key groups:
 
 | Group | Purpose |
 |---|---|
-| `blog.*` | Blog list and post pages |
+| `account.*` | Account page: profile edit, password change, delete-account flow |
 | `cart.*` | Shopping cart |
-| `checkout.*` | Checkout and order confirmation |
+| `checkout.*` | Checkout form and order confirmation |
+| `compare.*` | Product comparison list |
 | `contact.*` | Contact form |
+| `email.*` | Transactional email subjects/bodies (contact, order paid, status changed, etc.) |
+| `footer.*` | Site footer |
 | `gallery.*` | Gallery albums |
 | `home.*` | Homepage hero and CTA |
 | `nav.*` | Navigation links |
-| `order.*` | Order status page and item table |
+| `order.*` | Order status page and item table, incl. `order.status.*` enum labels (pending/paid/ready/completed/cancelled) |
 | `services.*` | Services page |
-| `shop.*` | Product list |
+| `shipping.*` | Shipping & payment info page |
+| `shop.*` | Product list and detail |
 | `site.*` | Site-wide (site name) |
+| `wishlist.*` | Wishlist page |
 
 ### Adding a public translation key
 
@@ -96,22 +101,28 @@ Admin clicks "EN" in sidebar
 
 ### Translation files
 
-Location: `lang/admin/{lang}.json` — one file per language, 192 keys each, sorted alphabetically.
+Location: `lang/admin/{lang}.json` — one file per language, 401 keys each, sorted alphabetically.
 
 Key groups:
 
 | Group | Keys | Covers |
 |---|---|---|
-| `blog.*` | 24 | Blog list and form |
-| `categories.*` | 22 | Categories list and form |
-| `dashboard.*` | 12 | Dashboard stats and recent orders table |
-| `gallery.*` | 23 | Gallery albums list and form |
-| `nav.*` | 10 | Sidebar navigation and logout |
-| `orders.*` | 27 | Orders list and detail page |
-| `pages.*` | 10 | Static pages list and editor |
-| `products.*` | 27 | Products list and form |
-| `settings.*` | 18 | Settings form |
-| `users.*` | 19 | Users list and create form |
+| `categories.*` | 33 | Categories list and form |
+| `common.*` | 2 | Shared strings (unknown-user audit fallback, forbidden-action flash) |
+| `dashboard.*` | 40 | Dashboard overview stats/recent-orders plus the three split dashboards: `dashboard.orders.*`, `dashboard.products.*`, `dashboard.customers.*` |
+| `gallery.*` | 37 | Gallery albums list and form |
+| `hero_slides.*` | 34 | Hero carousel slides list and form |
+| `nav.*` | 16 | Sidebar navigation, logout, and the `nav.dashboard_orders`/`nav.dashboard_products`/`nav.dashboard_customers` sub-dashboard links |
+| `notifications.*` | 20 | Notification bell/list and customer-restore flash messages |
+| `orders.*` | 33 | Orders list and detail page |
+| `page_views.*` | 18 | Page-view analytics report (top pages, device breakdown) |
+| `pages.*` | 13 | Static pages list and editor |
+| `products.*` | 74 | Products list and form (incl. bulk actions, subtypes, specs) |
+| `services.*` | 30 | Services list and form |
+| `settings.*` | 26 | Settings form |
+| `users.*` | 25 | Users list and create/edit form |
+
+A dashboard-split feature added in this session broke the single admin dashboard into an overview plus three dedicated pages (orders/products/customers), which accounts for most of `dashboard.*`'s growth and the three new `nav.dashboard_*` keys.
 
 ### What is NOT translated in admin
 
@@ -132,7 +143,7 @@ Key groups:
 
 1. Copy `lang/cs.json` → `lang/{code}.json` and translate all values.
 2. Copy `lang/admin/cs.json` → `lang/admin/{code}.json` and translate all values.
-3. Add the language code to `$supported` in `config/settings.php`.
+3. Add the language code to the `languages` array in `config/settings.php`.
 4. Add the code to `AdminLangMiddleware::SUPPORTED`.
 5. Add the code to the lang switcher map in `templates/layout/admin-base.twig` (`{cs: 'CZ', ...}`).
 6. Add a `/{code}/*` route group in `src/routes.php` if needed (currently handled by the `/{lang}/` wildcard).

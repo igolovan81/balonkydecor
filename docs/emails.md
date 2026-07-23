@@ -52,6 +52,12 @@ current request's.
 
 ## Email templates & trigger use cases
 
+Customer account soft-delete (`CustomerModel::delete()`, sets `customers.deleted_at`)
+and its admin restore action (`CustomerController::restore()`) do **not** send any
+email — both only create an internal `Notifier::notify()` record surfaced in
+`/admin/notifications`. They're intentionally absent from the table below, which
+covers `Mailer`/`templates/emails/*.twig` traffic only.
+
 | Template | Sent when | To | Controller |
 |----------|-----------|----|----|
 | `password-reset.twig` | Customer submits "forgot password" with an email matching a `CustomerModel` record | the customer | `AccountController::forgotSubmit()` |
@@ -63,7 +69,10 @@ Details per template:
 
 - **`password-reset.twig`** — body is just the intro line (`email.password_reset.intro`)
   plus a raw reset link; token is a `random_bytes(32)` hex string valid 1 hour
-  (`CustomerModel::setResetToken`).
+  (`CustomerModel::setResetToken`). `CustomerModel::findByEmail()` doesn't filter
+  `deleted_at`, so a soft-deleted account still receives this email if requested
+  (login itself is still blocked — `AccountController::loginSubmit()`/`requireLogin()`
+  check `deleted_at`).
 - **`contact-notification.twig`** — forwards the visitor's name/email/message verbatim;
   labels come from `lang/cs.json` (`contact.*` keys) regardless of the visitor's
   browsing language, since it's read by a Czech-speaking shop owner.

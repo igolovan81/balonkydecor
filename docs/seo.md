@@ -1,6 +1,6 @@
 # SEO
 
-BalonkyDecor is crawlable and indexable by search engines across all five languages: a dynamic sitemap and robots file, canonical/hreflang tags on every public page, editable per-page meta titles/descriptions, and JSON-LD structured data on product/blog/gallery pages.
+BalonkyDecor is crawlable and indexable by search engines across all five languages: a dynamic sitemap and robots file, canonical/hreflang tags on every public page, editable per-page meta titles/descriptions, and JSON-LD structured data on product/gallery pages.
 
 Design rationale and the full implementation plan live in `docs/superpowers/specs/2026-07-01-seo-design.md` and `docs/superpowers/plans/2026-07-01-seo-implementation.md`. This doc is the day-to-day reference.
 
@@ -8,17 +8,17 @@ Design rationale and the full implementation plan live in `docs/superpowers/spec
 
 ## Crawlability: `robots.txt` and `sitemap.xml`
 
-Both are dynamic Slim routes, not static files — they always reflect the live database, so a product/post/album published through the admin panel appears without a code deploy.
+Both are dynamic Slim routes, not static files — they always reflect the live database, so a product/album published through the admin panel appears without a code deploy.
 
 - **`GET /robots.txt`** — disallows `/admin/`, `/*/cart`, `/*/checkout`, `/*/order/`, `/*/payment/`; points at the sitemap.
-- **`GET /sitemap.xml`** — one `<url>` entry per (page × language) for: home, `/shop`, every active product, `/services`, `/gallery`, every gallery album, `/blog`, every published post, `/contact`. Each entry carries `<xhtml:link rel="alternate" hreflang="...">` for all 5 languages plus `x-default` (→ `cs`).
+- **`GET /sitemap.xml`** — one `<url>` entry per (page × language) for: home, `/shop`, every active product, `/services`, `/services/archive` (the gallery index), every gallery album, `/contact`, `/shipping-payment`. Each entry carries `<xhtml:link rel="alternate" hreflang="...">` for all 5 languages plus `x-default` (→ `cs`).
 
 No caching layer — query cost is negligible at this catalog's size.
 
 ```
 GET /sitemap.xml
   → SeoController::sitemap()
-  → Sitemap::entries()          — builds the path list from ProductModel/GalleryModel/BlogModel
+  → Sitemap::entries()          — builds the path list from ProductModel/GalleryModel
   → Seo::canonicalUrl() / alternateUrls()   — per path, per language
 ```
 
@@ -47,7 +47,7 @@ Every public page (via `BaseController::render()`) automatically gets:
 |---|---|---|
 | Every public page | `Organization` (name, url, telephone, email from `settings`) | `templates/layout/base.twig`, built by `Seo::organizationJsonLd()` |
 | Product detail | `Product` + `Offer` (price, `priceCurrency: CZK`, availability) | `templates/public/shop/product.twig` |
-| Product / blog post / gallery album | `BreadcrumbList` (Home → section index → detail) | same 3 templates, built inline per page |
+| Product / gallery album | `BreadcrumbList` (Home → section index → detail) | same 2 templates, built inline per page |
 
 `availability` is `https://schema.org/OutOfStock` when `stock_type = 'limited' AND stock_qty <= 0`, otherwise `https://schema.org/InStock`.
 
@@ -59,12 +59,11 @@ Out of scope: `AggregateRating`/`Review` (no reviews feature exists), category-l
 
 ## Editing SEO metadata in the admin panel
 
-Products, blog posts, gallery albums, and pages (home/services/contact) each have a per-language **SEO title** and **SEO description** field, alongside their existing name/description fields:
+Products, gallery albums, and pages (home/services/contact) each have a per-language **SEO title** and **SEO description** field, alongside their existing name/description fields:
 
 | Content type | Admin form | Public template |
 |---|---|---|
 | Product | `/admin/products/{id}/edit` | `<title>` falls back to product name if empty |
-| Blog post | `/admin/blog/{id}/edit` | `<title>` falls back to post title if empty |
 | Gallery album | `/admin/gallery/{id}/edit` | `<title>` falls back to album name if empty |
 | Page (home / services / contact) | `/admin/pages/{slug}/edit` | `<title>` falls back to the section's default translated heading if empty |
 
@@ -152,13 +151,13 @@ Seo::organizationJsonLd(string $siteName, string $phone, string $email): string
 Sitemap::paths(): array     // flat list of indexable paths, e.g. '/shop/SKU-1'
 Sitemap::entries(): array   // one ['loc' => ..., 'alternates' => ...] row per path × language
 ```
-Pulls from `ProductModel::allActive()`, `GalleryModel::albums()`, `BlogModel::published()` — no new queries added to those models.
+Pulls from `ProductModel::allActive()` and `GalleryModel::albums()` — no new queries added to those models.
 
 ### `src/Controllers/SeoController.php`
 Thin — `robots()` and `sitemap()` just format `Seo`/`Sitemap` output as text/XML. Registered in `routes.php` as static routes, before the `/{lang}/*` group (same FastRoute ordering rule that applies to `/admin/*`).
 
 ### DB columns
-`meta_title varchar(255)` / `meta_desc varchar(500)`, both nullable, on `product_t`, `blog_post_t`, `page_t` (since `V001`) and `gallery_album_t` (added in `V007__gallery_meta.sql`). Not present on `category_t` (see above).
+`meta_title varchar(255)` / `meta_desc varchar(500)`, both nullable, on `product_t`, `page_t` (since `V001`) and `gallery_album_t` (added in `V007__gallery_meta.sql`). Not present on `category_t` (see above).
 
 ---
 
@@ -168,7 +167,7 @@ Thin — `robots()` and `sitemap()` just format `Seo`/`Sitemap` output as text/X
 php vendor/bin/phpunit tests/Unit/Services/SeoTest.php tests/Unit/Services/SitemapTest.php --testdox
 ```
 
-`SeoTest` is pure-logic (no DB). `SitemapTest` seeds fixture products/albums/posts (including inactive/draft ones, to verify they're excluded) against the real Docker MySQL, matching the existing Model-test pattern. `meta_title`/`meta_desc` round-tripping is covered by additions to `ProductModelTest`, `BlogModelTest`, `GalleryModelTest`, and `PageModelTest`.
+`SeoTest` is pure-logic (no DB). `SitemapTest` seeds fixture products/albums (including an inactive product, to verify it's excluded) against the real Docker MySQL, matching the existing Model-test pattern. `meta_title`/`meta_desc` round-tripping is covered by additions to `ProductModelTest`, `GalleryModelTest`, and `PageModelTest`.
 
 No controller/route tests exist for `SeoController` — this codebase has no controller test harness at all (every existing test is Model/Service-level against a real DB). Verify `/robots.txt` and `/sitemap.xml` manually after changes:
 
@@ -182,7 +181,7 @@ curl -s http://localhost:8080/sitemap.xml | python3 -c "import sys,xml.dom.minid
 
 ## Known limitations
 
-- No caching for sitemap/robots — acceptable at this catalog size; revisit if the product/blog/gallery catalog grows significantly.
+- No caching for sitemap/robots — acceptable at this catalog size; revisit if the product/gallery catalog grows significantly.
 - No structured data for reviews/ratings (feature doesn't exist yet).
 - Category pages aren't indexable (see above) — would need a real `/shop/category/{slug}` route to change.
 - Search engine registration/verification (Google, Bing, Yandex, Seznam) is a manual, one-time step outside this repo — see "Registering with search engines" above.
