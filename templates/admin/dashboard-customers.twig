@@ -1,0 +1,50 @@
+{% extends "layout/admin-base.twig" %}
+{% block title %}{{ t('dashboard.customers.title') }}{% endblock %}
+{% block content %}
+<div class="admin-topbar"><h1>{{ t('dashboard.customers.title') }}</h1></div>
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.total }}</div>
+        <div class="stat-label">{{ t('dashboard.customers.stats.total') }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.new_this_week }}</div>
+        <div class="stat-label">{{ t('dashboard.customers.stats.new_week') }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.new_this_month }}</div>
+        <div class="stat-label">{{ t('dashboard.customers.stats.new_month') }}</div>
+    </div>
+</div>
+
+<h2>{{ t('dashboard.customers.signup_trend') }}</h2>
+<div class="chart-bars">
+    {% for day in signups %}
+    <div class="chart-bar" style="height:{{ day.pct }}%" title="{{ day.date }}: {{ day.count }}" role="img" aria-label="{{ day.date }}: {{ day.count }}"></div>
+    {% endfor %}
+</div>
+
+<h2>{{ t('dashboard.customers.recent_registrations') }}</h2>
+<table class="admin-table">
+    <thead>
+        <tr>
+            <th>{{ t('dashboard.customers.col.email') }}</th>
+            <th>{{ t('dashboard.customers.col.name') }}</th>
+            <th>{{ t('dashboard.customers.col.phone') }}</th>
+            <th>{{ t('dashboard.customers.col.registered') }}</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for c in recent %}
+    <tr>
+        <td>{{ c.email }}</td>
+        <td>{{ c.name }}</td>
+        <td>{{ c.phone }}</td>
+        <td>{{ c.created_at }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4">{{ t('dashboard.customers.no_customers') }}</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

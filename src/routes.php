@@ -15,6 +15,7 @@ use App\Controllers\WishlistController;
 use App\Controllers\Admin\AuthController;
 use App\Controllers\Admin\CategoryController;
 use App\Controllers\Admin\CustomerController;
+use App\Controllers\Admin\CustomerDashboardController;
 use App\Controllers\Admin\DashboardController;
 use App\Controllers\Admin\GalleryController as AdminGalleryController;
 use App\Controllers\Admin\HeroSlideController;
@@ -48,6 +49,7 @@ $app->group('/admin', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->get('/dashboard', DashboardController::class . ':index');
     $group->get('/dashboard/orders', OrderDashboardController::class . ':index');
     $group->get('/dashboard/products', ProductDashboardController::class . ':index');
+    $group->get('/dashboard/customers', CustomerDashboardController::class . ':index');
 
     // Categories
     $group->get('/categories',                     CategoryController::class . ':index');
