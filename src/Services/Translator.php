@@ -73,6 +73,11 @@ class Translator
                     $translated = self::translate([$sourceValue], $sourceLang, $lang, $transport);
                     $translations[$lang][$field] = $translated[0] ?? '';
                 } catch (\Throwable $e) {
+                    AppLogger::instance()->warning('Translator autoFill: field translation failed', [
+                        'lang'  => $lang,
+                        'field' => $field,
+                        'error' => $e->getMessage(),
+                    ]);
                     continue;
                 }
             }

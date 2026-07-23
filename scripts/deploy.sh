@@ -54,7 +54,7 @@ mirror --reverse --delete --verbose \
   --exclude '^docs/' \
   --exclude '^backups/' \
   --exclude '^www/assets/uploads/' \
-  --exclude '^tmp/mail\.log$' \
+  --exclude '^tmp/.*\.log$' \
   --exclude '^session/' \
   $LOCAL_DIR $REMOTE_DIR
 quit

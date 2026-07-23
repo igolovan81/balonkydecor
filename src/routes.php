@@ -142,6 +142,10 @@ $app->group('/admin', function (\Slim\Routing\RouteCollectorProxy $group) {
             $response->getBody()->write(json_encode(['texts' => $translated]));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
         } catch (\Throwable $e) {
+            \App\Services\AppLogger::instance()->error('Admin translate endpoint failed', [
+                'target_lang' => $targetLang,
+                'error'       => $e->getMessage(),
+            ]);
             $response->getBody()->write(json_encode(['error' => $e->getMessage()]));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }

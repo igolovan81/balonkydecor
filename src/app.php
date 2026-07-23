@@ -55,7 +55,7 @@ $app->add(new LangMiddleware(
     __DIR__ . '/../lang'
 ));
 $app->addRoutingMiddleware();
-$app->addErrorMiddleware($settings['displayErrorDetails'], true, true);
+$app->addErrorMiddleware($settings['displayErrorDetails'], true, true, \App\Services\AppLogger::instance());
 
 require __DIR__ . '/routes.php';
 

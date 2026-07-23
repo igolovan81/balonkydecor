@@ -53,10 +53,21 @@ class GoPay
                 'Accept: application/json',
             ],
         ]);
-        $body = curl_exec($ch);
+        $body      = curl_exec($ch);
+        $curlError = curl_error($ch);
         curl_close($ch);
+
+        if ($body === false) {
+            AppLogger::instance()->error('GoPay getToken: cURL request failed', ['error' => $curlError]);
+            return '';
+        }
+
         $data = json_decode((string) $body, true);
-        return $data['access_token'] ?? '';
+        if (empty($data['access_token'])) {
+            AppLogger::instance()->error('GoPay getToken: no access_token in response', ['response' => $body]);
+            return '';
+        }
+        return $data['access_token'];
     }
 
     public function createPayment(array $order, string $returnUrl, string $notifyUrl): array
@@ -85,9 +96,25 @@ class GoPay
                 'Accept: application/json',
             ],
         ]);
-        $body = curl_exec($ch);
+        $body      = curl_exec($ch);
+        $curlError = curl_error($ch);
         curl_close($ch);
+
+        if ($body === false) {
+            AppLogger::instance()->error('GoPay createPayment: cURL request failed', [
+                'order_number' => $order['order_number'] ?? '',
+                'error'        => $curlError,
+            ]);
+            return ['payment_id' => '', 'gw_url' => ''];
+        }
+
         $data = json_decode((string) $body, true);
+        if (empty($data['gw_url'])) {
+            AppLogger::instance()->error('GoPay createPayment: no gw_url in response', [
+                'order_number' => $order['order_number'] ?? '',
+                'response'     => $body,
+            ]);
+        }
 
         return [
             'payment_id' => (string) ($data['id'] ?? ''),
@@ -106,8 +133,18 @@ class GoPay
                 'Accept: application/json',
             ],
         ]);
-        $body = curl_exec($ch);
+        $body      = curl_exec($ch);
+        $curlError = curl_error($ch);
         curl_close($ch);
+
+        if ($body === false) {
+            AppLogger::instance()->error('GoPay getStatus: cURL request failed', [
+                'payment_id' => $paymentId,
+                'error'      => $curlError,
+            ]);
+            return [];
+        }
+
         return json_decode((string) $body, true) ?? [];
     }
 }

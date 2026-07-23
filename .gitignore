@@ -5,6 +5,7 @@
 /config/settings.prod.php
 /config/settings.local.php
 /tmp/twig_cache/
+/tmp/*.log
 www/assets/uploads/*
 !www/assets/uploads/.gitkeep
 .superpowers/
