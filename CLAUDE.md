@@ -52,7 +52,7 @@ src/
     PageViewMiddleware.php    # Records each public request via PageViewModel::record()
   Models/                    # Static model classes (PDO singleton)
   Services/
-    AppLogger.php            # PSR-3 file logger (tmp/app.log); prunes by config's log_retention (e.g. "3m")
+    AppLogger.php            # PSR-3 file logger (tmp/app-YYYY-MM-DD.log); prunes by config's log_retention (e.g. "3m")
     Cart.php                 # Session-backed cart
     Wishlist.php             # Session-backed wishlist (mirrors Cart)
     Compare.php              # Session-backed product comparison (mirrors Cart, capped list)
@@ -92,7 +92,7 @@ www/                         # Apache web root
 database/migrations/         # Versioned SQL migrations (V001–V00N)
 config/settings.php          # DB creds, language list, upload settings
 session/                     # PHP session storage (outside web root)
-tmp/                         # Twig cache, mail.log, app.log (outside web root)
+tmp/                         # Twig cache, mail.log, app-YYYY-MM-DD.log (outside web root)
 ```
 
 ## Routing

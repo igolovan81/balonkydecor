@@ -6,47 +6,50 @@ use PHPUnit\Framework\TestCase;
 
 class AppLoggerTest extends TestCase
 {
-    public function test_log_writes_a_timestamped_line_to_the_log_file(): void
+    private function tempDir(): string
     {
-        $file   = sys_get_temp_dir() . '/app-logger-test-' . uniqid() . '.log';
-        $logger = new AppLogger($file);
+        $dir = sys_get_temp_dir() . '/app-logger-test-' . uniqid();
+        mkdir($dir);
+        return $dir;
+    }
+
+    public function test_log_writes_a_timestamped_line_to_todays_dated_file(): void
+    {
+        $dir    = $this->tempDir();
+        $logger = new AppLogger($dir);
 
         $logger->error('Something went wrong');
 
+        $file     = $dir . '/app-' . date('Y-m-d') . '.log';
         $contents = file_get_contents($file);
         $this->assertMatchesRegularExpression(
             '/^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\] ERROR Something went wrong\n$/',
             $contents
         );
-
-        unlink($file);
     }
 
     public function test_log_appends_context_as_json(): void
     {
-        $file   = sys_get_temp_dir() . '/app-logger-test-' . uniqid() . '.log';
-        $logger = new AppLogger($file);
+        $dir    = $this->tempDir();
+        $logger = new AppLogger($dir);
 
         $logger->error('Payment failed', ['order' => 'ORD123']);
 
-        $contents = file_get_contents($file);
-        $this->assertStringContainsString('Payment failed {"order":"ORD123"}', $contents);
-
-        unlink($file);
+        $file = $dir . '/app-' . date('Y-m-d') . '.log';
+        $this->assertStringContainsString('Payment failed {"order":"ORD123"}', file_get_contents($file));
     }
 
-    public function test_log_appends_multiple_entries(): void
+    public function test_log_appends_multiple_entries_to_the_same_days_file(): void
     {
-        $file   = sys_get_temp_dir() . '/app-logger-test-' . uniqid() . '.log';
-        $logger = new AppLogger($file);
+        $dir    = $this->tempDir();
+        $logger = new AppLogger($dir);
 
         $logger->info('First');
         $logger->info('Second');
 
+        $file  = $dir . '/app-' . date('Y-m-d') . '.log';
         $lines = explode("\n", trim(file_get_contents($file)));
         $this->assertCount(2, $lines);
-
-        unlink($file);
     }
 
     public function test_instance_returns_the_same_object_every_call(): void
@@ -68,44 +71,48 @@ class AppLoggerTest extends TestCase
         AppLogger::retentionToDays('bogus');
     }
 
-    public function test_prune_removes_lines_older_than_retention(): void
+    public function test_prune_deletes_whole_files_older_than_retention(): void
     {
-        $file   = sys_get_temp_dir() . '/app-logger-prune-test-' . uniqid() . '.log';
-        $old    = (new \DateTimeImmutable('-10 days'))->format('Y-m-d H:i:s');
-        $recent = (new \DateTimeImmutable('-1 day'))->format('Y-m-d H:i:s');
-        file_put_contents($file, "[{$old}] ERROR old entry\n[{$recent}] ERROR recent entry\n");
+        $dir = $this->tempDir();
+        $old = (new \DateTimeImmutable('-10 days'))->format('Y-m-d');
+        touch($dir . "/app-{$old}.log");
+        touch($dir . '/app-' . date('Y-m-d') . '.log');
 
-        $logger = new AppLogger($file);
-        $logger->prune('5d');
+        (new AppLogger($dir))->prune('5d');
 
-        $contents = file_get_contents($file);
-        $this->assertStringNotContainsString('old entry', $contents);
-        $this->assertStringContainsString('recent entry', $contents);
-
-        unlink($file);
+        $this->assertFileDoesNotExist($dir . "/app-{$old}.log");
+        $this->assertFileExists($dir . '/app-' . date('Y-m-d') . '.log');
     }
 
-    public function test_prune_keeps_all_lines_when_none_are_old_enough(): void
+    public function test_prune_keeps_files_within_retention(): void
     {
-        $file   = sys_get_temp_dir() . '/app-logger-prune-test-' . uniqid() . '.log';
-        $recent = (new \DateTimeImmutable('-1 hour'))->format('Y-m-d H:i:s');
-        file_put_contents($file, "[{$recent}] INFO still fresh\n");
+        $dir      = $this->tempDir();
+        $recent   = (new \DateTimeImmutable('-1 day'))->format('Y-m-d');
+        $recentFile = $dir . "/app-{$recent}.log";
+        touch($recentFile);
 
-        $logger = new AppLogger($file);
-        $logger->prune('3m');
+        (new AppLogger($dir))->prune('3m');
 
-        $this->assertStringContainsString('still fresh', file_get_contents($file));
-
-        unlink($file);
+        $this->assertFileExists($recentFile);
     }
 
-    public function test_prune_does_nothing_when_file_does_not_exist(): void
+    public function test_prune_ignores_non_log_files(): void
     {
-        $file   = sys_get_temp_dir() . '/app-logger-prune-test-' . uniqid() . '.log';
-        $logger = new AppLogger($file);
+        $dir   = $this->tempDir();
+        $other = $dir . '/notes.txt';
+        touch($other);
 
-        $logger->prune('3m');
+        (new AppLogger($dir))->prune('1d');
 
-        $this->assertFileDoesNotExist($file);
+        $this->assertFileExists($other);
+    }
+
+    public function test_prune_does_nothing_when_directory_has_no_log_files(): void
+    {
+        $dir = $this->tempDir();
+
+        (new AppLogger($dir))->prune('3m');
+
+        $this->assertDirectoryExists($dir);
     }
 }

@@ -10,7 +10,7 @@ class AppLogger extends AbstractLogger
 {
     private static ?AppLogger $instance = null;
 
-    public function __construct(private string $logFile = __DIR__ . '/../../tmp/app.log')
+    public function __construct(private string $logDir = __DIR__ . '/../../tmp')
     {
     }
 
@@ -25,7 +25,7 @@ class AppLogger extends AbstractLogger
         if ($context) {
             $line .= ' ' . json_encode($context, JSON_UNESCAPED_SLASHES);
         }
-        file_put_contents($this->logFile, $line . "\n", FILE_APPEND);
+        file_put_contents($this->currentLogFile(), $line . "\n", FILE_APPEND);
 
         // No cron on WEDOS shared hosting — prune opportunistically, same
         // 1-in-100-requests idiom PageViewMiddleware uses for page_views.
@@ -39,31 +39,27 @@ class AppLogger extends AbstractLogger
         }
     }
 
+    private function currentLogFile(): string
+    {
+        return $this->logDir . '/app-' . date('Y-m-d') . '.log';
+    }
+
     /**
-     * Deletes log lines older than $retention (e.g. "5d", "3w", "3m").
+     * Deletes whole app-YYYY-MM-DD.log files older than $retention (e.g. "5d", "3w", "3m").
      */
     public function prune(string $retention): void
     {
-        if (!file_exists($this->logFile)) {
-            return;
-        }
+        $cutoff = (new DateTimeImmutable('today'))->modify('-' . self::retentionToDays($retention) . ' days');
 
-        $cutoff = new DateTimeImmutable('-' . self::retentionToDays($retention) . ' days');
-        $kept   = [];
-
-        $handle = fopen($this->logFile, 'r');
-        while (($line = fgets($handle)) !== false) {
-            if (preg_match('/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]/', $line, $m)) {
-                $entryDate = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $m[1]);
-                if ($entryDate !== false && $entryDate < $cutoff) {
-                    continue;
-                }
+        foreach (glob($this->logDir . '/app-*.log') ?: [] as $file) {
+            if (!preg_match('/app-(\d{4}-\d{2}-\d{2})\.log$/', $file, $m)) {
+                continue;
             }
-            $kept[] = $line;
+            $fileDate = DateTimeImmutable::createFromFormat('!Y-m-d', $m[1]);
+            if ($fileDate !== false && $fileDate < $cutoff) {
+                unlink($file);
+            }
         }
-        fclose($handle);
-
-        file_put_contents($this->logFile, implode('', $kept));
     }
 
     public static function retentionToDays(string $retention): int
