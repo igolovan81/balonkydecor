@@ -3,46 +3,17 @@
 {% block content %}
 <div class="admin-topbar"><h1>{{ t('dashboard.title') }}</h1></div>
 <div class="stat-grid">
-    <div class="stat-card">
-        <div class="stat-value">{{ stats.orders_today }}</div>
+    <a href="/admin/dashboard/orders" class="stat-card stat-card--link">
+        <div class="stat-value">{{ orders_today }}</div>
         <div class="stat-label">{{ t('dashboard.stats.orders_today') }}</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value">{{ stats.orders_pending }}</div>
-        <div class="stat-label">{{ t('dashboard.stats.orders_pending') }}</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value">{{ stats.orders_total }}</div>
-        <div class="stat-label">{{ t('dashboard.stats.orders_total') }}</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value">{{ stats.products_active }}</div>
+    </a>
+    <a href="/admin/dashboard/products" class="stat-card stat-card--link">
+        <div class="stat-value">{{ products_active }}</div>
         <div class="stat-label">{{ t('dashboard.stats.products_active') }}</div>
-    </div>
+    </a>
+    <a href="/admin/dashboard/customers" class="stat-card stat-card--link">
+        <div class="stat-value">{{ customers_total }}</div>
+        <div class="stat-label">{{ t('dashboard.stats.customers_total') }}</div>
+    </a>
 </div>
-<h2>{{ t('dashboard.recent_orders') }}</h2>
-<table class="admin-table">
-    <thead>
-        <tr>
-            <th>{{ t('dashboard.col.number') }}</th>
-            <th>{{ t('dashboard.col.customer') }}</th>
-            <th>{{ t('dashboard.col.total') }}</th>
-            <th>{{ t('dashboard.col.status') }}</th>
-            <th>{{ t('dashboard.col.created') }}</th>
-        </tr>
-    </thead>
-    <tbody>
-    {% for o in recent %}
-    <tr>
-        <td><a href="/admin/orders/{{ o.order_number }}">{{ o.order_number }}</a></td>
-        <td>{{ o.customer_name }}</td>
-        <td>{{ o.total_amount|number_format(2, '.', ' ') }} Kč</td>
-        <td><span class="badge badge-{{ o.status }}">{{ t('orders.status.' ~ o.status) }}</span></td>
-        <td>{{ o.created_at }}</td>
-    </tr>
-    {% else %}
-    <tr><td colspan="5">{{ t('dashboard.no_orders') }}</td></tr>
-    {% endfor %}
-    </tbody>
-</table>
 {% endblock %}
