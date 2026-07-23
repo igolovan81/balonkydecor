@@ -137,6 +137,7 @@
   "notifications.msg.category_created": "{actor} vytvořil(a) kategorii „{label}“",
   "notifications.msg.category_deleted": "{actor} smazal(a) kategorii „{label}“",
   "notifications.msg.category_updated": "{actor} upravil(a) kategorii „{label}“",
+  "notifications.msg.customer_deleted": "{actor} smazal(a) svůj účet",
   "notifications.msg.product_created": "{actor} vytvořil(a) produkt „{label}“",
   "notifications.msg.product_deleted": "{actor} smazal(a) produkt „{label}“",
   "notifications.msg.product_updated": "{actor} upravil(a) produkt „{label}“",

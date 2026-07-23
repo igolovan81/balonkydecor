@@ -137,6 +137,7 @@
   "notifications.msg.category_created": "{actor} создал(а) категорию «{label}»",
   "notifications.msg.category_deleted": "{actor} удалил(а) категорию «{label}»",
   "notifications.msg.category_updated": "{actor} изменил(а) категорию «{label}»",
+  "notifications.msg.customer_deleted": "{actor} удалил(а) свой аккаунт",
   "notifications.msg.product_created": "{actor} создал(а) товар «{label}»",
   "notifications.msg.product_deleted": "{actor} удалил(а) товар «{label}»",
   "notifications.msg.product_updated": "{actor} изменил(а) товар «{label}»",

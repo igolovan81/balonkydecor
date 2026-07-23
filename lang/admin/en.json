@@ -137,6 +137,7 @@
   "notifications.msg.category_created": "{actor} created category “{label}”",
   "notifications.msg.category_deleted": "{actor} deleted category “{label}”",
   "notifications.msg.category_updated": "{actor} updated category “{label}”",
+  "notifications.msg.customer_deleted": "{actor} deleted their account",
   "notifications.msg.product_created": "{actor} created product “{label}”",
   "notifications.msg.product_deleted": "{actor} deleted product “{label}”",
   "notifications.msg.product_updated": "{actor} updated product “{label}”",

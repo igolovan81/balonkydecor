@@ -318,6 +318,9 @@ class AccountController extends BaseController
         }
 
         CustomerModel::delete((int) $customer['id']);
+        \App\Services\Notifier::notify(
+            'customer', (int) $customer['id'], $customer['email'], 'deleted', null, $customer['email']
+        );
         unset($_SESSION['customer']);
         $this->flash('success', 'account.delete_success');
 

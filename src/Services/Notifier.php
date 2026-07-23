@@ -10,7 +10,7 @@ class Notifier
         int $entityId,
         string $entityLabel,
         string $action,
-        int $actorId,
+        ?int $actorId,
         string $actorLabel
     ): void {
         NotificationModel::create($entityType, $entityId, $entityLabel, $action, $actorId, $actorLabel);

@@ -8,13 +8,17 @@ class NotificationModel
         int $entityId,
         string $entityLabel,
         string $action,
-        int $actorId,
+        ?int $actorId,
         string $actorLabel
     ): void {
         $pdo = Database::getConnection();
 
-        $recipients = $pdo->prepare('SELECT id FROM users WHERE id != ?');
-        $recipients->execute([$actorId]);
+        if ($actorId !== null) {
+            $recipients = $pdo->prepare('SELECT id FROM users WHERE id != ?');
+            $recipients->execute([$actorId]);
+        } else {
+            $recipients = $pdo->query('SELECT id FROM users');
+        }
         $recipientIds = $recipients->fetchAll(\PDO::FETCH_COLUMN);
 
         if (!$recipientIds) return;

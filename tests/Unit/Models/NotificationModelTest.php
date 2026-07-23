@@ -64,6 +64,21 @@ class NotificationModelTest extends TestCase
         $this->assertSame(0, NotificationModel::unreadCount(self::$recipientId));
     }
 
+    public function test_create_with_null_actor_notifies_all_users(): void
+    {
+        $label = 'Customer Delete Test ' . uniqid();
+        NotificationModel::create('customer', 999, $label, 'deleted', null, 'someone@example.com');
+
+        $rows  = NotificationModel::recentAndMarkRead(self::$recipientId, 50);
+        $match = array_values(array_filter($rows, fn($r) => $r['entity_label'] === $label));
+
+        $this->assertNotEmpty($match);
+        $this->assertSame('customer', $match[0]['entity_type']);
+        $this->assertSame('deleted', $match[0]['action']);
+        $this->assertNull($match[0]['actor_id']);
+        $this->assertSame('someone@example.com', $match[0]['actor_label']);
+    }
+
     public function test_recent_and_mark_read_orders_newest_first(): void
     {
         $first  = 'Order Test A ' . uniqid();

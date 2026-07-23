@@ -137,6 +137,7 @@
   "notifications.msg.category_created": "{actor} створив(ла) категорію «{label}»",
   "notifications.msg.category_deleted": "{actor} видалив(ла) категорію «{label}»",
   "notifications.msg.category_updated": "{actor} оновив(ла) категорію «{label}»",
+  "notifications.msg.customer_deleted": "{actor} видалив(ла) свій обліковий запис",
   "notifications.msg.product_created": "{actor} створив(ла) товар «{label}»",
   "notifications.msg.product_deleted": "{actor} видалив(ла) товар «{label}»",
   "notifications.msg.product_updated": "{actor} оновив(ла) товар «{label}»",
