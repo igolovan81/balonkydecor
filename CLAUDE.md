@@ -37,6 +37,7 @@ Detailed coding conventions are in `.claude/rules/` — autoloaded by Claude Cod
 - `.claude/rules/e2e-testing.md` — Playwright page objects in `tests/e2e/pages/`, `@smoke` vs local-only test tagging, prod-safety rules, admin/editor DB fixture pattern
 - `.claude/rules/database.md` — `V0NN__` migration workflow (never edit applied ones), `*_t`/`lang_code` translation tables, idempotent seeds, prepared statements, WEDOS privilege caveats
 - `.claude/rules/seo.md` — `title`/`meta_desc` template blocks with DB overrides, canonical/hreflang via `Seo` service, sitemap registration for new routes, 404 rules, JSON-LD escaping
+- `.claude/rules/logging.md` — `AppLogger`/`Mailer` flat-file log formats, no aggregation service (WEDOS has no shell/cron), viewing locally with `lnav` via `scripts/logs.sh`
 
 ## Directory Structure
 
