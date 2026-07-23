@@ -47,6 +47,24 @@ class CustomerModelTest extends TestCase
         $this->assertNull(CustomerModel::findById(999999999));
     }
 
+    public function test_create_defaults_notification_lang_to_cs(): void
+    {
+        $email = 'lang-default-' . uniqid() . '@example.com';
+        $id    = CustomerModel::create($email, self::$hash);
+
+        $customer = CustomerModel::findById($id);
+        $this->assertSame('cs', $customer['notification_lang']);
+    }
+
+    public function test_create_accepts_explicit_notification_lang(): void
+    {
+        $email = 'lang-explicit-' . uniqid() . '@example.com';
+        $id    = CustomerModel::create($email, self::$hash, 'ru');
+
+        $customer = CustomerModel::findById($id);
+        $this->assertSame('ru', $customer['notification_lang']);
+    }
+
     public function test_setResetToken_then_findByValidResetToken_finds_it(): void
     {
         $token = 'token-' . uniqid();
@@ -78,13 +96,14 @@ class CustomerModelTest extends TestCase
         $this->assertNull(CustomerModel::findByValidResetToken($token));
     }
 
-    public function test_updateProfile_updates_name_and_phone(): void
+    public function test_updateProfile_updates_name_phone_and_notification_lang(): void
     {
-        CustomerModel::updateProfile(self::$customerId, 'Test Name', '+420111222333');
+        CustomerModel::updateProfile(self::$customerId, 'Test Name', '+420111222333', 'sk');
 
         $customer = CustomerModel::findById(self::$customerId);
         $this->assertSame('Test Name', $customer['name']);
         $this->assertSame('+420111222333', $customer['phone']);
+        $this->assertSame('sk', $customer['notification_lang']);
     }
 
     public function test_updateEmail_updates_email(): void

@@ -21,11 +21,11 @@ class CustomerModel
         return $row ?: null;
     }
 
-    public static function create(string $email, string $passwordHash): int
+    public static function create(string $email, string $passwordHash, string $notificationLang = 'cs'): int
     {
         $pdo  = Database::getConnection();
-        $stmt = $pdo->prepare('INSERT INTO customers (email, password_hash) VALUES (?, ?)');
-        $stmt->execute([$email, $passwordHash]);
+        $stmt = $pdo->prepare('INSERT INTO customers (email, password_hash, notification_lang) VALUES (?, ?, ?)');
+        $stmt->execute([$email, $passwordHash, $notificationLang]);
         return (int) $pdo->lastInsertId();
     }
 
@@ -52,11 +52,11 @@ class CustomerModel
         $stmt->execute([$passwordHash, $id]);
     }
 
-    public static function updateProfile(int $id, string $name, string $phone): void
+    public static function updateProfile(int $id, string $name, string $phone, string $notificationLang): void
     {
         $pdo  = Database::getConnection();
-        $stmt = $pdo->prepare('UPDATE customers SET name = ?, phone = ? WHERE id = ?');
-        $stmt->execute([$name, $phone, $id]);
+        $stmt = $pdo->prepare('UPDATE customers SET name = ?, phone = ?, notification_lang = ? WHERE id = ?');
+        $stmt->execute([$name, $phone, $notificationLang, $id]);
     }
 
     public static function updateEmail(int $id, string $email): void
