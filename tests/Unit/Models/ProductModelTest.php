@@ -4,6 +4,7 @@ namespace Tests\Unit\Models;
 use App\Models\ProductModel;
 use App\Models\CategoryModel;
 use App\Models\Database;
+use App\Models\OrderModel;
 use PHPUnit\Framework\TestCase;
 
 class ProductModelTest extends TestCase
@@ -918,5 +919,71 @@ class ProductModelTest extends TestCase
         ProductModel::bulkSetActive([$id], false, self::$userId);
 
         $this->assertSame(self::$userId, (int) ProductModel::findById($id)['updated_by']);
+    }
+
+    public function test_dashboardStats_reflects_active_and_low_stock_products(): void
+    {
+        $before = ProductModel::dashboardStats();
+
+        $this->makeProduct(); // default is_active=1, stock_type=unlimited
+
+        $pdo         = Database::getConnection();
+        $lowStockSku = 'LOW-STOCK-' . strtoupper(uniqid());
+        $pdo->prepare(
+            "INSERT INTO products (category_id, sku, price, is_active, stock_type, stock_qty)
+             VALUES (?, ?, 9.99, 1, 'limited', 2)"
+        )->execute([self::$categoryId, $lowStockSku]);
+
+        $after = ProductModel::dashboardStats();
+
+        $this->assertSame($before['active_count'] + 2, $after['active_count']);
+        $this->assertSame($before['low_stock_count'] + 1, $after['low_stock_count']);
+    }
+
+    public function test_topSellers_includes_new_order_item_with_correct_qty(): void
+    {
+        $name = 'Top Seller Test ' . uniqid();
+
+        OrderModel::create(
+            [
+                'customer_name'  => 'Top Seller Buyer',
+                'customer_email' => 'top-seller-' . uniqid() . '@example.com',
+                'customer_phone' => '+420000000005',
+                'pickup_date'    => '2026-12-31',
+                'notes'          => '',
+            ],
+            ['SKU-TOPSELLER' => ['qty' => 7, 'name' => $name, 'price' => '5.00', 'subtotal' => '35.00']],
+            '35.00'
+        );
+
+        $sellers = ProductModel::topSellers(1000);
+        $row     = current(array_filter($sellers, fn ($r) => $r['name'] === $name));
+
+        $this->assertNotFalse($row);
+        $this->assertSame(7, $row['qty_sold']);
+    }
+
+    public function test_recentActivity_orders_by_updated_at_descending(): void
+    {
+        $pdo = Database::getConnection();
+
+        $oldSku = 'RECENT-OLD-' . strtoupper(uniqid());
+        $pdo->prepare('INSERT INTO products (category_id, sku, price) VALUES (?, ?, 9.99)')
+            ->execute([self::$categoryId, $oldSku]);
+        $oldId = (int) $pdo->lastInsertId();
+        $pdo->prepare('UPDATE products SET updated_at = NOW() - INTERVAL 1 DAY WHERE id = ?')->execute([$oldId]);
+
+        $newSku = 'RECENT-NEW-' . strtoupper(uniqid());
+        $pdo->prepare('INSERT INTO products (category_id, sku, price) VALUES (?, ?, 9.99)')
+            ->execute([self::$categoryId, $newSku]);
+
+        $rows   = ProductModel::recentActivity('en', 1000000);
+        $skus   = array_column($rows, 'sku');
+        $oldPos = array_search($oldSku, $skus);
+        $newPos = array_search($newSku, $skus);
+
+        $this->assertNotFalse($oldPos);
+        $this->assertNotFalse($newPos);
+        $this->assertLessThan($oldPos, $newPos);
     }
 }

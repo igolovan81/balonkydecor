@@ -3,6 +3,8 @@ namespace App\Models;
 
 class ProductModel
 {
+    private const LOW_STOCK_THRESHOLD = 5;
+
     public static function allActive(string $lang, ?int $categoryId = null): array
     {
         $pdo    = Database::getConnection();
@@ -499,5 +501,54 @@ class ProductModel
         $pdo->commit();
 
         return $newId;
+    }
+
+    public static function dashboardStats(): array
+    {
+        $pdo = Database::getConnection();
+
+        $active = (int) $pdo->query('SELECT COUNT(*) FROM products WHERE is_active = 1')->fetchColumn();
+
+        $stmt = $pdo->prepare(
+            "SELECT COUNT(*) FROM products WHERE is_active = 1 AND stock_type = 'limited' AND stock_qty <= :threshold"
+        );
+        $stmt->bindValue(':threshold', self::LOW_STOCK_THRESHOLD, \PDO::PARAM_INT);
+        $stmt->execute();
+
+        return ['active_count' => $active, 'low_stock_count' => (int) $stmt->fetchColumn()];
+    }
+
+    public static function topSellers(int $limit = 10): array
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare(
+            'SELECT product_name_snapshot AS name, SUM(quantity) AS qty_sold
+             FROM order_items
+             GROUP BY product_name_snapshot
+             ORDER BY qty_sold DESC
+             LIMIT :limit'
+        );
+        $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
+        $stmt->execute();
+        return array_map(
+            fn (array $row) => ['name' => $row['name'], 'qty_sold' => (int) $row['qty_sold']],
+            $stmt->fetchAll()
+        );
+    }
+
+    public static function recentActivity(string $lang, int $limit = 10): array
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare(
+            'SELECT p.id, p.sku, p.updated_at, COALESCE(t.name, p.sku) AS name
+             FROM products p
+             LEFT JOIN product_t t ON t.product_id = p.id AND t.lang_code = :lang
+             ORDER BY p.updated_at DESC
+             LIMIT :limit'
+        );
+        $stmt->bindValue(':lang', $lang);
+        $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
     }
 }
