@@ -53,10 +53,12 @@ DB fixtures live in `tests/e2e/helpers/`.
 - `npm run test:e2e` (local, full suite) vs `npm run test:e2e:prod` (`--grep @smoke`
   against `https://balonkydecor.cz`). **Never** widen prod's `--grep` filter to catch
   `cart.spec.ts`/`checkout.spec.ts`/`account.spec.ts`/`admin-order-flow.spec.ts`/
-  `admin-product-clone.spec.ts` — against real GoPay credentials or real admin data
-  those would submit a real payment or create/delete real rows. See
-  `.claude/commands/e2e.md` for the full run procedure (local vs prod) before
-  changing scripts or CI-style automation around these tests.
+  `admin-product-clone.spec.ts`/`admin-settings.spec.ts`/`admin-users.spec.ts`/
+  `admin-categories.spec.ts` — against real GoPay credentials or real admin/site
+  data those would submit a real payment, overwrite real settings, or create/
+  delete real rows. See `.claude/commands/e2e.md` for the full run procedure
+  (local vs prod) before changing scripts or CI-style automation around these
+  tests.
 - New tests default to local-only (no tag) unless they are genuinely read-only and
   safe to run against the live site — then tag `@smoke`.
 
@@ -68,6 +70,20 @@ DB fixtures live in `tests/e2e/helpers/`.
   `tests/e2e/helpers/admin-fixture.ts`, which shells out directly to the same Docker
   MySQL container (`docker compose exec db mysql ...`) other local workflows use —
   mirroring the `uniqid()`-fixture convention from `.claude/rules/unit-testing.md`.
+  The same file also exports `createTempAdmin()`/`deleteTempAdmin()` — check which
+  role a controller actually requires before picking one: `UserController` calls
+  `requireRole($response, 'admin')` on every action (`admin-users.spec.ts` needs
+  `createTempAdmin()`), while `CategoryController`/`SettingsController` have no
+  role check at all (an editor-role session is enough).
+- Same pattern for categories: `createTempCategory()`/`deleteTempCategory()` in
+  `tests/e2e/helpers/category-fixture.ts` — inserts a `categories` row plus one
+  `category_t` row (`lang_code = 'cs'`) directly via SQL, same
+  `Translator::autoFill()`-avoidance reasoning as products below. A spec that
+  specifically exercises the *create* UI flow (not just needs a category to
+  exist) can still drive the real form — just fill every language's `name`
+  field yourself first (`AdminCategoryFormPage.fillName()` per lang) so
+  `autoFill()` has nothing blank left to translate; it only calls the real API
+  for a language whose field is empty (`src/Services/Translator.php:63-66`).
 - Same pattern for products: `createTempProduct()`/`deleteTempProduct()`/
   `productExistsWithSku()` in `tests/e2e/helpers/product-fixture.ts` insert/remove a
   throwaway row directly via SQL rather than going through the admin
@@ -78,11 +94,15 @@ DB fixtures live in `tests/e2e/helpers/`.
   action has a side effect like that (email send, external API call, etc.), not
   just for admin/product rows specifically.
 - Deleting the parent row is enough when child tables cascade: `products.id` →
-  `product_t`/`product_images`/`product_subtypes`/`product_specs` are all `ON
-  DELETE CASCADE` (`database/migrations/V001`, `V021`, `V022`), so
-  `deleteTempProduct(id)` alone cleans up anything a test action (e.g. a clone/split)
-  minted from that product too. Check the migration before adding manual cleanup
-  for a new child table — it may already be unnecessary.
+  `product_t`/`product_images`/`product_subtypes`/`product_specs`, and
+  `categories.id` → `category_t`, are all `ON DELETE CASCADE` (`database/migrations/
+  V001`, `V021`, `V022`), so `deleteTempProduct(id)`/`deleteTempCategory(id)` alone
+  clean up anything a test action (e.g. a clone/split) minted from that row too.
+  Check the migration before adding manual cleanup for a new child table — it may
+  already be unnecessary. The reverse isn't true: `products.category_id` has no
+  `ON DELETE` clause (InnoDB default `RESTRICT`), so a test that attaches a temp
+  product to a temp category must delete the product *before* the category in
+  `finally`, or the category delete fails outright.
 - That helper uses `execFileSync` (argv array, no shell), not `execSync` — a bcrypt
   hash contains literal `$` characters that a shell would try to expand as variables
   inside a double-quoted `-e` argument. Keep new DB-shelling fixtures on
@@ -112,6 +132,13 @@ DB fixtures live in `tests/e2e/helpers/`.
   URL already matches. Use `page.waitForURL(url => url.pathname !== oldPath)` first
   so a subsequent `page.url()` read (e.g. into `AdminProductFormPage.idFromUrl()`)
   can't race and silently return the old id.
+- `AuthController::loginForm()` redirects an already-authenticated session
+  straight to `/admin` without ever rendering the login form
+  (`AuthController.php:13-15`). A test that needs to log in as a *second* user
+  on the same `page` (e.g. admin creates a user, then logs in as them to prove
+  it worked) must call `AdminLoginPage.logout()` first — otherwise
+  `.goto('/admin/login')` bounces away before the email/password inputs exist,
+  and the next `.fill()` just times out waiting for them.
 
 ## Testing server-side behavior directly with `page.request`
 

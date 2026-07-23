@@ -22,7 +22,7 @@ test('editor clones a product into an inactive copy with a new SKU and the same 
   const source = createTempProduct();
   let cloneId: number | undefined;
   try {
-    await new LoginFlow(page).loginAsEditor(editor.email, editor.password);
+    await new LoginFlow(page).login(editor.email, editor.password);
 
     const list = new AdminProductListPage(page);
     await list.goto();
@@ -53,7 +53,7 @@ test('editor splits an image off a product; the image moves and the source deact
   const source = createTempProduct();
   let cloneId: number | undefined;
   try {
-    await new LoginFlow(page).loginAsEditor(editor.email, editor.password);
+    await new LoginFlow(page).login(editor.email, editor.password);
 
     const form = new AdminProductFormPage(page);
     await form.goto(source.id);
@@ -91,7 +91,7 @@ test('editor splits an image off a product; the image moves and the source deact
 test('cloning a nonexistent product returns 404', async ({ page }) => {
   const editor = createTempEditor();
   try {
-    await new LoginFlow(page).loginAsEditor(editor.email, editor.password);
+    await new LoginFlow(page).login(editor.email, editor.password);
 
     const response = await page.request.post('/admin/products/999999999/clone');
     expect(response.status()).toBe(404);

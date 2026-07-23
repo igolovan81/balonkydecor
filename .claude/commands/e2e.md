@@ -35,12 +35,15 @@ Usage: `/e2e` or `/e2e local` — full suite, local. `/e2e prod` — smoke subse
 
 **Only runs tests tagged `@smoke`** — read-only checks (homepage, language switcher,
 404 handling). This is deliberate: `cart.spec.ts`, `checkout.spec.ts`,
-`account.spec.ts`, and `admin-order-flow.spec.ts` are all excluded because they
-mutate real data — checkout creates a real order and, against production's actual
-GoPay credentials (no dev bypass there), would submit a real payment request;
-`account.spec.ts` registers and deletes a real customer row; `admin-order-flow.spec.ts`
-inserts/deletes a real admin user row via the DB fixture. Never widen the `--grep`
-filter to include them against prod.
+`account.spec.ts`, `admin-order-flow.spec.ts`, `admin-product-clone.spec.ts`,
+`admin-settings.spec.ts`, `admin-users.spec.ts`, and `admin-categories.spec.ts` are
+all excluded because they mutate real data — checkout creates a real order and,
+against production's actual GoPay credentials (no dev bypass there), would submit a
+real payment request; `account.spec.ts` registers and deletes a real customer row;
+the `admin-*` specs insert/delete real admin/editor/product/category rows via DB
+fixtures, and `admin-settings.spec.ts` temporarily overwrites real site settings
+(restored after each test, but still not something to risk against the live site).
+Never widen the `--grep` filter to include them against prod.
 
 1. Confirm with the user before running against the live site if there's any doubt —
    this hits `https://balonkydecor.cz` over the network.

@@ -21,12 +21,12 @@ function mysql(sql: string): string {
 // insert a throwaway product, avoiding the createSubmit() controller path
 // (and its Translator::autoFill() call, which would otherwise hit the real
 // MyMemory API for every language left blank).
-export function createTempProduct(): TempProduct {
+export function createTempProduct(categoryId: number = CATEGORY_ID): TempProduct {
   const sku = `e2e-clone-test-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
   mysql(
     `INSERT INTO products (sku, price, category_id, is_active, stock_type, stock_qty)
-     VALUES ('${sku}', '199.00', ${CATEGORY_ID}, 1, 'unlimited', 0)`
+     VALUES ('${sku}', '199.00', ${categoryId}, 1, 'unlimited', 0)`
   );
   const id = parseInt(mysql(`SELECT id FROM products WHERE sku = '${sku}'`), 10);
   mysql(`INSERT INTO product_t (product_id, lang_code, name) VALUES (${id}, 'cs', 'E2E Clone Test Product')`);

@@ -7,7 +7,10 @@ import { AdminLoginPage } from '../pages/AdminLoginPage';
 export class LoginFlow {
   constructor(private readonly page: Page) {}
 
-  async loginAsEditor(email: string, password: string): Promise<void> {
+  // Role-agnostic despite the class name's origin (extracted from admin/
+  // editor order-flow tests) — it only fills AdminLoginPage's two fields and
+  // submits, so it works identically for an admin-role session too.
+  async login(email: string, password: string): Promise<void> {
     const adminLogin = new AdminLoginPage(this.page);
     await adminLogin.goto();
     await adminLogin.login(email, password);
