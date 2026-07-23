@@ -1,0 +1,30 @@
+{% extends "layout/base.twig" %}
+
+{% block title %}{{ t('account.nav_delete') }} — {{ t('site.name') }}{% endblock %}
+{% block meta_desc %}{% endblock %}
+{% block head %}<meta name="robots" content="noindex,nofollow">{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container"><h1>{{ t('account.title') }} — {{ t('account.nav_delete') }}</h1></div>
+</section>
+<div class="container shop-layout">
+    <aside class="shop-sidebar">
+        {% include 'public/account/_sidebar.twig' %}
+    </aside>
+    <div>
+        <p>{{ t('account.delete_warning') }}</p>
+        {% if error %}
+        <p class="form-error">{{ t(error) }}</p>
+        {% endif %}
+        <form action="/{{ lang }}/account/delete" method="POST" class="contact-form"
+              onsubmit="return confirm('{{ t('account.delete_confirm') }}')">
+            <div class="form-group">
+                <label for="current_password">{{ t('account.current_password') }}</label>
+                <input type="password" id="current_password" name="current_password" required>
+            </div>
+            <button type="submit" class="btn btn-danger">{{ t('account.delete_account') }}</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

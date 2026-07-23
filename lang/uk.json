@@ -21,6 +21,7 @@
   "account.member_since": "Реєстрація з {date}",
   "account.name": "Ім'я",
   "account.nav_customer_info": "Особисті дані",
+  "account.nav_delete": "Видалити обліковий запис",
   "account.nav_orders": "Замовлення",
   "account.nav_password": "Зміна пароля",
   "account.new_password": "Новий пароль",

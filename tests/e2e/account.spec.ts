@@ -24,9 +24,12 @@ test('register, log in, log out, log back in, and delete the account', async ({ 
   await page.locator('form.contact-form button[type="submit"]').click();
   await expect(page).toHaveURL(/\/cs\/account$/);
 
+  await page.locator('a[href="/cs/account/delete"]').click();
+  await expect(page).toHaveURL(/\/cs\/account\/delete$/);
+
   page.once('dialog', dialog => dialog.accept());
-  await page.locator('form[action="/cs/account/delete"] input[name="current_password"]').fill(password);
-  await page.locator('form[action="/cs/account/delete"] button[type="submit"]').click();
+  await page.locator('input[name="current_password"]').fill(password);
+  await page.locator('form.contact-form button[type="submit"]').click();
   await expect(page).toHaveURL(/\/cs\/$/);
 
   await page.goto('/cs/login');

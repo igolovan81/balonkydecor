@@ -21,6 +21,7 @@
   "account.member_since": "Registrácia od {date}",
   "account.name": "Meno",
   "account.nav_customer_info": "Osobné údaje",
+  "account.nav_delete": "Zmazať účet",
   "account.nav_orders": "Objednávky",
   "account.nav_password": "Zmena hesla",
   "account.new_password": "Nové heslo",

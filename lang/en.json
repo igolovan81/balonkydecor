@@ -21,6 +21,7 @@
   "account.member_since": "Member since {date}",
   "account.name": "Name",
   "account.nav_customer_info": "Customer Info",
+  "account.nav_delete": "Delete Account",
   "account.nav_orders": "Orders",
   "account.nav_password": "Change Password",
   "account.new_password": "New password",

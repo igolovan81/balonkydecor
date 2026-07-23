@@ -289,6 +289,17 @@ class AccountController extends BaseController
         return $response->withHeader('Location', "/{$lang}/account")->withStatus(302);
     }
 
+    public function deleteForm(Request $request, Response $response, array $args): Response
+    {
+        $customer = $this->requireLogin($request);
+        if (!$customer) {
+            $lang = $request->getAttribute('lang');
+            return $response->withHeader('Location', "/{$lang}/login")->withStatus(302);
+        }
+
+        return $this->render($request, $response, 'public/account/delete.twig');
+    }
+
     public function deleteAccount(Request $request, Response $response, array $args): Response
     {
         $customer = $this->requireLogin($request);
@@ -301,9 +312,8 @@ class AccountController extends BaseController
         $currentPassword = $body['current_password'] ?? '';
 
         if ($currentPassword === '' || !password_verify($currentPassword, $customer['password_hash'])) {
-            return $this->render($request, $response, 'public/account/customer-info.twig', [
-                'account'      => $customer,
-                'delete_error' => 'account.error_current_password',
+            return $this->render($request, $response, 'public/account/delete.twig', [
+                'error' => 'account.error_current_password',
             ]);
         }
 

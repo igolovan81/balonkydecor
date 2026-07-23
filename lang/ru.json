@@ -21,6 +21,7 @@
   "account.member_since": "Регистрация с {date}",
   "account.name": "Имя",
   "account.nav_customer_info": "Личные данные",
+  "account.nav_delete": "Удалить аккаунт",
   "account.nav_orders": "Заказы",
   "account.nav_password": "Смена пароля",
   "account.new_password": "Новый пароль",
