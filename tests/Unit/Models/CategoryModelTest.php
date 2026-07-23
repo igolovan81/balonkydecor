@@ -158,4 +158,26 @@ class CategoryModelTest extends TestCase
         $this->assertSame('Český název', $csRow['name']);
         $this->assertSame('English Name', $enRow['name']);
     }
+
+    public function test_withProductCounts_reflects_products_in_category(): void
+    {
+        $pdo  = Database::getConnection();
+        $slug = 'test-cat-counts-' . uniqid();
+        $pdo->prepare('INSERT INTO categories (slug) VALUES (?)')->execute([$slug]);
+        $catId = (int) $pdo->lastInsertId();
+        $pdo->prepare("INSERT INTO category_t (category_id, lang_code, name) VALUES (?, 'en', 'Counts Category')")
+            ->execute([$catId]);
+
+        foreach (range(1, 3) as $i) {
+            $pdo->prepare('INSERT INTO products (category_id, sku, price) VALUES (?, ?, 9.99)')
+                ->execute([$catId, 'COUNT-TEST-' . $i . '-' . uniqid()]);
+        }
+
+        $rows = CategoryModel::withProductCounts('en');
+        $row  = current(array_filter($rows, fn ($r) => $r['id'] === $catId));
+
+        $this->assertNotFalse($row);
+        $this->assertSame('Counts Category', $row['name']);
+        $this->assertSame(3, $row['product_count']);
+    }
 }

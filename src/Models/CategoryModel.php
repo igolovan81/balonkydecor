@@ -144,4 +144,27 @@ class CategoryModel
             $stmt->execute([$id, $lang, $t['name'], $t['description'] ?? '', $t['legal_notice'] ?? null]);
         }
     }
+
+    public static function withProductCounts(string $lang): array
+    {
+        $pdo  = Database::getConnection();
+        $stmt = $pdo->prepare(
+            'SELECT c.id, c.slug, COALESCE(t.name, c.slug) AS name, COUNT(p.id) AS product_count
+             FROM categories c
+             LEFT JOIN category_t t ON t.category_id = c.id AND t.lang_code = :lang
+             LEFT JOIN products p ON p.category_id = c.id
+             GROUP BY c.id, c.slug, t.name
+             ORDER BY product_count DESC'
+        );
+        $stmt->execute(['lang' => $lang]);
+        return array_map(
+            fn (array $row) => [
+                'id'            => (int) $row['id'],
+                'slug'          => $row['slug'],
+                'name'          => $row['name'],
+                'product_count' => (int) $row['product_count'],
+            ],
+            $stmt->fetchAll()
+        );
+    }
 }
