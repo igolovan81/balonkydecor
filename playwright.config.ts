@@ -1,7 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const PORT = 8080;
-const BASE_URL = `http://localhost:${PORT}`;
+const BASE_URL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`;
+const isLocal = /^https?:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(BASE_URL);
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -16,10 +17,14 @@ export default defineConfig({
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
   ],
-  webServer: {
-    command: `php -S localhost:${PORT} -t www`,
-    url: `${BASE_URL}/cs/`,
-    reuseExistingServer: !process.env.CI,
-    cwd: __dirname,
-  },
+  // Only manage a local PHP server when targeting localhost — a prod run
+  // (E2E_BASE_URL pointing at balonkydecor.cz) must never spin one up.
+  webServer: isLocal
+    ? {
+        command: `php -S localhost:${PORT} -t www`,
+        url: `${BASE_URL}/cs/`,
+        reuseExistingServer: !process.env.CI,
+        cwd: __dirname,
+      }
+    : undefined,
 });

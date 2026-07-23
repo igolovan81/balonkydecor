@@ -1,5 +1,10 @@
 import { test, expect } from '@playwright/test';
 
+// Local-only: NOT tagged @smoke, and must never run against production.
+// It creates a real order and, wherever GoPay credentials are actually
+// configured (prod), would submit a real payment request — this test
+// only works because local dev has no gopay_go_id set (dev bypass).
+
 const DEMO_SKU = 'NAR-SADA-KLASIK';
 
 test('full checkout flow completes via the GoPay dev bypass', async ({ page }) => {

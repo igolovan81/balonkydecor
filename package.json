@@ -4,7 +4,8 @@
   "description": "Playwright end-to-end tests for BalonkyDecor (dev tooling only, not deployed)",
   "scripts": {
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:prod": "E2E_BASE_URL=https://balonkydecor.cz playwright test --grep @smoke"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0"
