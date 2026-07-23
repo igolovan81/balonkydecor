@@ -1,6 +1,9 @@
 <?php
 namespace App\Models;
 
+use App\Services\AppLogger;
+use App\Services\SlowQueryLogger;
+use App\Services\TimedStatement;
 use PDO;
 
 class Database
@@ -22,6 +25,10 @@ class Database
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_EMULATE_PREPARES   => false,
             ]);
+            self::$connection->setAttribute(
+                PDO::ATTR_STATEMENT_CLASS,
+                [TimedStatement::class, [new SlowQueryLogger(AppLogger::instance())]]
+            );
         }
         return self::$connection;
     }
