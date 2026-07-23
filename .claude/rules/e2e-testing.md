@@ -157,9 +157,15 @@ const response = await page.request.post(`/admin/orders/${orderNumber}/status`, 
   `response.headers()['location']` — used for "unauthenticated request → redirected
   to `/admin/login`, and nothing was created/changed" cases in both
   `admin-order-flow.spec.ts` and `admin-product-clone.spec.ts`.
-- Checking a 404: `page.goto()` or `page.request.get()` both work — `expect(response
-  ?.status()).toBe(404)`; use whichever the rest of that test already needs (a full
-  navigation vs. a bare status check).
+- Checking a 404: **prefer `page.request.get()` over `page.goto()`** when the test
+  doesn't otherwise need a real page load — a bodyless 404 response (this app never
+  writes a body for `$response->withStatus(404)`) occasionally makes headed
+  Chromium (`npm run test:e2e:headed`, see `.claude/commands/e2e.md`) fail the
+  navigation with `net::ERR_HTTP_RESPONSE_CODE_FAILURE` instead of resolving
+  `page.goto()` with the response — headless doesn't have this problem, so it's easy
+  to miss until someone runs headed. `page.request.get()` sidesteps it entirely since
+  it's a raw HTTP call, no navigation involved. Use `page.goto()` only when the test
+  needs the resulting page/DOM for something else afterward.
 - After a request-level mutation attempt, still assert the *end state* through a
   page object (e.g. re-`goto()` the admin order page and check
   `statusSelect` still holds the old value) — the point of these tests is proving

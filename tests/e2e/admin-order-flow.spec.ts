@@ -131,8 +131,12 @@ test('editor visiting an unknown order number gets a 404', async ({ page }) => {
   try {
     await new LoginFlow(page).login(editor.email, editor.password);
 
-    const response = await page.goto('/admin/orders/BD-NONEXISTENT-00000');
-    expect(response?.status()).toBe(404);
+    // A bare status check, not a real navigation — page.request avoids a
+    // Chromium quirk where --headed sometimes turns a bodyless 404 response
+    // into a net::ERR_HTTP_RESPONSE_CODE_FAILURE instead of resolving
+    // page.goto() with the response (see .claude/rules/e2e-testing.md).
+    const response = await page.request.get('/admin/orders/BD-NONEXISTENT-00000');
+    expect(response.status()).toBe(404);
   } finally {
     deleteTempEditor(editor.email);
   }

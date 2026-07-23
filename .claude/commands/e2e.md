@@ -3,7 +3,8 @@
 Run the Playwright end-to-end suite (`tests/e2e/`), either locally (full suite) or
 against production (`@smoke`-tagged tests only).
 
-Usage: `/e2e` or `/e2e local` — full suite, local. `/e2e prod` — smoke subset, production.
+Usage: `/e2e` or `/e2e local` — full suite, local, headless. `/e2e headed` — same,
+with a visible browser window (debugging). `/e2e prod` — smoke subset, production.
 
 ## Local run (default, no arg or `local`)
 
@@ -30,6 +31,36 @@ Usage: `/e2e` or `/e2e local` — full suite, local. `/e2e prod` — smoke subse
 4. Report the pass/fail summary. On failure, note that a trace is captured
    (`trace: on-first-retry`) and point to `npx playwright show-report` for the HTML
    report (`playwright-report/`, gitignored).
+
+## Headed run (`headed`)
+
+Same suite, but with a real visible Chromium window instead of headless — useful
+for watching a test run or debugging one interactively, not for routine full-suite
+runs:
+
+```bash
+npm run test:e2e:headed
+```
+
+(equivalent to `playwright test --headed`; append `-- --grep "<name>"` to run just
+one test, e.g. `npm run test:e2e:headed -- --grep "adding a product to the cart"`)
+
+- **Prefer this for one test or a small `--grep` subset, not the full suite.** Many
+  concurrent visible Chromium windows plus the single-threaded `php -S` dev server
+  can starve requests under load — this shows up as spurious timeouts, not real
+  failures (confirmed at both default parallelism and `--workers=2`: several tests
+  failed only under load and passed individually). `--workers=1` removes that
+  specific contention, but a full serial headed run still takes several minutes and
+  can still hit the same occasional unrelated flakes any long e2e run can (e.g. a
+  slow image-processing step) — it's not a substitute for the normal headless
+  `npm run test:e2e` as the pass/fail signal to trust.
+- Two 404-status tests (`home.spec.ts`'s "unknown product returns 404",
+  `admin-order-flow.spec.ts`'s "unknown order number gets a 404") deliberately use
+  `page.request.get()` instead of `page.goto()` — a bodyless 404 response
+  occasionally makes headed Chromium fail navigation with
+  `net::ERR_HTTP_RESPONSE_CODE_FAILURE` instead of resolving with the response.
+  Keep new bare-status-check tests on `page.request` rather than `page.goto()` for
+  the same reason (see `.claude/rules/e2e-testing.md`).
 
 ## Production run (`prod`)
 

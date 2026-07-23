@@ -23,7 +23,10 @@ test('@smoke language switcher navigates to the same page in another language', 
 });
 
 test('@smoke unknown product returns 404', async ({ page }) => {
-  const shop = new ShopPage(page);
-  const response = await shop.gotoProduct('DOES-NOT-EXIST');
-  expect(response?.status()).toBe(404);
+  // A bare status check, not a real navigation — page.request avoids a
+  // Chromium quirk where --headed sometimes turns a bodyless 404 response
+  // into a net::ERR_HTTP_RESPONSE_CODE_FAILURE instead of resolving
+  // page.goto() with the response (see .claude/rules/e2e-testing.md).
+  const response = await page.request.get('/cs/shop/DOES-NOT-EXIST');
+  expect(response.status()).toBe(404);
 });
