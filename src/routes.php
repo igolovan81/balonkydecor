@@ -24,6 +24,7 @@ use App\Controllers\Admin\OrderDashboardController;
 use App\Controllers\Admin\PageController as AdminPageController;
 use App\Controllers\Admin\PageViewController;
 use App\Controllers\Admin\ProductController;
+use App\Controllers\Admin\ProductDashboardController;
 use App\Controllers\Admin\ServiceController as AdminServiceController;
 use App\Controllers\Admin\SettingsController;
 use App\Controllers\Admin\AdminLangController;
@@ -46,6 +47,7 @@ $app->group('/admin', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->get('',           DashboardController::class . ':index');
     $group->get('/dashboard', DashboardController::class . ':index');
     $group->get('/dashboard/orders', OrderDashboardController::class . ':index');
+    $group->get('/dashboard/products', ProductDashboardController::class . ':index');
 
     // Categories
     $group->get('/categories',                     CategoryController::class . ':index');

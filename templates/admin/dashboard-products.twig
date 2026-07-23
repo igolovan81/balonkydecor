@@ -1,0 +1,55 @@
+{% extends "layout/admin-base.twig" %}
+{% block title %}{{ t('dashboard.products.title') }}{% endblock %}
+{% block content %}
+<div class="admin-topbar"><h1>{{ t('dashboard.products.title') }}</h1></div>
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.active_count }}</div>
+        <div class="stat-label">{{ t('dashboard.stats.products_active') }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ categories|length }}</div>
+        <div class="stat-label">{{ t('dashboard.products.stats.categories') }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.low_stock_count }}</div>
+        <div class="stat-label">{{ t('dashboard.products.stats.low_stock') }}</div>
+    </div>
+</div>
+
+<h2>{{ t('dashboard.products.category_breakdown') }}</h2>
+<table class="admin-table">
+    <thead><tr><th>{{ t('dashboard.products.col.category') }}</th><th>{{ t('dashboard.products.col.count') }}</th></tr></thead>
+    <tbody>
+    {% for c in categories %}
+    <tr><td>{{ c.name }}</td><td>{{ c.product_count }}</td></tr>
+    {% else %}
+    <tr><td colspan="2">{{ t('dashboard.products.no_data') }}</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<h2>{{ t('dashboard.products.top_sellers') }}</h2>
+<table class="admin-table">
+    <thead><tr><th>{{ t('dashboard.products.col.product') }}</th><th>{{ t('dashboard.products.col.qty_sold') }}</th></tr></thead>
+    <tbody>
+    {% for s in sellers %}
+    <tr><td>{{ s.name }}</td><td>{{ s.qty_sold }}</td></tr>
+    {% else %}
+    <tr><td colspan="2">{{ t('dashboard.products.no_data') }}</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<h2>{{ t('dashboard.products.recent_activity') }}</h2>
+<table class="admin-table">
+    <thead><tr><th>{{ t('dashboard.products.col.product') }}</th><th>{{ t('dashboard.products.col.updated') }}</th></tr></thead>
+    <tbody>
+    {% for p in recent %}
+    <tr><td><a href="/admin/products/{{ p.id }}/edit">{{ p.name }}</a></td><td>{{ p.updated_at }}</td></tr>
+    {% else %}
+    <tr><td colspan="2">{{ t('dashboard.products.no_data') }}</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
