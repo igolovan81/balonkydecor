@@ -178,6 +178,9 @@ Same session-backed shape as `Cart`: `Wishlist::toggle($sku)`/`Compare::toggle($
 ### Admin auto-translate
 Admin edit forms can call `POST /admin/translate` (route closure in `routes.php`), which uses `Translator::translate()` (MyMemory API) to fill the other languages from the admin's current language.
 
+### Slow query logging
+`Database::getConnection()` sets `PDO::ATTR_STATEMENT_CLASS` to `TimedStatement`, which times every `execute()` call and hands the elapsed seconds to `SlowQueryLogger`. Queries under 0.5s are dropped silently; slower ones are categorized (`MINOR` ≥0.5s, `MEDIUM` ≥1s, `MAJOR` ≥3s, `CRITICAL` ≥6s) and logged via `AppLogger::warning()`. Wired transparently at the single `Database::getConnection()` choke point — no model/controller call site changes needed. Details: `.claude/rules/logging.md`.
+
 ## Database Schema
 
 26 tables as of `V024__hero_slides.sql` (see `database/migrations/` for the authoritative,
@@ -200,6 +203,8 @@ Admin templates use `t('key')` via the `admin_i18n` instance injected by `AdminL
 ## Testing
 
 PHPUnit 11, tests in `tests/Unit/{Models,Services,Middleware}/`. Model tests (and some service tests) use the real Docker MySQL DB — no mocks; fixtures use `uniqid()` slugs/IDs or `INSERT IGNORE` to survive the shared, persistent dev DB. Full conventions in `.claude/rules/unit-testing.md`. Run the whole suite (`php vendor/bin/phpunit`) before committing.
+
+**E2E:** Playwright, `tests/e2e/*.spec.ts`, driven through page objects (`tests/e2e/pages/`), shared assertion-bearing flows (`tests/e2e/workflows/`), and DB fixtures that shell into Docker MySQL directly (`tests/e2e/helpers/`) to avoid side effects like `Translator::autoFill()`'s real MyMemory calls. `@smoke`-tagged tests are read-only and safe against production (`npm run test:e2e:prod`); everything else is local-only (`npm run test:e2e`) because it mutates real data. Full conventions in `.claude/rules/e2e-testing.md`.
 
 ## Deployment
 

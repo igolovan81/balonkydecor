@@ -24,7 +24,7 @@ Multilingual e-commerce website for a Czech helium balloon decoration business. 
 - Session-based authentication with bcrypt passwords
 - Language switcher — admin UI available in all 5 languages (preference stored per user)
 - Dashboard with order statistics
-- Products — CRUD, multilingual name/description/specs, subtypes, image upload (auto-resize), bulk actions, clone
+- Products — CRUD, multilingual name/description/specs, subtypes, image upload (auto-resize), bulk actions, clone/split (split moves one image + its subtypes/specs off into a new product)
 - Categories — CRUD with translations
 - Hero slides — CRUD for the homepage carousel (image, CTA, translations)
 - Services — structured CRUD with translations
@@ -88,6 +88,10 @@ All runtime settings live in the `settings` database table and are editable via 
 
 **Email dev bypass:** Leave the SMTP From field empty. Emails are written to `tmp/mail.log` instead of being sent.
 
+## Logging
+
+Application errors/warnings go to `tmp/app-YYYY-MM-DD.log` (one file per day, pruned by the `log_retention` setting) via a small PSR-3 logger, `AppLogger`. Every DB query is also timed transparently — anything slower than 0.5s is logged with a severity (`MINOR`/`MEDIUM`/`MAJOR`/`CRITICAL` for ≥0.5s/≥1s/≥3s/≥6s respectively) via `SlowQueryLogger`/`TimedStatement`. View logs locally with `lnav` (`./scripts/logs.sh`, or the `/logs` Claude command); see `docs/logging.md` for the full format and retention details.
+
 ## Testing
 
 **Unit tests** use a real MySQL database (Docker must be running).
@@ -96,17 +100,18 @@ All runtime settings live in the `settings` database table and are editable via 
 php vendor/bin/phpunit --testdox
 ```
 
-244 tests covering models, services (cart, wishlist, compare, translator, etc.), I18n, and middleware.
+298 tests covering models, services (cart, wishlist, compare, translator, slow query logging, etc.), I18n, and middleware.
 
 **End-to-end tests** use [Playwright](https://playwright.dev) against a real browser and the PHP built-in server. Requires Docker MySQL running and Node.js installed locally (dev tooling only — not part of the deployed site or the "no build step" public JS).
 
 ```bash
 npm install               # first time only
 npx playwright install chromium   # first time only, downloads the browser
-npm run test:e2e
+npm run test:e2e          # full suite, local
+npm run test:e2e:prod     # @smoke-tagged subset only, against the live site
 ```
 
-Playwright's `webServer` config starts `php -S localhost:8080 -t www` automatically (or reuses one already running). Tests live in `tests/e2e/` and cover the public golden path: homepage/nav, language switching, 404s, add-to-cart, and full checkout via the GoPay dev bypass.
+Playwright's `webServer` config starts `php -S localhost:8080 -t www` automatically (or reuses one already running). 18 tests in `tests/e2e/` cover the public golden path (homepage/nav, language switching, 404s, add-to-cart, full checkout via the GoPay dev bypass) plus admin flows (editor-driven order status changes, product clone/split). Specs are driven through page objects (`tests/e2e/pages/`) and shared login/assertion flows (`tests/e2e/workflows/`); throwaway admin/product fixtures are inserted directly into Docker MySQL (`tests/e2e/helpers/`) rather than through the admin UI, to avoid side effects like real translation-API calls. Only `@smoke`-tagged tests (read-only) are safe to run against production — see `.claude/rules/e2e-testing.md`.
 
 ## Deployment
 
@@ -129,7 +134,7 @@ src/               Application code (Slim 4, PSR-4 autoloaded as App\)
   Controllers/Admin/  Admin panel controllers
   Middleware/      LangMiddleware, AuthMiddleware, AdminLangMiddleware, PageViewMiddleware
   Models/          Static model classes (PDO)
-  Services/        Cart, Wishlist, Compare, GoPay, Mailer, ImageUploader, Notifier
+  Services/        Cart, Wishlist, Compare, GoPay, Mailer, ImageUploader, Notifier, SlowQueryLogger/TimedStatement
   Twig/            I18n Twig extension
 templates/         Twig templates
   layout/          base.twig (public), admin-base.twig (admin)
