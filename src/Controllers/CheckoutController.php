@@ -1,6 +1,7 @@
 <?php
 namespace App\Controllers;
 
+use App\Models\CustomerModel;
 use App\Models\OrderModel;
 use App\Services\Cart;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -16,11 +17,23 @@ class CheckoutController extends BaseController
             return $response->withHeader('Location', "/{$lang}/cart")->withStatus(302);
         }
 
+        $values = [];
+        if (!empty($_SESSION['customer'])) {
+            $customer = CustomerModel::findById((int) $_SESSION['customer']['id']);
+            if ($customer) {
+                $values = [
+                    'customer_name'  => $customer['name']  ?? '',
+                    'customer_email' => $customer['email'] ?? '',
+                    'customer_phone' => $customer['phone'] ?? '',
+                ];
+            }
+        }
+
         return $this->render($request, $response, 'public/checkout/index.twig', [
             'items'  => Cart::items(),
             'total'  => Cart::total(),
             'error'  => false,
-            'values' => [],
+            'values' => $values,
         ]);
     }
 
