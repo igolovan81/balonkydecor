@@ -1,7 +1,11 @@
 <?php
 namespace App\Controllers\Admin;
 
+use App\Models\CustomerModel;
 use App\Models\OrderModel;
+use App\Services\I18n;
+use App\Services\Mailer;
+use App\Services\Seo;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -40,9 +44,39 @@ class OrderController extends AdminBaseController
         $body   = (array) $request->getParsedBody();
         $status = $body['status'] ?? '';
         if (in_array($status, self::STATUSES, true)) {
-            OrderModel::updateStatus($args['number'], $status);
+            $order = OrderModel::findByNumber($args['number']);
+            if ($order && $order['status'] !== $status) {
+                OrderModel::updateStatus($args['number'], $status);
+                $this->notifyStatusChanged($request, $order, $status);
+            }
             $this->flash('success', 'orders.flash.status_changed');
         }
         return $this->redirect($response, '/admin/orders/' . $args['number']);
+    }
+
+    private function notifyStatusChanged(Request $request, array $order, string $newStatus): void
+    {
+        $notificationLang = 'cs';
+        if (!empty($order['customer_id'])) {
+            $customer = CustomerModel::findById((int) $order['customer_id']);
+            if ($customer && !empty($customer['notification_lang'])) {
+                $notificationLang = $customer['notification_lang'];
+            }
+        }
+
+        $i18n = new I18n($notificationLang, __DIR__ . '/../../../lang');
+        $html = $this->fetchEmail($request, 'emails/order-status-changed.twig', [
+            't' => [
+                'intro'  => $i18n->t('email.order_status_changed.intro'),
+                'order'  => $i18n->t('order.title'),
+                'status' => $i18n->t('email.order_status_changed.status'),
+            ],
+            'order'        => $order,
+            'status_label' => $i18n->t('order.status.' . $newStatus),
+            'order_url'    => Seo::canonicalUrl($notificationLang, '/order/' . $order['order_number']),
+        ]);
+        $subject = $i18n->t('email.order_status_changed.subject', ['number' => $order['order_number']]);
+
+        Mailer::send($order['customer_email'], $subject, $html);
     }
 }

@@ -15,11 +15,7 @@ abstract class AdminBaseController
             session_start();
         }
         $flash = $this->getFlash();
-        $i18n  = $request->getAttribute('admin_i18n');
-        $env   = $this->twig->getEnvironment();
-        if ($i18n && !$env->hasExtension(\App\Twig\I18nExtension::class)) {
-            $env->addExtension(new \App\Twig\I18nExtension($i18n));
-        }
+        $this->ensureI18nExtension($request);
         $userId      = (int) ($_SESSION['admin_user']['id'] ?? 0);
         $unreadCount = $userId ? \App\Models\NotificationModel::unreadCount($userId) : 0;
         return $this->twig->render($response, $template, array_merge([
@@ -29,6 +25,23 @@ abstract class AdminBaseController
             'admin_lang'                 => $request->getAttribute('admin_lang', 'cs'),
             'unread_notifications_count' => $unreadCount,
         ], $data));
+    }
+
+    protected function fetchEmail(Request $request, string $template, array $data = []): string
+    {
+        $this->ensureI18nExtension($request);
+        return $this->twig->fetch($template, $data);
+    }
+
+    private function ensureI18nExtension(Request $request): void
+    {
+        $env = $this->twig->getEnvironment();
+        if (!$env->hasExtension(\App\Twig\I18nExtension::class)) {
+            $i18n = $request->getAttribute('admin_i18n');
+            if ($i18n) {
+                $env->addExtension(new \App\Twig\I18nExtension($i18n));
+            }
+        }
     }
 
     protected function flash(string $type, string $message, array $params = []): void
