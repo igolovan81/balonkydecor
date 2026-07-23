@@ -34,6 +34,7 @@ Detailed coding conventions are in `.claude/rules/` — autoloaded by Claude Cod
 - `.claude/rules/frontend.md` — Twig layout inheritance, `t()` translations across all 5 language files, lang-prefixed links, no-build vanilla JS, accessibility requirements
 - `.claude/rules/css-styling.md` — Design tokens in `:root`, 768px/480px breakpoints, flat kebab-case naming with `--modifier` variants, focus/keyboard accessibility, inline SVG assets
 - `.claude/rules/unit-testing.md` — TDD, real Docker MySQL instead of mocks, `uniqid()`/`INSERT IGNORE` fixture patterns for the shared dev DB, test naming and assertion style
+- `.claude/rules/e2e-testing.md` — Playwright page objects in `tests/e2e/pages/`, `@smoke` vs local-only test tagging, prod-safety rules, admin/editor DB fixture pattern
 - `.claude/rules/database.md` — `V0NN__` migration workflow (never edit applied ones), `*_t`/`lang_code` translation tables, idempotent seeds, prepared statements, WEDOS privilege caveats
 - `.claude/rules/seo.md` — `title`/`meta_desc` template blocks with DB overrides, canonical/hreflang via `Seo` service, sitemap registration for new routes, 404 rules, JSON-LD escaping
 
