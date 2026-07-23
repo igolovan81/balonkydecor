@@ -20,6 +20,7 @@
   "account.nav_orders": "Orders",
   "account.nav_password": "Change Password",
   "account.new_password": "New password",
+  "account.notification_lang": "Preferred language for email notifications",
   "account.orders_date": "Date",
   "account.orders_empty": "You have no orders yet.",
   "account.orders_status": "Status",

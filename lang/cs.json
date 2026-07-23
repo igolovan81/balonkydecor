@@ -20,6 +20,7 @@
   "account.nav_orders": "Objednávky",
   "account.nav_password": "Změna hesla",
   "account.new_password": "Nové heslo",
+  "account.notification_lang": "Preferovaný jazyk e-mailových upozornění",
   "account.orders_date": "Datum",
   "account.orders_empty": "Zatím nemáte žádné objednávky.",
   "account.orders_status": "Stav",

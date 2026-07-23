@@ -48,7 +48,7 @@ class AccountController extends BaseController
             ]);
         }
 
-        $customerId = CustomerModel::create($email, password_hash($password, PASSWORD_BCRYPT));
+        $customerId = CustomerModel::create($email, password_hash($password, PASSWORD_BCRYPT), $lang);
         $_SESSION['customer'] = ['id' => $customerId, 'email' => $email];
 
         return $response->withHeader('Location', "/{$lang}/account")->withStatus(302);
@@ -119,15 +119,19 @@ class AccountController extends BaseController
             return $response->withHeader('Location', "/{$lang}/login")->withStatus(302);
         }
 
-        $body            = (array) $request->getParsedBody();
-        $name            = trim($body['name'] ?? '');
-        $phone           = trim($body['phone'] ?? '');
-        $email           = trim($body['email'] ?? '');
-        $currentPassword = $body['current_password'] ?? '';
+        $body              = (array) $request->getParsedBody();
+        $name              = trim($body['name'] ?? '');
+        $phone             = trim($body['phone'] ?? '');
+        $email             = trim($body['email'] ?? '');
+        $currentPassword   = $body['current_password'] ?? '';
+        $notificationLang  = $body['notification_lang'] ?? '';
+        if (!in_array($notificationLang, Seo::LANGUAGES, true)) {
+            $notificationLang = $customer['notification_lang'] ?? 'cs';
+        }
 
         if ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return $this->render($request, $response, 'public/account/customer-info.twig', [
-                'account' => array_merge($customer, ['name' => $name, 'phone' => $phone, 'email' => $email]),
+                'account' => array_merge($customer, ['name' => $name, 'phone' => $phone, 'email' => $email, 'notification_lang' => $notificationLang]),
                 'error'   => 'account.error_invalid',
             ]);
         }
@@ -135,7 +139,7 @@ class AccountController extends BaseController
         if ($email !== $customer['email']) {
             if ($currentPassword === '' || !password_verify($currentPassword, $customer['password_hash'])) {
                 return $this->render($request, $response, 'public/account/customer-info.twig', [
-                    'account' => array_merge($customer, ['name' => $name, 'phone' => $phone, 'email' => $email]),
+                    'account' => array_merge($customer, ['name' => $name, 'phone' => $phone, 'email' => $email, 'notification_lang' => $notificationLang]),
                     'error'   => 'account.error_current_password',
                 ]);
             }
@@ -143,7 +147,7 @@ class AccountController extends BaseController
             $existing = CustomerModel::findByEmail($email);
             if ($existing && (int) $existing['id'] !== (int) $customer['id']) {
                 return $this->render($request, $response, 'public/account/customer-info.twig', [
-                    'account' => array_merge($customer, ['name' => $name, 'phone' => $phone, 'email' => $email]),
+                    'account' => array_merge($customer, ['name' => $name, 'phone' => $phone, 'email' => $email, 'notification_lang' => $notificationLang]),
                     'error'   => 'account.error_email_taken',
                 ]);
             }
@@ -152,7 +156,7 @@ class AccountController extends BaseController
             $_SESSION['customer']['email'] = $email;
         }
 
-        CustomerModel::updateProfile((int) $customer['id'], $name, $phone);
+        CustomerModel::updateProfile((int) $customer['id'], $name, $phone, $notificationLang);
         $this->flash('success', 'account.update_success');
         return $response->withHeader('Location', "/{$lang}/account")->withStatus(302);
     }

@@ -30,6 +30,14 @@
                 <input type="email" id="email" name="email" required value="{{ account.email ?? '' }}">
             </div>
             <div class="form-group">
+                <label for="notification_lang">{{ t('account.notification_lang') }}</label>
+                <select id="notification_lang" name="notification_lang">
+                    {% for code, label in {'cs': 'CZ', 'sk': 'SK', 'en': 'EN', 'uk': 'UA', 'ru': 'RU'} %}
+                    <option value="{{ code }}" {% if (account.notification_lang ?? 'cs') == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
                 <label for="current_password">{{ t('account.current_password') }}</label>
                 <input type="password" id="current_password" name="current_password">
             </div>

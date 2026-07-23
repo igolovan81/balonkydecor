@@ -20,6 +20,7 @@
   "account.nav_orders": "Замовлення",
   "account.nav_password": "Зміна пароля",
   "account.new_password": "Новий пароль",
+  "account.notification_lang": "Бажана мова сповіщень електронною поштою",
   "account.orders_date": "Дата",
   "account.orders_empty": "У вас поки немає замовлень.",
   "account.orders_status": "Статус",
