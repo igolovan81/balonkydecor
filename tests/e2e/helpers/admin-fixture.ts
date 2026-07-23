@@ -18,7 +18,9 @@ const PASSWORD = 'PlaywrightEditor123!';
 // would otherwise try to expand as variables when the hash lands inside a
 // double-quoted -e argument.
 export function createTempEditor(): TempEditor {
-  const email = `e2e-order-flow-editor-${Date.now()}@example.com`;
+  // Date.now() alone collides once enough specs create an editor in the same
+  // millisecond under fullyParallel workers — add a random suffix too.
+  const email = `e2e-order-flow-editor-${Date.now()}-${Math.random().toString(36).slice(2)}@example.com`;
   const hash = execFileSync('php', ['-r', `echo password_hash('${PASSWORD}', PASSWORD_BCRYPT);`])
     .toString()
     .trim();
