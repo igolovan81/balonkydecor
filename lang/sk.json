@@ -1,5 +1,9 @@
 {
   "account.current_password": "Aktuálne heslo (len pri zmene e-mailu)",
+  "account.delete_account": "Zmazať účet",
+  "account.delete_confirm": "Naozaj chcete natrvalo zmazať svoj účet? Túto akciu nemožno vrátiť späť.",
+  "account.delete_success": "Váš účet bol úspešne zmazaný.",
+  "account.delete_warning": "Zmazanie účtu je trvalé a nedá sa vrátiť späť. Vaše doterajšie objednávky zostanú zachované pre naše záznamy, no už nebudú prepojené s vaším účtom.",
   "account.email": "E-mail",
   "account.error_current_password": "Nesprávne aktuálne heslo.",
   "account.error_email_taken": "Tento e-mail je už zaregistrovaný.",

@@ -1,5 +1,9 @@
 {
   "account.current_password": "Aktuální heslo (jen při změně e-mailu)",
+  "account.delete_account": "Smazat účet",
+  "account.delete_confirm": "Opravdu chcete trvale smazat svůj účet? Tuto akci nelze vrátit zpět.",
+  "account.delete_success": "Váš účet byl úspěšně smazán.",
+  "account.delete_warning": "Smazání účtu je trvalé a nelze jej vrátit zpět. Vaše dřívější objednávky zůstanou zachovány pro naše záznamy, ale již nebudou propojeny s vaším účtem.",
   "account.email": "E-mail",
   "account.error_current_password": "Nesprávné aktuální heslo.",
   "account.error_email_taken": "Tento e-mail je již zaregistrován.",

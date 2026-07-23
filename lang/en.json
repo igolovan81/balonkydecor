@@ -1,5 +1,9 @@
 {
   "account.current_password": "Current password (only needed to change email)",
+  "account.delete_account": "Delete Account",
+  "account.delete_confirm": "Are you sure you want to permanently delete your account? This cannot be undone.",
+  "account.delete_success": "Your account has been deleted.",
+  "account.delete_warning": "Deleting your account is permanent and cannot be undone. Your past orders are kept for our records, but will no longer be linked to your account.",
   "account.email": "Email",
   "account.error_current_password": "Incorrect current password.",
   "account.error_email_taken": "This email is already registered.",
