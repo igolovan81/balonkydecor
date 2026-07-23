@@ -50,6 +50,13 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 .cart-link, .wishlist-link, .compare-link, .account-link { order: 3; color: var(--text); text-decoration: none; font-family: var(--ui-font); font-size: .9rem; letter-spacing: .03em; white-space: nowrap; }
 .cart-link:hover, .wishlist-link:hover, .compare-link:hover, .account-link:hover { color: var(--accent); }
 
+/* Nav search box */
+.nav-search { order: 3; display: flex; align-items: center; gap: .35rem; }
+.nav-search input[type="search"] { border: 1px solid var(--border); border-radius: 4px; padding: .35rem .6rem; font-family: var(--ui-font); font-size: .85rem; width: 160px; background: var(--surface); color: var(--text); }
+.nav-search button { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid var(--border); border-radius: 4px; background: none; color: var(--text); cursor: pointer; }
+.nav-search button:hover { color: var(--accent); border-color: var(--accent); }
+.nav-search svg { width: 16px; height: 16px; }
+
 /* Hamburger toggle (hidden above 768px) */
 .nav-toggle { display: none; order: 5; }
 .nav-toggle span { display: block; width: 100%; height: 2px; background: var(--text); }
@@ -63,15 +70,18 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
         order: 3; display: flex; flex-direction: column; justify-content: center; gap: 5px;
         width: 44px; height: 44px; padding: 0; background: none; border: none; cursor: pointer;
     }
-    .main-nav, .lang-switcher { display: none; flex-basis: 100%; }
+    .main-nav, .lang-switcher, .nav-search { display: none; flex-basis: 100%; }
     .main-nav { order: 4; flex-direction: column; gap: 0; }
+    .nav-search { order: 4; padding: .75rem 0; border-top: 1px solid var(--border); }
+    .nav-search input[type="search"] { flex: 1; }
     .main-nav a { padding: .85rem 0; border-top: 1px solid var(--border); font-size: 1rem; }
     .nav-dropdown-trigger { display: flex; padding: .85rem 0; border-top: 1px solid var(--border); font-size: 1rem; }
     .nav-dropdown-menu { position: static; display: block; border: none; padding-left: 1rem; }
     .lang-switcher { order: 5; gap: .75rem; padding: .75rem 0 0; border-top: 1px solid var(--border); }
     .lang-switcher a { padding: .75rem 0; display: inline-block; }
     .header-inner.is-open .main-nav,
-    .header-inner.is-open .lang-switcher { display: flex; }
+    .header-inner.is-open .lang-switcher,
+    .header-inner.is-open .nav-search { display: flex; }
 }
 
 /* Flash messages (mirrors admin.css) */
