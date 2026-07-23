@@ -34,10 +34,13 @@ Usage: `/e2e` or `/e2e local` — full suite, local. `/e2e prod` — smoke subse
 ## Production run (`prod`)
 
 **Only runs tests tagged `@smoke`** — read-only checks (homepage, language switcher,
-404 handling). This is deliberate: `tests/e2e/cart.spec.ts` and
-`tests/e2e/checkout.spec.ts` are excluded because checkout creates a real order and,
-against production's actual GoPay credentials (no dev bypass there), would submit a
-real payment request. Never widen the `--grep` filter to include them against prod.
+404 handling). This is deliberate: `cart.spec.ts`, `checkout.spec.ts`,
+`account.spec.ts`, and `admin-order-flow.spec.ts` are all excluded because they
+mutate real data — checkout creates a real order and, against production's actual
+GoPay credentials (no dev bypass there), would submit a real payment request;
+`account.spec.ts` registers and deletes a real customer row; `admin-order-flow.spec.ts`
+inserts/deletes a real admin user row via the DB fixture. Never widen the `--grep`
+filter to include them against prod.
 
 1. Confirm with the user before running against the live site if there's any doubt —
    this hits `https://balonkydecor.cz` over the network.
@@ -58,3 +61,7 @@ real payment request. Never widen the `--grep` filter to include them against pr
   other host it does not, since spinning up a local server would be irrelevant.
 - Tests live in `tests/e2e/`, config in `playwright.config.ts` — see also the
   "Testing" section in `README.md`.
+- Specs drive the UI through page objects in `tests/e2e/pages/` rather than inlining
+  locators; DB fixtures (e.g. the throwaway admin/editor used by
+  `admin-order-flow.spec.ts`) live in `tests/e2e/helpers/`. Conventions for both are
+  in `.claude/rules/e2e-testing.md` — read it before adding a new spec or page object.
