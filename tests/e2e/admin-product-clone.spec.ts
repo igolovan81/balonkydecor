@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
 import { createTempEditor, deleteTempEditor } from './helpers/admin-fixture';
 import { createTempProduct, deleteTempProduct, productExistsWithSku } from './helpers/product-fixture';
-import { AdminLoginPage } from './pages/AdminLoginPage';
 import { AdminProductListPage } from './pages/AdminProductListPage';
 import { AdminProductFormPage } from './pages/AdminProductFormPage';
+import { LoginFlow } from './workflows/LoginFlow';
 
 // Local-only: NOT tagged @smoke. Creates real (throwaway) product and admin
 // user rows via fixture helpers — must never run against production
@@ -17,19 +17,12 @@ const PNG_BUFFER = Buffer.from(
   'base64'
 );
 
-async function loginAsEditor(page: import('@playwright/test').Page, email: string, password: string): Promise<void> {
-  const adminLogin = new AdminLoginPage(page);
-  await adminLogin.goto();
-  await adminLogin.login(email, password);
-  await expect(page).toHaveURL(/\/admin\/?$/);
-}
-
 test('editor clones a product into an inactive copy with a new SKU and the same name', async ({ page }) => {
   const editor = createTempEditor();
   const source = createTempProduct();
   let cloneId: number | undefined;
   try {
-    await loginAsEditor(page, editor.email, editor.password);
+    await new LoginFlow(page).loginAsEditor(editor.email, editor.password);
 
     const list = new AdminProductListPage(page);
     await list.goto();
@@ -60,7 +53,7 @@ test('editor splits an image off a product; the image moves and the source deact
   const source = createTempProduct();
   let cloneId: number | undefined;
   try {
-    await loginAsEditor(page, editor.email, editor.password);
+    await new LoginFlow(page).loginAsEditor(editor.email, editor.password);
 
     const form = new AdminProductFormPage(page);
     await form.goto(source.id);
@@ -98,7 +91,7 @@ test('editor splits an image off a product; the image moves and the source deact
 test('cloning a nonexistent product returns 404', async ({ page }) => {
   const editor = createTempEditor();
   try {
-    await loginAsEditor(page, editor.email, editor.password);
+    await new LoginFlow(page).loginAsEditor(editor.email, editor.password);
 
     const response = await page.request.post('/admin/products/999999999/clone');
     expect(response.status()).toBe(404);

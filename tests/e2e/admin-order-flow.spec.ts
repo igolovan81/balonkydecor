@@ -4,9 +4,9 @@ import { ProductPage } from './pages/ProductPage';
 import { CartPage } from './pages/CartPage';
 import { CheckoutPage } from './pages/CheckoutPage';
 import { OrderPage } from './pages/OrderPage';
-import { AdminLoginPage } from './pages/AdminLoginPage';
 import { AdminOrderPage } from './pages/AdminOrderPage';
 import { AdminOrderListPage } from './pages/AdminOrderListPage';
+import { LoginFlow } from './workflows/LoginFlow';
 
 // Local-only: NOT tagged @smoke. Creates a real order and a real (throwaway)
 // admin user row via the fixture helper — must never run against production
@@ -38,13 +38,6 @@ async function checkout(page: Page): Promise<string> {
   return OrderPage.numberFromUrl(page.url());
 }
 
-async function loginAsEditor(page: Page, email: string, password: string): Promise<void> {
-  const adminLogin = new AdminLoginPage(page);
-  await adminLogin.goto();
-  await adminLogin.login(email, password);
-  await expect(page).toHaveURL(/\/admin\/?$/);
-}
-
 async function setOrderStatus(page: Page, orderNumber: string, status: string): Promise<void> {
   const adminOrder = new AdminOrderPage(page);
   await adminOrder.goto(orderNumber);
@@ -59,7 +52,7 @@ test('editor moves a 1-product order from paid to ready to completed', async ({ 
     await addProductToCart(page, 'NAR-SADA-KLASIK');
     const orderNumber = await checkout(page);
 
-    await loginAsEditor(page, editor.email, editor.password);
+    await new LoginFlow(page).loginAsEditor(editor.email, editor.password);
 
     await setOrderStatus(page, orderNumber, 'ready');
     await setOrderStatus(page, orderNumber, 'completed');
@@ -76,7 +69,7 @@ test('editor moves a 3-product order from paid to ready to cancelled', async ({ 
     await addProductToCart(page, 'SVA-OBLOUK-BILY');
     const orderNumber = await checkout(page);
 
-    await loginAsEditor(page, editor.email, editor.password);
+    await new LoginFlow(page).loginAsEditor(editor.email, editor.password);
 
     await setOrderStatus(page, orderNumber, 'ready');
     await setOrderStatus(page, orderNumber, 'cancelled');
@@ -91,7 +84,7 @@ test('editor skips ready and completes an order straight from paid', async ({ pa
     await addProductToCart(page, 'NAR-SADA-KLASIK');
     const orderNumber = await checkout(page);
 
-    await loginAsEditor(page, editor.email, editor.password);
+    await new LoginFlow(page).loginAsEditor(editor.email, editor.password);
 
     await setOrderStatus(page, orderNumber, 'completed');
   } finally {
@@ -105,7 +98,7 @@ test('editor resubmitting the current status is a no-op', async ({ page }) => {
     await addProductToCart(page, 'NAR-SADA-KLASIK');
     const orderNumber = await checkout(page);
 
-    await loginAsEditor(page, editor.email, editor.password);
+    await new LoginFlow(page).loginAsEditor(editor.email, editor.password);
 
     await setOrderStatus(page, orderNumber, 'paid');
     await setOrderStatus(page, orderNumber, 'paid');
@@ -120,7 +113,7 @@ test('order list filter shows an order under its own status and hides it under o
     await addProductToCart(page, 'NAR-SADA-KLASIK');
     const orderNumber = await checkout(page);
 
-    await loginAsEditor(page, editor.email, editor.password);
+    await new LoginFlow(page).loginAsEditor(editor.email, editor.password);
 
     const list = new AdminOrderListPage(page);
     await list.goto('paid');
@@ -136,7 +129,7 @@ test('order list filter shows an order under its own status and hides it under o
 test('editor visiting an unknown order number gets a 404', async ({ page }) => {
   const editor = createTempEditor();
   try {
-    await loginAsEditor(page, editor.email, editor.password);
+    await new LoginFlow(page).loginAsEditor(editor.email, editor.password);
 
     const response = await page.goto('/admin/orders/BD-NONEXISTENT-00000');
     expect(response?.status()).toBe(404);
@@ -151,7 +144,7 @@ test('a tampered status value outside the allowed list is rejected server-side',
     await addProductToCart(page, 'NAR-SADA-KLASIK');
     const orderNumber = await checkout(page);
 
-    await loginAsEditor(page, editor.email, editor.password);
+    await new LoginFlow(page).loginAsEditor(editor.email, editor.password);
 
     // Bypasses the <select>'s fixed option list to simulate a tampered
     // request — the server must reject it, not just the browser UI.
@@ -181,7 +174,7 @@ test('an unauthenticated status change request is redirected to login and leaves
     expect(response.status()).toBe(302);
     expect(response.headers()['location']).toBe('/admin/login');
 
-    await loginAsEditor(page, editor.email, editor.password);
+    await new LoginFlow(page).loginAsEditor(editor.email, editor.password);
     const adminOrder = new AdminOrderPage(page);
     await adminOrder.goto(orderNumber);
     await expect(adminOrder.statusSelect).toHaveValue('paid');

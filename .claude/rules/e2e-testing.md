@@ -29,6 +29,15 @@ Playwright, TypeScript, no build step (dev tooling only — not deployed). Confi
 - Adding a new public page or flow: add/extend a page object under `tests/e2e/pages/`
   rather than inlining `page.locator(...)` calls in the spec — this is the whole point
   of the refactor from raw specs to page objects, don't regress it.
+- A multi-step action that orchestrates one or more page objects *and* is shared
+  across more than one spec file (e.g. logging in as an editor before getting to the
+  actual test) belongs in `tests/e2e/workflows/` as its own class (`LoginFlow`), not
+  duplicated as a local `async function` in each spec. Unlike page objects, workflow
+  classes may contain `expect()` — that's the point of the split: page objects stay
+  reusable locator/navigation primitives, workflows are the assertion-bearing
+  orchestration reused across specs. A helper used by only one spec file still stays
+  local to that file (e.g. `setOrderStatus()` in `admin-order-flow.spec.ts`); promote
+  it to `workflows/` only once a second spec needs the same steps.
 - Where a value must be parsed out of a URL rather than filled into a form (e.g. the
   order number minted by `OrderModel::create()`), expose it as a static helper on the
   relevant page object (`OrderPage.numberFromUrl()`), not a regex duplicated in every
