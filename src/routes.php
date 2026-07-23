@@ -20,6 +20,7 @@ use App\Controllers\Admin\GalleryController as AdminGalleryController;
 use App\Controllers\Admin\HeroSlideController;
 use App\Controllers\Admin\NotificationController;
 use App\Controllers\Admin\OrderController as AdminOrderController;
+use App\Controllers\Admin\OrderDashboardController;
 use App\Controllers\Admin\PageController as AdminPageController;
 use App\Controllers\Admin\PageViewController;
 use App\Controllers\Admin\ProductController;
@@ -44,6 +45,7 @@ $app->post('/admin/setup', AuthController::class . ':setupSubmit');
 $app->group('/admin', function (\Slim\Routing\RouteCollectorProxy $group) {
     $group->get('',           DashboardController::class . ':index');
     $group->get('/dashboard', DashboardController::class . ':index');
+    $group->get('/dashboard/orders', OrderDashboardController::class . ':index');
 
     // Categories
     $group->get('/categories',                     CategoryController::class . ':index');
